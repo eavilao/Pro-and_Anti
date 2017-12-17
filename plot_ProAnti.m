@@ -1,8 +1,11 @@
-function plot_ProAnti(trialData, i, plottype)
+function plot_ProAnti(trialData, i, plotType)
 
 % Needed: trialData.mat
+% Input:    trialData  - output from extractWholeNeuronResults.m
+%           i - cell you want to plot
+%           plotType - plot you want (e.g. raster, psth, etc.)
 
-switch plottype
+switch plotType
     
     case 'raster'
 

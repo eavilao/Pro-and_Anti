@@ -8,3 +8,5 @@ timepoints = [timepoints(1)-binwidth timepoints timepoints(end)+binwidth];
 % throw away histogram edges
 nspk = nspk(2:end-1);
 timepoints = timepoints(2:end-1);
+
+

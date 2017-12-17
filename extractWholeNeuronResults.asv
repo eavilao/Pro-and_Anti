@@ -80,8 +80,15 @@ clear i j proTrial antiTrial
 % gather separately for pro and anti
 for cellNum = 1:length(trialData)
     %pro
-    
+    for trialNum = 1:length(trialData(cellNum).pro.trial)
+        trialData(cellNum).pro.trial(trialNum).nspk_saccWindow = trialData(1).pro.trial(1).tspk_SS - trialData(1).pro.trial(1).saccadeOnset)
+    end 
     %anti
+    for trialNum = 1:length(trialData(cellNum).anti.trial)
+        trialData(cellNum).anti.trial(trialNum).ts_saccWindow
+        trialData(cellNum).anti.trial(trialNum).nspk_saccWindow = (trialData(1).anti.trial(1).tspk_SS - trialData(1).anti.trial(1).saccadeOnset)-100:...
+            (trialData(1).anti.trial(1).tspk_SS - trialData(1).anti.trial(1).saccadeOnset)+100;
+    end 
     
 end
 
