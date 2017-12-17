@@ -80,7 +80,11 @@ clear i j proTrial antiTrial
 % gather separately for pro and anti
 for cellNum = 1:length(trialData)
     %pro
-    
+    for trialNum = trialData(cellNum).pro.trial
+    sacc_window = trialData(cellNum).pro.trial(trialNum).tspk_SS -trialData(cellNum).pro.trial(trialNum).saccadeOnset; % align to saccade onset
+    win_indx = find(sacc_window>=-0.1 & sacc_window<=0.1); % get spks that happened in sacc window
+    trialData(cellNum).pro.trial(trialNum).nspk_saccWin = sacc_window(win_inx); 
+    end
     %anti
     
 end
