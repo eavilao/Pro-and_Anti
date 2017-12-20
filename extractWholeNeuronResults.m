@@ -60,42 +60,42 @@ for i = 1:length(trialData)
     [trialData(i).anti.nspk,trialData(i).anti.ts] = Spiketimes2Rate(trialData(i).anti.trial,timepoints,binwidth);
 end
 %% For every trial
-for i = 1:length(trialData)
-    %pro trials
-    for proTrial = 1:length(trialData(i).pro.trial)
-        [trialData(i).pro.trial(proTrial).nspk,trialData(i).pro.trial(proTrial).ts] = Spiketimes2RateTrial(trialData(i).pro.trial(proTrial),timepoints,binwidth);
-    end 
-    % anti trials
-    for antiTrial = 1:length(trialData(i).anti.trial)
-        [trialData(i).anti.trial(antiTrial).nspk,trialData(i).anti.trial(antiTrial).ts] = Spiketimes2RateTrial(trialData(i).anti.trial(antiTrial),timepoints,binwidth);
-    end  
-end
-
-clear i j proTrial antiTrial
-% save trialData.m
-
-%% Stats 
-
-% Pro vs anti in saccade window (window size = +/- 100 ms around saccade onset)
-% gather separately for pro and anti
+analyse_sacc_win = 0;%
 for cellNum = 1:length(trialData)
-    %pro
-    for trialNum = trialData(cellNum).pro.trial
-    sacc_window = trialData(cellNum).pro.trial(trialNum).tspk_SS -trialData(cellNum).pro.trial(trialNum).saccadeOnset; % align to saccade onset
-    win_indx = find(sacc_window>=-0.1 & sacc_window<=0.1); % get spks that happened in sacc window
-    trialData(cellNum).pro.trial(trialNum).nspk_saccWin = sacc_window(win_inx); 
+    %pro trials
+    for proTrial = 1:length(trialData(cellNum).pro.trial)
+        [trialData(cellNum).pro.trial(proTrial).nspk,trialData(cellNum).pro.trial(proTrial).ts] = Spiketimes2RateTrial(trialData(cellNum).pro.trial(proTrial),timepoints,binwidth,analyse_sacc_win); % all trial
+        
+        % get spks in sacc window
+        sacc_aligned = trialData(cellNum).pro.trial(proTrial).tspk_SS -trialData(cellNum).pro.trial(proTrial).saccadeOnset;
+        win_indx_pro = find(sacc_window>=-0.1 & sacc_window<=0.1); % get spks that happened in sacc window
+        trialData(cellNum).pro.trial(proTrial).tspk_saccWin = sacc_window(win_indx_pro);
+        analyse_sacc_win = 1;
+        [trialData(cellNum).pro.trial(proTrial).nspk_sacc,trialData(cellNum).pro.trial(proTrial).ts_sacc] = Spiketimes2RateTrial(trialData(cellNum).pro.trial(proTrial).tspk_saccWin,timepoints,binwidth,analyse_sacc_win);
+        analyse_sacc_win = 0;%
     end
-    %anti
+    % anti trials
+    for antiTrial = 1:length(trialData(cellNum).anti.trial)
+        [trialData(cellNum).anti.trial(antiTrial).nspk,trialData(cellNum).anti.trial(antiTrial).ts] = Spiketimes2RateTrial(trialData(cellNum).anti.trial(antiTrial),timepoints,binwidth,analyse_sacc_win);
+        
+        % get spks in sacc window
+        sacc_aligned = trialData(cellNum).anti.trial(antiTrial).tspk_SS -trialData(cellNum).anti.trial(antiTrial).saccadeOnset;
+        win_indx = find(sacc_window>=-0.1 & sacc_window<=0.1); % get spks that happened in sacc window
+        trialData(cellNum).anti.trial(antiTrial).tspk_saccWin = sacc_window(win_indx);
+        analyse_sacc_win = 1;
+        [trialData(cellNum).anti.trial(antiTrial).nspk_sacc,trialData(cellNum).anti.trial(antiTrial).ts_sacc] = Spiketimes2RateTrial(trialData(cellNum).anti.trial(antiTrial).tspk_saccWin,timepoints,binwidth,analyse_sacc_win);
+        analyse_sacc_win = 0;%
+    end
+    
     
 end
 
-% Pro vs anti 100 ms after targ onset, which is 100 ms before go cue time
+clear i j proTrial antiTrial analyse_sacc_win
+% save trialData.m
 
-
-
-
-
-
+%% Stats 
+  
+  
 
 
 
