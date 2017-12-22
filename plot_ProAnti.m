@@ -50,7 +50,7 @@ figure;
 plot(t, r_pro_smooth, 'LineWidth', 2); hold on
 plot(t, r_anti_smooth, 'LineWidth', 2); 
 xlim([-1 1]); 
-  
+
 
 % Try smoothing smoothFiringRate = ksdensity(newTrialStruct(trialNum).alignedSpikes{1},testTimeVector,'width',binSize);
 
