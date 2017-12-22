@@ -51,6 +51,7 @@ vline(0)
         xlim([-1 1]);
 
 
+% Try smoothing smoothFiringRate = ksdensity(newTrialStruct(trialNum).alignedSpikes{1},testTimeVector,'width',binSize);
 
 %% colormaps
 
