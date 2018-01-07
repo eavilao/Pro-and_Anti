@@ -1,6 +1,6 @@
 % extractWholeNeuronResults
 % This function extracts data from wholeNeuronResults from Pete's code and
-% performs some stats.
+% performs stats.
 
 % In: wholeNeuronResults.m
 % Out:  trialData containing spike times (Simple and Complex spikes). Every
