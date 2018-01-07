@@ -131,35 +131,45 @@ clear cellNum trialNum correctProTrials correctAntiTrials analyse_sacc_win
 %% Stats
 %% Eye kinematics
 
-eyeKin = eyeKinematics_ProAnti(trialData); % extract and plot
+eyeKin = eyeKinematics_ProAnti(trialData); 
 
 proAmp = vertcat(eyeKin(1,:).proAmp); 
 antiAmp = vertcat(eyeKin(1,:).antiAmp); 
 proDur = vertcat(eyeKin(1,:).proDur); 
 antiDur = vertcat(eyeKin(1,:).antiDur); 
-proPV = vertcat(eyeKin(1,:).proPV);
+proPV = vertcat(eyeKin(1,:).proPV); 
 antiPV = vertcat(eyeKin(1,:).antiPV); 
 proRT = vertcat(eyeKin(1,:).proRT)*1000; 
 antiRT = vertcat(eyeKin(1,:).antiRT)*1000; 
 
-% stats per cell
+% eye stats pro
+% amplitude
+trialData.stats.pro.amp.mu = nanmean(proAmp);trialData.stats.pro.amp.sig = nanstd(proAmp);
+% dur
+trialData.stats.pro.dur.mu = nanmean(proDur);trialData.stats.pro.dur.sig = nanstd(proDur);
+%peakVel
+trialData.stats.pro.pv.mu = nanmean(proPV);trialData.stats.pro.pv.sig = nanstd(proPV);
+%rt
+trialData.stats.pro.rt.mu = nanmean(proRT);trialData.stats.pro.rt.sig = nanstd(proRT);
+
+% eye stats anti
+% amplitude
+trialData.stats.anti.amp.mu = nanmean(antiAmp);trialData.stats.anti.amp.sig = nanstd(antiAmp);
+% dur
+trialData.stats.anti.dur.mu = nanmean(antiDur);trialData.stats.anti.dur.sig = nanstd(antiDur);
+%peakVel
+trialData.stats.anti.pv.mu = nanmean(antiPV);trialData.stats.anti.pv.sig = nanstd(antiPV);
+%rt
+trialData.stats.anti.rt.mu = nanmean(antiRT);trialData.stats.anti.rt.sig = nanstd(antiRT);
+
+
 for cellNum = 1:length(trialData)
-    %pro
-    trialData(cellNum).pro.stats.eye.amp.mu = nanmean(eyeKin(cellNum).proAmp); trialData(cellNum).pro.stats.eye.amp.sig = nanstd(eyeKin(cellNum).proAmp); 
-    trialData(cellNum).pro.stats.eye.dur.mu = nanmean(eyeKin(cellNum).proDur); trialData(cellNum).pro.stats.eye.dur.sig = nanstd(eyeKin(cellNum).proDur); 
-    trialData(cellNum).pro.stats.eye.pv.mu = nanmean(eyeKin(cellNum).proPV); trialData(cellNum).pro.stats.eye.pv.sig = nanstd(eyeKin(cellNum).proPV); 
-    trialData(cellNum).pro.stats.eye.rt.mu = nanmean(eyeKin(cellNum).proRT); trialData(cellNum).pro.stats.eye.rt.sig = nanstd(eyeKin(cellNum).proRT); 
-    %anti
-    trialData(cellNum).anti.stats.eye.amp.mu = nanmean(eyeKin(cellNum).antiAmp); trialData(cellNum).anti.stats.eye.amp.sig = nanstd(eyeKin(cellNum).antiAmp); 
-    trialData(cellNum).anti.stats.eye.dur.mu = nanmean(eyeKin(cellNum).antiDur); trialData(cellNum).anti.stats.eye.dur.sig = nanstd(eyeKin(cellNum).antiDur); 
-    trialData(cellNum).anti.stats.eye.pv.mu = nanmean(eyeKin(cellNum).antiPV); trialData(cellNum).anti.stats.eye.pv.sig = nanstd(eyeKin(cellNum).antiPV); 
-    trialData(cellNum).anti.stats.eye.rt.mu = nanmean(eyeKin(cellNum).antiRT); trialData(cellNum).anti.stats.eye.rt.sig = nanstd(eyeKin(cellNum).antiRT); 
+    trialData(cellNum).pro.stats.proAmp_mu = nanmean(eyeKin(cellNum).proAmp); trialData(cellNum).pro.stats.proAmp_sig = nanstd(eyeKin(cellNum).proAmp)
+    
+    
+
+    
 end
-
-
-%% Neural
-
-
 
 
 
