@@ -3,7 +3,8 @@
 % performs some stats.
 
 % In: wholeNeuronResults.m
-% Out:  trialData containing spike times (Simple and Complex spikes)
+% Out:  trialData containing spike times (Simple and Complex spikes). Every
+% struct inside trialData is a neuron. 
 % aligned to trial onset and eye stats.
 
 % Associated functions: SpikeTimes2Rate.m, Spiketimes2RateTrial.m,
@@ -127,10 +128,7 @@ end
 clear cellNum trialNum correctProTrials correctAntiTrials analyse_sacc_win
 % save trialData.m
 
-%% Stats
-
-% stats for every window.
-% kinematics vs FR
+%%
 
 
 
