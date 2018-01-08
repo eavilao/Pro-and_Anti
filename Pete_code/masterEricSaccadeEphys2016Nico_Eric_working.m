@@ -21,7 +21,7 @@ switch strtrim(cn)
     case 'nin417'  % analysis pc at nin 
 
 cellList = 'full';
-addpath(genpath('D:\Nico\_PeteAnalysis\AnalysisCodePete'));
+addpath(genpath('D:\Nico\_PeteAnalysis\pro_anti-git'));
 
 externalHdDriveLetter = 'D';
 rawDataDir = [externalHdDriveLetter ':\Nico\_PeteAnalysis\data\_to_run'] ;%'I:\Raw Data\Pro v Anti Saccade Task';
@@ -48,20 +48,20 @@ if exist(processDir,'dir')~=7
 end
 
 %this section makes sure mario's asccade detection fucntions are on the
-%path
-diskPath = 'G:\MATLAB\Mario_CODE_EyeMovement_original\saccades';
-codeDir = ['D:\Nico\_PeteAnalysis\AnalysisCodePete'];
-addpath(genpath(codeDir))
-rmpath([codeDir '\new mario'])
-rmpath([codeDir '\old mario'])
-rmpath(genpath([diskPath '\FEX\chronux']))
-addpath([diskPath '\FEX\Info Toolbox']) %for MI
- addpath([diskPath '\FEX\outlier_library_external'])
- addpath([diskPath '\FEX\mi'])
- addpath([diskPath '\FEX\distributionPlot\distributionPlot'])
- addpath([diskPath '\FEX\xticklabel_rotate'])
- addpath([diskPath '\FEX\countmember'])
-  addpath([diskPath '\FEX\SubAxis'])
+% %path
+% diskPath = 'D:\Nico\_PeteAnalysis\pro_anti-git\Pete's_code\Code\Mario_saccade_detection';
+% codeDir = ['D:\Nico\_PeteAnalysis\AnalysisCodePete'];
+% addpath(genpath(codeDir))
+% rmpath([codeDir '\new mario'])
+% rmpath([codeDir '\old mario'])
+% rmpath(genpath([diskPath '\FEX\chronux']))
+% addpath([diskPath '\FEX\Info Toolbox']) %for MI
+%  addpath([diskPath '\FEX\outlier_library_external'])
+%  addpath([diskPath '\FEX\mi'])
+%  addpath([diskPath '\FEX\distributionPlot\distributionPlot'])
+%  addpath([diskPath '\FEX\xticklabel_rotate'])
+%  addpath([diskPath '\FEX\countmember'])
+%   addpath([diskPath '\FEX\SubAxis'])
   
   
   
@@ -459,7 +459,7 @@ for neuronNum = recordingsToAnalyse;
             %now with file instead of fields for keeping
              
             saccFileName = [processDir filesep thisFileInfo.fileName(1:end-4) '-saccDetectNewestRecalib-wholeNeurCal.mat'];
-            if exist(saccFileName,'file')~=2 | 
+            if exist(saccFileName,'file')~=2   
                 
 %                filter out high freq peaks from poor tracker calibration
              calData.eyeXcal= medfilt1(calData.eyeXcal,40);
