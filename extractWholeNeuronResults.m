@@ -8,7 +8,7 @@
 % aligned to trial onset and eye stats.
 
 % Associated functions: SpikeTimes2Rate.m, Spiketimes2RateTrial.m,
-%                       plot_ProAnti.m
+%                       plot_ProAnti.m, eyeKinematics_ProAnti.m
 
 %% Create structure with relevant data (trialData)
 %uiopen;
@@ -29,6 +29,7 @@ for cellNum = 1:length(wholeNeuronResults);
             trialData(cellNum).trial.neural(trialNum).tspk_CS =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{2}; % contains spike times for CS aligned to trial onset (?)
             trialData(cellNum).trial.neural(trialNum).tspk_SS_align_sacc =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{1}-trialData(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for SS aligned to sacc onset
             trialData(cellNum).trial.neural(trialNum).tspk_CS_align_sacc =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{2}-trialData(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for CS aligned to sacc onset
+
             
             
             % select condition type Pro or Antisaccade
