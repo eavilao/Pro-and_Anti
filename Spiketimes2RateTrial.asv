@@ -12,11 +12,5 @@ end
 nspk = nspk(2:end-1);
 timepoints = timepoints(2:end-1);
 
-if analyse_sacc_win
-nspk = sum(nspk)/0.2;     %num of spikes/dur of trial
-end
-
-
-
 
 
