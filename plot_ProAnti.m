@@ -86,8 +86,8 @@ switch plotType
         amp_pro = [trialData(cellNum).pro.behav.trial.saccAmplitude];
         amp_anti = [trialData(cellNum).anti.behav.trial.saccAmplitude];
         
-        spk_pro = [trialData(cellNum).pro.neural.trial.nspk];
-        spk_anti = [trialData(cellNum).anti.neural.trial.nspk];
+        spk_pro = [trialData(cellNum).pro.neural.trial.nspk_sacc];
+        spk_anti = [trialData(cellNum).anti.neural.trial.nspk_sacc];
         
         %plot
         figure; hold on; box off
@@ -107,13 +107,13 @@ switch plotType
         block3_pro_indx = find([trialData(cellNum).pro.behav.trial.saccAmplitude]>block2 & [trialData(cellNum).pro.behav.trial.saccAmplitude]<= block3);
         
         for i = 1:length(block1_pro_indx)
-            block1_pro(i,1) = trialData(cellNum).pro.neural.trial(block1_pro_indx(i)).nspk;
+            block1_pro(i,1) = trialData(cellNum).pro.neural.trial(block1_pro_indx(i)).nspk_sacc;
         end
         for i = 1:length(block2_pro_indx)
-            block2_pro(i,1) = trialData(cellNum).pro.neural.trial(block2_pro_indx(i)).nspk;
+            block2_pro(i,1) = trialData(cellNum).pro.neural.trial(block2_pro_indx(i)).nspk_sacc;
         end
         for i = 1:length(block3_pro_indx)
-            block3_pro(i,1) = trialData(cellNum).pro.neural.trial(block1_pro_indx(i)).nspk;
+            block3_pro(i,1) = trialData(cellNum).pro.neural.trial(block1_pro_indx(i)).nspk_sacc;
         end
         
         
@@ -121,25 +121,30 @@ switch plotType
         block1_anti_indx = find([trialData(cellNum).anti.behav.trial.saccAmplitude]<=block1);
         block2_anti_indx = find([trialData(cellNum).anti.behav.trial.saccAmplitude]>block1 & [trialData(cellNum).anti.behav.trial.saccAmplitude]<= block2);
         block3_anti_indx = find([trialData(cellNum).anti.behav.trial.saccAmplitude]>block2 & [trialData(cellNum).anti.behav.trial.saccAmplitude]<= block3);
+        
+        if ~isempty(block1_anti_indx)
         for i = 1:length(block1_anti_indx)
-            block1_anti(i,1) = trialData(cellNum).anti.neural.trial(block1_anti_indx(i)).nspk;
+            block1_anti(i,1) = trialData(cellNum).anti.neural.trial(block1_anti_indx(i)).nspk_sacc;
+        end
+        else 
+            block1_anti(i,1) = NaN;
         end
         for i = 1:length(block2_anti_indx)
-            block2_anti(i,1) = trialData(cellNum).anti.neural.trial(block2_anti_indx(i)).nspk;
+            block2_anti(i,1) = trialData(cellNum).anti.neural.trial(block2_anti_indx(i)).nspk_sacc;
         end
         for i = 1:length(block3_anti_indx)
-            block3_anti(i,1) = trialData(cellNum).anti.neural.trial(block3_anti_indx(i)).nspk;
+            block3_anti(i,1) = trialData(cellNum).anti.neural.trial(block3_anti_indx(i)).nspk_sacc;
         end
         
         % mean pro
-        block1_pro_mu = mean(block1_pro); block1_pro_sig = std(block1_pro);
-        block2_pro_mu = mean(block2_pro); block2_pro_sig = std(block2_pro);
-        block3_pro_mu = mean(block3_pro); block1_pro_sig = std(block3_pro);
+        block1_pro_mu = nanmean(block1_pro); block1_pro_sig = nanstd(block1_pro);
+        block2_pro_mu = nanmean(block2_pro); block2_pro_sig = nanstd(block2_pro);
+        block3_pro_mu = nanmean(block3_pro); block1_pro_sig = nanstd(block3_pro);
         
         % mean anti
-        block1_anti_mu = mean(block1_anti); block1_anti_sig = std(block1_anti);
-        block2_anti_mu = mean(block2_anti); block2_anti_sig = std(block2_anti);
-        block3_anti_mu = mean(block3_anti); block1_anti_sig = std(block3_anti);
+        block1_anti_mu = nanmean(block1_anti); block1_anti_sig = nanstd(block1_anti);
+        block2_anti_mu = nanmean(block2_anti); block2_anti_sig = nanstd(block2_anti);
+        block3_anti_mu = nanmean(block3_anti); block1_anti_sig = nanstd(block3_anti);
         
         %gather
         pro_blocks = [block1_pro_mu block2_pro_mu block3_pro_mu ; block1_pro_sig block2_pro_sig block1_pro_sig];
@@ -150,7 +155,7 @@ switch plotType
         errorbar(pro_blocks(1,:),pro_blocks(2,:), 'Color', 'r');
         errorbar(anti_blocks(1,:),anti_blocks(2,:), 'Color', 'g');
         xlabel ('Amplitude (block per 5 deg)'); ylabel('Firing rate (spk/s)');
-        set(gca, 'TickDir', 'out', 'FontSize', 18, 'xlim',([0.5 3.5]), 'ylim',([20 120]), 'XTick',[0 1 2 3]); 
+        set(gca, 'TickDir', 'out', 'FontSize', 18, 'xlim',([0.5 3.5]), 'ylim',([0 200]), 'XTick',[0 1 2 3]); 
         
     case 'colormap'
 end
