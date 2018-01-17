@@ -8,11 +8,66 @@
 %   appendRasterToTrials includes alignedSpikes, event info and saccade
 %   detection info with everything split into trials and aligned to their
 %   onset
+
 %% PATHS
+
+% Different pcs -  different paths
 set(0,'defaultfigurecolor','w')
 set(0,'defaultaxescolor','w')
-cellList = 'full';
 
+
+[~, cn] = system('hostname');
+switch strtrim(cn)
+    case 'nin417'  % analysis pc at nin 
+
+cellList = 'full';
+addpath(genpath('D:\Nico\_PeteAnalysis\pro_anti-git'));
+
+externalHdDriveLetter = 'D';
+rawDataDir = [externalHdDriveLetter ':\Nico\_PeteAnalysis\data\_to_run'] ;%'I:\Raw Data\Pro v Anti Saccade Task';
+processDir = [externalHdDriveLetter ':\Nico\_PeteAnalysis\data\_process']; %for holding intermediate files, -dataStructure, -trialInfo, -saccDetect, -calib
+
+resortDir = [externalHdDriveLetter ':\Nico\_PeteAnalysis\data\_to_run']; %loaction of resorted spike files, just neesd adding to path
+ addpath(genpath(resortDir))
+ addpath(genpath(rawDataDir))
+ 
+%directory where all results will be saved
+if strcmp(cellList,'full')
+resultsDir = [externalHdDriveLetter ':\Nico\_PeteAnalysis\data\_results']; %for full list
+elseif strcmp(cellList,'clean')
+resultsDir = [externalHdDriveLetter ':\Nico\_PeteAnalysis\data\_results\results_clean']; %for clean units only
+end
+%list
+
+%create results directory if not already there
+if exist(resultsDir,'dir')~=7
+    mkdir(resultsDir)
+end
+if exist(processDir,'dir')~=7
+    mkdir(processDir)
+end
+
+%this section makes sure mario's asccade detection fucntions are on the
+% %path
+% diskPath = 'D:\Nico\_PeteAnalysis\pro_anti-git\Pete's_code\Code\Mario_saccade_detection';
+% codeDir = ['D:\Nico\_PeteAnalysis\AnalysisCodePete'];
+% addpath(genpath(codeDir))
+% rmpath([codeDir '\new mario'])
+% rmpath([codeDir '\old mario'])
+% rmpath(genpath([diskPath '\FEX\chronux']))
+% addpath([diskPath '\FEX\Info Toolbox']) %for MI
+%  addpath([diskPath '\FEX\outlier_library_external'])
+%  addpath([diskPath '\FEX\mi'])
+%  addpath([diskPath '\FEX\distributionPlot\distributionPlot'])
+%  addpath([diskPath '\FEX\xticklabel_rotate'])
+%  addpath([diskPath '\FEX\countmember'])
+%   addpath([diskPath '\FEX\SubAxis'])
+  
+  
+  
+    case '...' % Here goes you pc-name ( to find pc name excute: system('hostname')
+
+        
 externalHdDriveLetter = 'C';
 rawDataDir = [externalHdDriveLetter ':\Users\erico\Box Sync\NIN\data\N1'] ;%'I:\Raw Data\Pro v Anti Saccade Task';
 processDir = [externalHdDriveLetter ':\Users\erico\Box Sync\NIN\data']; %for holding intermediate files, -dataStructure, -trialInfo, -saccDetect, -calib
@@ -42,16 +97,11 @@ end
 diskPath = 'C:\Users\erico\Box Sync\NIN\Code';
 codeDir = [diskPath '\Mario_saccade_detection'];
 addpath(genpath(codeDir))
-% % rmpath([codeDir '\new mario'])
-% % rmpath([codeDir '\old mario'])
-% rmpath(genpath([diskPath '\FEX\chronux']))
-% addpath([diskPath '\FEX\Info Toolbox']) %for MI
-%  addpath([diskPath '\FEX\outlier_library_external'])
-%  addpath([diskPath '\FEX\mi'])
-%  addpath([diskPath '\FEX\distributionPlot\distributionPlot'])
-%  addpath([diskPath '\FEX\xticklabel_rotate'])
-%  addpath([diskPath '\FEX\countmember'])
-%   addpath([diskPath '\FEX\SubAxis'])
+
+    otherwise
+        disp('Fill in your PC-name at line 68')
+        return  
+end
 
 % userName = getenv('USERNAME'); %Makes it work on PC and Mac 
 % %codeDir = ['/Users/' userName '/Backup Erasmus/NIN/Matfiles & Analysis/Analysis/Active Plot Generator'];
@@ -67,13 +117,17 @@ addpath(genpath(codeDir))
 
 %recordingListEricPvAElectrophys %final list
 %recordingListEricPvAElectrophysClean %final list of only clean cs pause neurons
+ 
 if strcmp(cellList,'full')
 recordingListEricPvAElectrophysNicoRec%recordingListEricPvAElectrophysLocResort %recordingListEricPvAElectrophys %for full list
 elseif strcmp(cellList,'clean')
 recordingListEricPvAElectrophysClean %for clean units only %TODO won't work any more as no resortFLag field
 end
 %find recordings to analyse by looking for non-empty recording names
+ 
+ 
 recList = squeeze(struct2cell(neuronList));
+
 recordingsToAnalyse = find(cellfun(@(x) ~isempty(x),recList(1,:)));
 exampleNeurons = [14 31]; %neurons for which eps of the rasters will be exported
 %find where which are neurons are recorded from using field in recording list
@@ -104,7 +158,7 @@ wholeNeuronNameEnd = 'wholeNeuronResultsResort2016realignfixsacc2016-fixedbit8.m
 burstSumPlotFlag = 0; %TODO may have to go after the correlations
 
 %population response 
-doPop = 0; %flag to turn on and off
+doPop = 1; %flag to turn on and off
 popResPdfName = [resultsDir filesep 'ericPopulationResults2016moreSacs50binAngle350to450vel-csonlabelled-selNeurons.pdf'];
 popResFileName = 'populationResults2016moreSacs50bin-selNeurons.mat'; %saved results, if adding more neurons make sure to overwrite
 doPopCV2 = 0;
@@ -205,8 +259,10 @@ ccProAnti = [0 1 0;1 0 0];
 %TODO eyeDelay = 0;%0.013; %13ms hardware delay
 %loop over strucutre and test for non converted files
 %recordingsToAnalyse = recordingsToAnalyse(recordingsToAnalyse>=29);
+ 
+% % recordingsToAnalyse = [27 28 29 38 40 42];
+recordingsToAnalyse = [ 39 ];
 
-recordingsToAnalyse = 38;%[27 28 29 38 40 42];
 for neuronNum = recordingsToAnalyse;
     if exist([processDir filesep neuronList(neuronNum).neuronName dataFileNameEnd],'file')~=2
         
@@ -237,6 +293,7 @@ for neuronNum = recordingsToAnalyse;
     end
 end
 
+ 
 %% FILE BY FILE ANALYSIS
 %loop over all neurons and files within those neurons
 for neuronNum = recordingsToAnalyse;
@@ -246,10 +303,14 @@ for neuronNum = recordingsToAnalyse;
     %create file name for the summary figure pdf for this neuron
     figureFileName = [resultsDir filesep neuronList(neuronNum).neuronName figPdfFileNameEnd];
     
+     
     %load matfile into memory
-     thisMatFileName = [processDir filesep neuronList(neuronNum).neuronName dataFileNameEnd]
-     mLoadedData = matfile(thisMatFileName) %create mat file
+     thisMatFileName = [processDir filesep neuronList(neuronNum).neuronName dataFileNameEnd];
+     mLoadedData = matfile(thisMatFileName); %create mat file
     
+   
+     
+     
      %check for each neuron if the analysis file has already been saved, if
      %not then analyse
      if exist([resultsDir filesep neuronList(neuronNum).neuronName analysisFileNameEnd],'file')~=2
@@ -261,6 +322,9 @@ for neuronNum = recordingsToAnalyse;
          analysisResults = struct('saccadeDetection',structInitializer,'newTrialStructure',structInitializer,'alignedSpikeTimesCell',structInitializer);
          %loop over all files and load the required data
          
+         
+        
+         
          for fileNum = 1:numFiles
              
              disp(['    processing file ' num2str(fileNum) ' of ' num2str(numFiles)])
@@ -270,12 +334,24 @@ for neuronNum = recordingsToAnalyse;
              thisFileInfo = mLoadedData.editedFileList(fileNum,1);
              thisFileContents = whos(mLoadedData);
              
-             
+              
+     fileNameBase = thisFileInfo.fileName(1:end-8);
+
+     foldercontent = getAllFiles([resortDir filesep neuronList(neuronNum).neuronName]);
+     
+     load(cell2mat(foldercontent( ~cellfun(@isempty, regexp(foldercontent,'Moshe')))))
+     stimListFile =epd;
+%      save([processDir filesep neuronList(neuronNum).neuronName '-stimList.mat'], 'stimListFile')
+%     stimListFile=denoise_eye(stimListFile);
+
+              save([processDir filesep  thisFileInfo.fileName(1:end-8) 'stimList.mat'], 'stimListFile')
+         
+         
              %get trial information
              thisTrialInfoName = [processDir filesep thisFileInfo.fileName(1:end-4) '-trialInfo.mat'];
              
              if exist(thisTrialInfoName,'file')~=2
-                 trialData = extractTrialData(thisFileInfo,thisData.spkDataStartTime,bitNum,secondBitNum,processDir)
+                 trialData = extractTrialData(thisFileInfo,thisData.spkDataStartTime,bitNum,secondBitNum,processDir);
                  save(thisTrialInfoName,'trialData');
              else
                  load(thisTrialInfoName);
@@ -288,9 +364,12 @@ for neuronNum = recordingsToAnalyse;
              %cal for each file, instead we should check that all of the
              %files have a calib file and then take the mean of all as the
              %final calib measure
-             conditionLegend = load('condtionLegend.mat');
+             conditionLegend = load('conditionLegend.mat');
              %calibrate eye movements or load from structure
-            posThresh = 12; %positon threshold for saccades
+            posThresh =12; % 12; %positon threshold for saccades
+                        
+            
+             
             calibFileNameEnd = '-calib2016.mat';
             if fileNum==1
                
@@ -298,7 +377,7 @@ for neuronNum = recordingsToAnalyse;
                 for  tempFileNum = 1:numFiles
                     thisTempFileInfo = mLoadedData.editedFileList(tempFileNum,1);
                     fileNameBase = thisTempFileInfo.fileName(1:end-4);
-                    if exist([fileNameBase calibFileNameEnd],'file')==2
+                    if exist([fileNameBase calibFileNameEnd],'file')==2  && do_sac_detect==0
                         tempCal =  load([fileNameBase calibFileNameEnd],'xOffset','yOffset','xMagRatio','yMagRatio')
                         allFilesCalib{tempFileNum} = tempCal;
                     else
@@ -346,7 +425,7 @@ for neuronNum = recordingsToAnalyse;
 %                 mLoadedData.Properties.Writable = false;
 %             else
 %                 if size(mLoadedData.calibEye,1)~=numFiles %if wrong size
-%                    % [calData] = calibrateEyeData(thisFileInfo,thisData.eyeX,thisData.eyeY,thisData.eyeFs,posThresh,trialData,conditionLegend);
+%                    % [calData] = calibrateEyeData(thisFileInfo,thisData.eyeX,thisData.eyeY,thisData.eyeFs,posThreshhresh,trialData,conditionLegend);
 %                     [calData] = calibrateEyeData2016(thisFileInfo,thisData.eyeX,thisData.eyeY,thisData.eyeFs,posThresh,trialData,conditionLegend,calibFileNameEnd);
 %                
 %                     %temporarily enable writing to file and save
@@ -378,9 +457,16 @@ for neuronNum = recordingsToAnalyse;
 %                 saccadeDetectOut = analysisResults(fileNum,1).saccadeDetection;
 %             end
             %now with file instead of fields for keeping
+             
             saccFileName = [processDir filesep thisFileInfo.fileName(1:end-4) '-saccDetectNewestRecalib-wholeNeurCal.mat'];
-            if exist(saccFileName,'file')~=2
-                saccadeDetectOut = saccadeDetection([calData.eyeXcal' calData.eyeYcal'],'sgolayall', 1,'sgolayfilter', 1,'sgolaywindow', 20,'detectionwindow', [120 180],'wellformed', false); %
+            if exist(saccFileName,'file')~=2   
+                
+%                filter out high freq peaks from poor tracker calibration
+             calData.eyeXcal= medfilt1(calData.eyeXcal,40);
+             calData.eyeYcal= medfilt1(calData.eyeYcal,40);
+
+                 saccadeDetectOut = saccadeDetection([calData.eyeXcal' calData.eyeYcal'],'sgolayall', 1,'sgolayfilter', 1,'sgolaywindow', 20,'detectionwindow', [120 180],'wellformed', false); %
+               
                 analysisResults(fileNum,1).saccadeDetection = saccadeDetectOut;
                             save(saccFileName,'saccadeDetectOut')
                             close all
@@ -1155,7 +1241,8 @@ end
 %% SACCADE 
 doSaccPaths= 1;
 if doSaccPaths
- conditionLegend = load('condtionLegend.mat');
+    
+ conditionLegend = load('conditionLegend.mat');
 for neuronNum = recordingsToAnalyse
     
     %this looks very strange so let's do it by target and check what's
@@ -1191,7 +1278,7 @@ for neuronNum = recordingsToAnalyse
             
             
             
-            
+                % bit8 should be between begin and end of saccade
             if thisTrialBit8timeind>=thisTrialSaccadeInds(1) && thisTrialBit8timeind<=thisTrialSaccadeInds(end)
                 lCol = 'b';
                 line([thisTrial.eyePositionX(thisTrialSaccadeInds(thisTrialBit8timeind-thisTrialSaccadeInds(1)+1)) NaN],[thisTrial.eyePositionY(thisTrialSaccadeInds(thisTrialBit8timeind-thisTrialSaccadeInds(1)+1)) NaN],'parent',hA,'marker','o','markerfacecolor',lCol)
@@ -1223,7 +1310,7 @@ for neuronNum = recordingsToAnalyse
         title(['Target' num2str(stimCode)])
         export_fig([resultsDir filesep neuronList(neuronNum).neuronName 'saccadeTestingbit8-newCalib-extendedBothv2-newcalib-jan.pdf'], '-pdf','-append', hF);
         hgsave(hF,[resultsDir filesep neuronList(neuronNum).neuronName '-targ' num2str(stimCode) 'saccadeTestingbit8-newCalib-extendedBothv2-newcalib.fig'])
-        delete(hF)
+%         delete(hF)
         
     end
 end
@@ -1459,9 +1546,12 @@ end
 %for the lateral neurons especially the baseline used by herzfeld captures
 %the build up of activity, so will switch to be 400ms:100ms before saccade
 bpClassFigureFileName = [resultsDir filesep 'bpClasstestNewbaseallsaccsBestEarly baseRealigned.pdf'];
-bpClassFileName = [resultsDir filesep 'bpClassification.mat'];
+bpClassFileName = [resultsDir filesep 'bpClassificationNico.mat'];
 if exist(bpClassFileName,'file')~=2
-allNeuronClassification = cell(max(recordingsToAnalyse),1); % 'burst', 'pause', 'not sig'
+
+    allNeuronClassification = cell(max(recordingsToAnalyse),1); % 'burst', 'pause', 'not sig'
+%     allNeuronClassification = cell(max(vermNeurons),1); 
+    
 for neuronNum = recordingsToAnalyse;
     %for each trial take SS firing rate in period 200:-100ms before saccade
     %onset, compare to 150ms window centered on saccade midpoint (they use
@@ -1514,10 +1604,13 @@ for neuronNum = recordingsToAnalyse;
       export_fig(bpClassFigureFileName, '-pdf', '-append', gcf);
                 delete(gcf)
 end
+
+ 
 allLabels = allNeuronClassification(recordingsToAnalyse);
 countmember({'burst','pause','not sig'},allLabels)
 vermLabels = allNeuronClassification(vermNeurons);
-countmember({'burst','pause','not sig'},vermLabels)
+% countmember({'burst','pause','not sig'},vermLabels)
+countmember({'burst','pause','not sig'},vermLabels(~cellfun(@isempty,vermLabels)))
 latLabels = allNeuronClassification(latNeurons);
 countmember({'burst','pause','not sig'},latLabels)
 save(bpClassFileName,'allNeuronClassification')
@@ -1535,10 +1628,14 @@ postSaccCsTimeWindow = [0.05 0.3];
 angVec = linspace(-pi,pi,9);
 if doEndPoints
     
-    conditionLegend = load('condtionLegend.mat');
+    conditionLegend = load('conditionLegend.mat');
     allNeuronsCsProbByAng = nan(max(recordingsToAnalyse),9);
+%     allNeuronsCsProbByAng = nan(max(vermNeurons),9);
+    
+     
     for neuronNum = recordingsToAnalyse;
         %take all pro trials and get the saccade endpoint, compare to target location and get error direction.
+%     keyboard
         thisNeuronUnits = neuronList(neuronNum).fileList{1,3};
         theseStableTrials = wholeNeuronResults(neuronNum).allStableTrials;
         theseCorProTrialNums = wholeNeuronResults(neuronNum).selectedTrials.corProTrials;
@@ -1634,6 +1731,8 @@ if doEndPoints
     allNeuronsCsOndDir = nan(max(recordingsToAnalyse),1);
     polar([0 nan],[1 nan])
     hold on;
+    
+    
     for neuronNum = vermNeurons
         
         [peakVal peakDir] = max(allNeuronsCsProbByAng(neuronNum,:));
@@ -1661,6 +1760,7 @@ if doEndPoints
     %used to initialise ax lims to 1
     polar([0 nan],[1 nan])
     hold on;
+     
     for neuronNum = latNeurons
         
         [peakVal peakDir] = max(allNeuronsCsProbByAng(neuronNum,:));
@@ -2017,8 +2117,10 @@ for directionNum = 1:numDirections
     
     numNeurons = max(recordingsToAnalyse);
     tempProTrials = cell(numNeurons,1);
+%     tempProTrials = cell(max([vermNeurons,latNeurons]),1);
     tempAntiTrials = cell(numNeurons,1);
-    
+%     tempAntiTrials = cell(max([vermNeurons,latNeurons]),1);
+
     for neuronNum = recordingsToAnalyse
         
         if ~isempty(popResByDir(neuronNum,directionNum).alignedTrials)
@@ -4169,7 +4271,8 @@ if doPop
             end
             
         end
-    
+     
+        
         allProTrials = [tempProTrials{:}];
         allAntiTrials = [tempAntiTrials{:}];
         [hA] = createSdfHeatMap(allProTrials,sortByString,[],'numBins',numKinBins,'frRange',frDispRange(unitNum,:));
@@ -4186,6 +4289,7 @@ if doPop
         export_fig(gcf,'-pdf',expRend,'-append',popResPdfName)
         delete(gcf)
         %align each trial to saccade time and get psth with bin of 1ms smoothed with gaussian of 10ms
+        
         
         %now do exactly the sma ebut split inot lateral and vermal neurons
         tempVermProTrials = tempProTrials(vermNeurons);
@@ -4446,6 +4550,7 @@ if doPop
         delete(hFd)
         
         bothUnitVermPvA{unitNum} = vermPvA;
+        
         bothUnitLatPvA{unitNum} = latPvA;
     end
     
@@ -4610,7 +4715,7 @@ if exist(allKuniResFile,'file')~=2
                 %loop over all chosen rasters and create and export their figures
                 for rastSelected = rastToPlot
                     
-                    [kuniResults kuniResultsStats hAx] = kunimatsuAnalysisNew(wholeNeuronResults(neuronNum).allStableTrials,...
+                    [kuniResults kuniResultsStats hAx] = kunimatsuAnalysis(wholeNeuronResults(neuronNum).allStableTrials,...
                         wholeNeuronResults(neuronNum).selectedTrials.(char(rastSelected)),timeWindow,'',thisUnitNum,'sigLevel',sigLevel);
                     set(hAx{1},'ylim',distLims(unitNum,:))
                     title([neuronList(neuronNum).neuronName ' ' rastSelected ' unit ' num2str(thisUnitNum)])
@@ -4656,9 +4761,9 @@ if exist(allKuniResFile,'file')~=2
                 muCV2ByDir = nan(9,2);
                 semCV2ByDir = nan(9,2);
                 for dirLabelNum = 1:2
+                    
+                    
                     for plNum = find(~isnan(trialConditionCodes(:,dirLabelNum)))'
-                    
-                    
                         
                         
                         
@@ -4674,7 +4779,7 @@ if exist(allKuniResFile,'file')~=2
                         %         %now get the firing rate in the saccade period using the kunimatsu
                         %         %anyslsis function
                         if ~isempty(corDirTrialNums)
-                        [kuniResDir kuniResDirStats hAx] = kunimatsuAnalysisNew(wholeNeuronResults(neuronNum).allStableTrials,...
+                        [kuniResDir kuniResDirStats] = kunimatsuAnalysis(wholeNeuronResults(neuronNum).allStableTrials,...
                             corDirTrialNums,timeWindow,'',thisUnitNum,'sigLevel',sigLevel);
                         muRateByDir(plNum,dirLabelNum) = kuniResDirStats.muRates(4);
                         semRateByDir(plNum,dirLabelNum) = kuniResDirStats.semRates(4);
@@ -4803,17 +4908,15 @@ if exist(allKuniResFile,'file')~=2
         vermPs = vertcat(ratePvals{vermNeurons,1}); %all saccades now
         percChangeVerm = 100*sum(vermPs<selSigLevel)./length(vermNeurons);
         latPs = vertcat(ratePvals{latNeurons,1});
-        
         if ~isempty(latPs)
         percChangeLat = 100*sum(latPs<selSigLevel)./length(latNeurons);
         else
-            %percChangeLat = nan(1,3);% Change when have lateral neurons
-            percChangeLat = 0;
+            percChangeLat = nan(1,3);
         end
         
         hFb = figure;
         hAb = axes('parent',hFb);
-        [hPatches] = createGroupedBarGraph([percChangeVerm; percChangeLat(1)]',zeros(3,2),hAb,ccBar,0.3);
+        [hPatches] = createGroupedBarGraph([percChangeVerm; percChangeLat]',zeros(3,2),hAb,ccBar,0.3);
         set(hAb,'xtick',[1:3],'xticklabel',{'typeInst','dirInst','sacc'})
         ylim([0 100])
         ylabel('Percent Modulated')
@@ -4825,10 +4928,9 @@ if exist(allKuniResFile,'file')~=2
         percChangeVerm = 100*sum(vermPs<selSigLevel)./length(vermNeurons);
         if ~isempty(latNeurons)
         latPs = vertcat(cv2Pvals{latNeurons,1});
-        % percChangeLat = 100*sum(latPs<selSigLevel)./length(latNeurons); 
+        percChangeLat = 100*sum(latPs<selSigLevel)./length(latNeurons);
         else
-            %percChangeLat = nan(1,3); Change when have lateral neurons
-            percChangeLat = 0;
+            percChangeLat = nan(1,3);
         end
         
         hFb = figure;
@@ -7384,15 +7486,9 @@ allSdfs.burst = [allSdfs.burst{:}];
 allSdfs.pause = [allSdfs.pause{:}];
 allSdfs.ns= [allSdfs.ns{:}];
 
-if ~isempty(allSdfs.burst)
 baselineRates.burst = mean(allSdfs.burst(3800:3900,:));
-end
-if ~isempty(allSdfs.pause)
 baselineRates.pause = mean(allSdfs.pause(3800:3900,:));
-end
 baselineRates.ns = mean(allSdfs.ns(3800:3900,:));
-
-
 if ~isempty(allSdfs.burst)
 line(timeVec,bsxfun(@minus,allSdfs.burst,baselineRates.burst),'color','b')
 end
@@ -7423,16 +7519,9 @@ allSdfs.ns= {allNeuronsSdf.Pro{nsLat}};
 allSdfs.burst = [allSdfs.burst{:}];
 allSdfs.pause = [allSdfs.pause{:}];
 allSdfs.ns= [allSdfs.ns{:}];
-
-if ~isempty(allSdfs.burst)
 baselineRates.burst = mean(allSdfs.burst(3800:3900,:));
-end
-if ~isempty(allSdfs.pause)
 baselineRates.pause = mean(allSdfs.pause(3800:3900,:));
-end
-if ~isempty(allSdfs.ns)
 baselineRates.ns = mean(allSdfs.ns(3800:3900,:));
-end
 if ~isempty(allSdfs.burst)
 line(timeVec,bsxfun(@minus,allSdfs.burst,baselineRates.burst),'color','b')
 end
@@ -8013,7 +8102,6 @@ for  binName = {'instructionBin','preSaccBin','periSaccBin','postSaccBin'}
     %now lateral neurons
     alignedResults = [allNeuronDirectionCountResultsProCsAlign{latNeurons}];
     
-    if ~isempty(alignedResults)
     
     thisBinAlignedResults = cat(3,alignedResults.(char(binName)));
     
@@ -8138,7 +8226,6 @@ for  binName = {'instructionBin','preSaccBin','periSaccBin','postSaccBin'}
     suptitle(['Lateral Neurons no alignment-' char(binName)])
     export_fig( allNeuronPdfName, '-pdf','-append', hF);
     delete(hF)
-    end
 end
 end
 %%
@@ -8150,10 +8237,10 @@ trialCounts = struct('proNumTrials',stInit,'proNumCorTrials',stInit,...
    
     %total, correct, correctsacc, pro, pro-correct,pro
 for neuronNum = recordingsToAnalyse
-    trialCounts(neuronNum).proNumTrials = numel(wholeNeuronResults(neuronNum).selectedTrials.proTrials)   
-    trialCounts(neuronNum).proNumCorTrials =numel(wholeNeuronResults(neuronNum).selectedTrials.corProTrials)
-    trialCounts(neuronNum).antiNumCorTrials = numel(wholeNeuronResults(neuronNum).selectedTrials.corAntiTrials)
-    trialCounts(neuronNum).antiNumTrials = numel(wholeNeuronResults(neuronNum).selectedTrials.antiTrials) 
+    trialCounts(neuronNum).proNumTrials = numel(wholeNeuronResults(neuronNum).selectedTrials.proTrials)   ;
+    trialCounts(neuronNum).proNumCorTrials =numel(wholeNeuronResults(neuronNum).selectedTrials.corProTrials);
+    trialCounts(neuronNum).antiNumCorTrials = numel(wholeNeuronResults(neuronNum).selectedTrials.corAntiTrials);
+    trialCounts(neuronNum).antiNumTrials = numel(wholeNeuronResults(neuronNum).selectedTrials.antiTrials) ;
 
    
 
