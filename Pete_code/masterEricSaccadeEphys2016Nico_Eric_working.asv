@@ -447,35 +447,34 @@ for neuronNum = recordingsToAnalyse;
               
             saccFileName = [processDir filesep thisFileInfo.fileName(1:end-4) '-saccDetectNewestRecalib-wholeNeurCal.mat'];
             if exist(saccFileName,'file')~=2   
-                
-                 
-                % date string
-                if fileNameBase(1) == 'F'
-                    d = [fileNameBase(2:3), '-', fileNameBase(4:5),'-',fileNameBase(6:7)];
-                    expDate = datetime(d,'InputFormat','yy-MM-dd');
-                elseif  fileNameBase(3) =='_'
-                    
-                    expDate = datetime(fileNameBase(1:8),'InputFormat','yy_MM_dd');
-                    
-                elseif   fileNameBase(3) == '-'
-                    expDate = datetime(fileNameBase(1:8),'InputFormat','yy-MM-dd');
-                    
-                else
-                    keyboard
-                    disp('date not recognised')
-                end
-                
-                
+                  
+%                filter out high freq peaks from poor tracker calibration -
+%                only for newer recordings 
+    keyboard
+    % date string
+    if fileNameBase(1) == 'F'
+        d = [fileNameBase(2:3), '-', fileNameBase(4:5),'-',fileNameBase(6:7)];
+        expDate = datetime(d,'InputFormat','yy-MM-dd');
+    elseif  fileNameBase(3) =='_'
+        
+        expDate = datetime(fileNameBase(1:8),'InputFormat','yy_MM_dd');
+        
+    elseif   fileNameBase(3) == '-'
+        expDate = datetime(fileNameBase(1:8),'InputFormat','yy-MM-dd');
+        
+    else
+        disp('date not recognised')
+    end
+       
     
-                % filter out high freq peaks from poor resolution settings
-                % eye tracker in newer recordings 
-              
-                if expDate > datetime('16-01-01')
-                    calData.eyeXcal= medfilt1(calData.eyeXcal,80);
-                    calData.eyeYcal= medfilt1(calData.eyeYcal,80);
-                end
-                
-                
+    
+                % filter out high freq peaks from 
+            if expDate > datetime('16-01-01')
+             calData.eyeXcal= medfilt1(calData.eyeXcal,80);
+             calData.eyeYcal= medfilt1(calData.eyeYcal,80);
+            end
+            
+             
 %                calData.eyeXcal=  (wden(calData.eyeXcal,'heursure','s','mln',4,'dmey' ));
 %                 calData.eyeYcal=  (wden(calData.eyeYcal,'heursure','s','mln',4,'dmey' ));
 %                 

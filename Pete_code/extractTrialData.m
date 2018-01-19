@@ -5,9 +5,18 @@ fileNameBase = thisFileInfo.fileName(1:end-4);
 
 %load stimulus list file %TODO should warn if it doesnt exist and
 %launch the stimDir2List function somehow
-temp = strfind(fileNameBase, '_');
-load([processDir filesep fileNameBase(1:temp(end)-1) '-stimList']);
 
+% select stimlistfile naming variant 
+if ~isempty(regexp(fileNameBase,'_','ONCE'))
+    temp = strfind(fileNameBase, '_');
+else
+    temp = strfind(fileNameBase, '-');
+end
+
+ 
+ load([processDir filesep fileNameBase(1:temp(end)-1) '-stimList']);
+%  
+ 
 
 %load ports (event channels) from AO .mat file (output from their
 %converter)
