@@ -1,3 +1,5 @@
+function trialData = extractWholeNeuronResults(wholeNeuronResults)
+
 % extractWholeNeuronResults
 % This function extracts data from wholeNeuronResults from Pete's code and
 % performs stats.
@@ -189,3 +191,4 @@ end
 
 
 
+end
