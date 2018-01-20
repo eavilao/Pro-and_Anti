@@ -12,12 +12,13 @@ end
 nspk = nspk(2:end-1);
 timepoints = timepoints(2:end-1);
 
+% trial-average firing rates in units of spikes/s
 if analyse_sacc_win
-nspk = sum(nspk)/0.2;     %num of spikes/dur of trial
+    nspk = sum(nspk)/0.2;     %num of spikes/dur of trial
+else
+    nspk = sum(nspk)/8;       %num of spikes/dur of trial (actualy duration of extracted spks in this case)
+    
 end
-
-
-
 
 
 

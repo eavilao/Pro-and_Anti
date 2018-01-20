@@ -12,9 +12,8 @@ end
 % throw away histogram edges
 nspk = nspk(2:end-1);
 timepoints = timepoints(2:end-1);
+
 % trial-average firing rates in units of spikes/s
 nspk = nspk/(ntrls*binwidth);
+    
 
-if analyse_sacc_win
-nspk = sum(nspk)/0.2;     %num of spikes/dur of trial
-end
