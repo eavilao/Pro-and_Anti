@@ -8,19 +8,19 @@ function eyeKin = eyeKinematics_ProAnti(trialData)
 %gather
 for cellNum = 1:length(trialData)
     %prosacc
-    for trialNum = 1:length([trialData(cellNum).pro.trial.saccAmplitude])
-        eyeKin(1,cellNum).proAmp(trialNum,1) = trialData(cellNum).pro.trial(trialNum).saccAmplitude;
-        eyeKin(1,cellNum).proDur(trialNum,1) = trialData(cellNum).pro.trial(trialNum).saccDuration;
-        eyeKin(1,cellNum).proPV(trialNum,1) = trialData(cellNum).pro.trial(trialNum).saccPeakVel;
-        eyeKin(1,cellNum).proRT(trialNum,1) = trialData(cellNum).pro.trial(trialNum).reactionTime;
+    for trialNum = 1:length([trialData(cellNum).pro.behav.trial.saccAmplitude])
+        eyeKin(1,cellNum).proAmp(trialNum,1) = trialData(cellNum).pro.behav.trial(trialNum).saccAmplitude;
+        eyeKin(1,cellNum).proDur(trialNum,1) = trialData(cellNum).pro.behav.trial(trialNum).saccDuration;
+        eyeKin(1,cellNum).proPV(trialNum,1) = trialData(cellNum).pro.behav.trial(trialNum).saccPeakVel;
+        eyeKin(1,cellNum).proRT(trialNum,1) = trialData(cellNum).pro.behav.trial(trialNum).reactionTime;
         
     end
     %antisacc
-     for trialNum = 1:length([trialData(cellNum).anti.trial.saccAmplitude])
-        eyeKin(1,cellNum).antiAmp(trialNum,1) = trialData(cellNum).anti.trial(trialNum).saccAmplitude;
-        eyeKin(1,cellNum).antiDur(trialNum,1) = trialData(cellNum).anti.trial(trialNum).saccDuration;
-        eyeKin(1,cellNum).antiPV(trialNum,1) = trialData(cellNum).anti.trial(trialNum).saccPeakVel;
-        eyeKin(1,cellNum).antiRT(trialNum,1) = trialData(cellNum).anti.trial(trialNum).reactionTime;
+     for trialNum = 1:length([trialData(cellNum).anti.behav.trial.saccAmplitude])
+        eyeKin(1,cellNum).antiAmp(trialNum,1) = trialData(cellNum).anti.behav.trial(trialNum).saccAmplitude;
+        eyeKin(1,cellNum).antiDur(trialNum,1) = trialData(cellNum).anti.behav.trial(trialNum).saccDuration;
+        eyeKin(1,cellNum).antiPV(trialNum,1) = trialData(cellNum).anti.behav.trial(trialNum).saccPeakVel;
+        eyeKin(1,cellNum).antiRT(trialNum,1) = trialData(cellNum).anti.behav.trial(trialNum).reactionTime;
      end
 end
 
