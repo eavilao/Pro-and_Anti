@@ -48,56 +48,6 @@ for cellNum = 1:length(wholeNeuronResults);
 end
 
 clear cellNum trialNum %wholeNeuronResults
-%% For every trial
-analyse_sacc_win = 0;
-for cellNum = 1:length(trialData)
-    %pro trials
-    correctProTrials = trialData(cellNum).pro.indx_correctProTrials; % index pro trials
-    for trialNum = 1:length(correctProTrials)
-        [trialData(cellNum).pro.neural.trial(trialNum).nspk,trialData(cellNum).pro.neural.trial(trialNum).ts] = Spiketimes2RateTrial(trialData(cellNum).pro.neural.trial(trialNum),timepoints,binwidth,analyse_sacc_win); % all trial
-        
-        % get spks in sacc window
-        sacc_window_pro = trialData(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc;
-        win_indx_pro = find(sacc_window_pro>=-0.1 & sacc_window_pro<=0.1); % get spks that happened in sacc window
-        trialData(cellNum).pro.neural.trial(trialNum).tspk_saccWin = sacc_window_pro(win_indx_pro);
-        analyse_sacc_win = 1;
-        [trialData(cellNum).pro.neural.trial(trialNum).nspk_sacc,trialData(cellNum).pro.neural.trial(trialNum).ts_sacc] = Spiketimes2RateTrial(trialData(cellNum).pro.neural.trial(trialNum).tspk_saccWin,timepoints,binwidth,analyse_sacc_win); %redefine timepoints from -100 to 100
-        analyse_sacc_win = 0;
-        
-        %get spikes instruction window
-        instr_window_pro = trialData(cellNum).pro.neural.trial(trialNum).tspk_SS; 
-        win_indx_instr = find(instr_window_pro>=-0.1 & instr_window_pro<=0.1); % get spks that happened in instr window
-        trialData(cellNum).pro.neural.trial(trialNum).tspk_instrWin = instr_window_pro(win_indx_instr);
-        analyse_sacc_win = 1;
-        [trialData(cellNum).pro.neural.trial(trialNum).nspk_instr,trialData(cellNum).pro.neural.trial(trialNum).ts_instr] = Spiketimes2RateTrial(trialData(cellNum).pro.neural.trial(trialNum).tspk_instrWin,timepoints,binwidth,analyse_sacc_win); %redefine timepoints from -100 to 100
-        analyse_sacc_win = 0;
-        
-        
-    end
-    % anti trials
-    correctAntiTrials = trialData(cellNum).anti.indx_correctAntiTrials;
-    for trialNum = 1:length(correctAntiTrials)
-        [trialData(cellNum).anti.neural.trial(trialNum).nspk,trialData(cellNum).anti.neural.trial(trialNum).ts] = Spiketimes2RateTrial(trialData(cellNum).anti.neural.trial(trialNum),timepoints,binwidth,analyse_sacc_win); % all trial
-        
-        % get spks in sacc window
-        sacc_window_anti = trialData(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc;
-        win_indx_anti = find(sacc_window_anti>=-0.1 & sacc_window_anti<=0.1); % get spks that happened in sacc window
-        trialData(cellNum).anti.neural.trial(trialNum).tspk_saccWin = sacc_window_anti(win_indx_anti);
-        analyse_sacc_win = 1;
-        [trialData(cellNum).anti.neural.trial(trialNum).nspk_sacc,trialData(cellNum).anti.neural.trial(trialNum).ts_sacc] = Spiketimes2RateTrial(trialData(cellNum).anti.neural.trial(trialNum).tspk_saccWin,timepoints,binwidth,analyse_sacc_win);
-        analyse_sacc_win = 0;%
-        
-        % get spikes instruction window
-        instr_window_anti = trialData(cellNum).anti.neural.trial(trialNum).tspk_SS; 
-        win_indx_instr = find(instr_window_anti>=-0.1 & instr_window_anti<=instr_window_anti+0.1); % get spks that happened in instr window
-        trialData(cellNum).anti.neural.trial(trialNum).tspk_instrWin = instr_window_anti(win_indx_instr);
-        analyse_sacc_win = 1;
-        [trialData(cellNum).anti.neural.trial(trialNum).nspk_instr,trialData(cellNum).anti.neural.trial(trialNum).ts_instr] = Spiketimes2RateTrial(trialData(cellNum).anti.neural.trial(trialNum).tspk_instrWin,timepoints,binwidth,analyse_sacc_win); %redefine timepoints from -100 to 100
-        analyse_sacc_win = 0;
- 
-    end
-end
-clear cellNum trialNum correctProTrials correctAntiTrials analyse_sacc_win
 
 %% Spike times to rate for pro and antisaccades and behav
 binwidth = 0.01;
@@ -150,6 +100,57 @@ for cellNum = 1:length(trialData)
     analyse_sacc_win = 0;
     
 end
+
+%% For every trial
+analyse_sacc_win = 0;
+for cellNum = 1:length(trialData)
+    %pro trials
+    correctProTrials = trialData(cellNum).pro.indx_correctProTrials; % index pro trials
+    for trialNum = 1:length(correctProTrials)
+        [trialData(cellNum).pro.neural.trial(trialNum).nspk,trialData(cellNum).pro.neural.trial(trialNum).ts] = Spiketimes2RateTrial(trialData(cellNum).pro.neural.trial(trialNum),timepoints,binwidth,analyse_sacc_win); % all trial
+        
+        % get spks in sacc window
+        sacc_window_pro = trialData(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc;
+        win_indx_pro = find(sacc_window_pro>=-0.1 & sacc_window_pro<=0.1); % get spks that happened in sacc window
+        trialData(cellNum).pro.neural.trial(trialNum).tspk_saccWin = sacc_window_pro(win_indx_pro);
+        analyse_sacc_win = 1;
+        [trialData(cellNum).pro.neural.trial(trialNum).nspk_sacc,trialData(cellNum).pro.neural.trial(trialNum).ts_sacc] = Spiketimes2RateTrial(trialData(cellNum).pro.neural.trial(trialNum).tspk_saccWin,timepoints,binwidth,analyse_sacc_win); %redefine timepoints from -100 to 100
+        analyse_sacc_win = 0;
+        
+        %get spikes instruction window
+        instr_window_pro = trialData(cellNum).pro.neural.trial(trialNum).tspk_SS; 
+        win_indx_instr = find(instr_window_pro>=-0.1 & instr_window_pro<=0.1); % get spks that happened in instr window
+        trialData(cellNum).pro.neural.trial(trialNum).tspk_instrWin = instr_window_pro(win_indx_instr);
+        analyse_sacc_win = 1;
+        [trialData(cellNum).pro.neural.trial(trialNum).nspk_instr,trialData(cellNum).pro.neural.trial(trialNum).ts_instr] = Spiketimes2RateTrial(trialData(cellNum).pro.neural.trial(trialNum).tspk_instrWin,timepoints,binwidth,analyse_sacc_win); %redefine timepoints from -100 to 100
+        analyse_sacc_win = 0;
+        
+        
+    end
+    % anti trials
+    correctAntiTrials = trialData(cellNum).anti.indx_correctAntiTrials;
+    for trialNum = 1:length(correctAntiTrials)
+        [trialData(cellNum).anti.neural.trial(trialNum).nspk,trialData(cellNum).anti.neural.trial(trialNum).ts] = Spiketimes2RateTrial(trialData(cellNum).anti.neural.trial(trialNum),timepoints,binwidth,analyse_sacc_win); % all trial
+        
+        % get spks in sacc window
+        sacc_window_anti = trialData(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc;
+        win_indx_anti = find(sacc_window_anti>=-0.1 & sacc_window_anti<=0.1); % get spks that happened in sacc window
+        trialData(cellNum).anti.neural.trial(trialNum).tspk_saccWin = sacc_window_anti(win_indx_anti);
+        analyse_sacc_win = 1;
+        [trialData(cellNum).anti.neural.trial(trialNum).nspk_sacc,trialData(cellNum).anti.neural.trial(trialNum).ts_sacc] = Spiketimes2RateTrial(trialData(cellNum).anti.neural.trial(trialNum).tspk_saccWin,timepoints,binwidth,analyse_sacc_win);
+        analyse_sacc_win = 0;%
+        
+        % get spikes instruction window
+        instr_window_anti = trialData(cellNum).anti.neural.trial(trialNum).tspk_SS; 
+        win_indx_instr = find(instr_window_anti>=-0.1 & instr_window_anti<=instr_window_anti+0.1); % get spks that happened in instr window
+        trialData(cellNum).anti.neural.trial(trialNum).tspk_instrWin = instr_window_anti(win_indx_instr);
+        analyse_sacc_win = 1;
+        [trialData(cellNum).anti.neural.trial(trialNum).nspk_instr,trialData(cellNum).anti.neural.trial(trialNum).ts_instr] = Spiketimes2RateTrial(trialData(cellNum).anti.neural.trial(trialNum).tspk_instrWin,timepoints,binwidth,analyse_sacc_win); %redefine timepoints from -100 to 100
+        analyse_sacc_win = 0;
+ 
+    end
+end
+clear cellNum trialNum correctProTrials correctAntiTrials analyse_sacc_win
 
 %% Stats
 %% Eye kinematics
