@@ -43,16 +43,16 @@ for cellNum = 1:length(wholeNeuronResults);
         end
     end
     % Indexes to select Pro and Anti trials
-    trialData(cellNum).indx_correctProTrials = wholeNeuronResults(cellNum).selectedTrials.corProTrials;
-    trialData(cellNum).indx_correctAntiTrials = wholeNeuronResults(cellNum).selectedTrials.corAntiTrials;
+    trialData(cellNum).pro.indx_correctProTrials = wholeNeuronResults(cellNum).selectedTrials.corProTrials;
+    trialData(cellNum).anti.indx_correctAntiTrials = wholeNeuronResults(cellNum).selectedTrials.corAntiTrials;
 end
 
 clear cellNum trialNum %wholeNeuronResults
 %% For every trial
-analyse_sacc_win = 0;%
+analyse_sacc_win = 0;
 for cellNum = 1:length(trialData)
     %pro trials
-    correctProTrials = trialData(cellNum).indx_correctProTrials; % index pro trials
+    correctProTrials = trialData(cellNum).pro.indx_correctProTrials; % index pro trials
     for trialNum = 1:length(correctProTrials)
         [trialData(cellNum).pro.neural.trial(trialNum).nspk,trialData(cellNum).pro.neural.trial(trialNum).ts] = Spiketimes2RateTrial(trialData(cellNum).pro.neural.trial(trialNum),timepoints,binwidth,analyse_sacc_win); % all trial
         
@@ -75,7 +75,7 @@ for cellNum = 1:length(trialData)
         
     end
     % anti trials
-    correctAntiTrials = trialData(cellNum).indx_correctAntiTrials;
+    correctAntiTrials = trialData(cellNum).anti.indx_correctAntiTrials;
     for trialNum = 1:length(correctAntiTrials)
         [trialData(cellNum).anti.neural.trial(trialNum).nspk,trialData(cellNum).anti.neural.trial(trialNum).ts] = Spiketimes2RateTrial(trialData(cellNum).anti.neural.trial(trialNum),timepoints,binwidth,analyse_sacc_win); % all trial
         
