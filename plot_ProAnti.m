@@ -60,10 +60,10 @@ switch plotType
         vline(0, 'c');
         set (gca, 'xlim', ([-0.5 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
         title('Antisaccade (aligned to saccade onset)');xlabel('Time (s)');ylabel('Trial Num');
-         
         
-    case 'psth'
-         
+        
+    case 'psth_saccade'
+        
         %gather
         t= trialData(cellNum).pro.neural.ts_sacc;
         r_pro= trialData(cellNum).pro.neural.nspk_sacc;
@@ -80,6 +80,11 @@ switch plotType
         xlabel('Time (s)'); ylabel ('Firing rate (spk/s');
         vline(0, 'k--')
         box off
+        
+    case 'psth_instruction'
+        
+        
+        
         
     case 'firingVSamp'
         %gather
