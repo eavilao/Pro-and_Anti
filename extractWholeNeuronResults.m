@@ -60,10 +60,10 @@ for cellNum = 1:length(trialData)
     % [trialData(cellNum).all.neural.nspk,trialData(cellNum).all.neural.ts] = Spiketimes2Rate(trialData(cellNum).trial.neural,timepoints,binwidth,analyse_sacc_win);
     
     % Pro trials
-    correctProTrials = trialData(cellNum).indx_correctProTrials; % index pro trials
+    correctProTrials = trialData(cellNum).pro.indx_correctProTrials; % index pro trials
     
     % behav
-    for trialNum = 1:length(trialData(cellNum).indx_correctProTrials)
+    for trialNum = 1:length(trialData(cellNum).pro.indx_correctProTrials)
         trialData(cellNum).pro.behav.trial(trialNum).saccadeOnset = trialData(cellNum).trial.behav(correctProTrials(trialNum)).saccadeOnset;
         trialData(cellNum).pro.behav.trial(trialNum).goCueTime = trialData(cellNum).trial.behav(correctProTrials(trialNum)).goCueTime;
         trialData(cellNum).pro.behav.trial(trialNum).saccAmplitude = trialData(cellNum).trial.behav(correctProTrials(trialNum)).saccAmplitude;
@@ -73,7 +73,7 @@ for cellNum = 1:length(trialData)
     end
     
     % neural
-    trialData(cellNum).pro.neural.trial = trialData(cellNum).trial.neural(trialData(cellNum).indx_correctProTrials);
+    trialData(cellNum).pro.neural.trial = trialData(cellNum).trial.neural(trialData(cellNum).pro.indx_correctProTrials);
     [trialData(cellNum).pro.neural.nspk,trialData(cellNum).pro.neural.ts] = Spiketimes2Rate(trialData(cellNum).pro.neural.trial,timepoints,binwidth,analyse_sacc_win); % aligned to trial onset
     % Pro saccade window
     analyse_sacc_win = 1;
@@ -81,9 +81,9 @@ for cellNum = 1:length(trialData)
     analyse_sacc_win = 0;
     
     % Anti trials
-    correctAntiTrials = trialData(cellNum).indx_correctAntiTrials; % index pro trials
+    correctAntiTrials = trialData(cellNum).anti.indx_correctAntiTrials; % index pro trials
     % behav
-    for trialNum = 1:length(trialData(cellNum).indx_correctAntiTrials)
+    for trialNum = 1:length(trialData(cellNum).anti.indx_correctAntiTrials)
         trialData(cellNum).anti.behav.trial(trialNum).saccadeOnset = trialData(cellNum).trial.behav(correctAntiTrials(trialNum)).saccadeOnset;
         trialData(cellNum).anti.behav.trial(trialNum).goCueTime = trialData(cellNum).trial.behav(correctAntiTrials(trialNum)).goCueTime;
         trialData(cellNum).anti.behav.trial(trialNum).saccAmplitude = trialData(cellNum).trial.behav(correctAntiTrials(trialNum)).saccAmplitude;
@@ -92,7 +92,7 @@ for cellNum = 1:length(trialData)
         trialData(cellNum).anti.behav.trial(trialNum).reactionTime = trialData(cellNum).trial.behav(correctAntiTrials(trialNum)).reactionTime;
     end
     %neural
-    trialData(cellNum).anti.neural.trial = trialData(cellNum).trial.neural(trialData(cellNum).indx_correctAntiTrials);
+    trialData(cellNum).anti.neural.trial = trialData(cellNum).trial.neural(trialData(cellNum).anti.indx_correctAntiTrials);
     [trialData(cellNum).anti.neural.nspk,trialData(cellNum).anti.neural.ts] = Spiketimes2Rate(trialData(cellNum).anti.neural.trial,timepoints,binwidth,analyse_sacc_win); % aligned to trial onset
     % Anti saccade window
     analyse_sacc_win = 1;
