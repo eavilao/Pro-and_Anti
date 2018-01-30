@@ -1,4 +1,4 @@
-function plot_ProAnti(trialData, cellNum, plotType)
+function plotUnit_ProAnti(trialData, cellNum, plotType)
 
 % Needed: trialData.mat
 % Input:    trialData  - output from extractWholeNeuronResults.m
@@ -82,8 +82,23 @@ switch plotType
         box off
         
     case 'psth_instruction'
+        %gather
+        t= trialData(cellNum).pro.neural.ts_rate_instr;
+        r_pro= trialData(cellNum).pro.neural.rate_instr;
+        r_anti = trialData(cellNum).anti.neural.rate_instr;
+
+        % smooth
+        r_pro_smooth = smooth(r_pro,50);
+        r_anti_smooth = smooth(r_anti,50);
         
         
+        % Plot single units aligned to saccade
+        plot(t, r_pro_smooth, 'r', 'LineWidth', 3); hold on
+        plot(t, r_anti_smooth, 'g', 'LineWidth', 3);
+        set (gca, 'xlim',([0 0.2]), 'TickDir', 'out', 'FontSize',18);
+        xlabel('Time (s)'); ylabel ('Firing rate (spk/s');
+        box off
+        title('Instruction')
         
         
     case 'firingVSamp'

@@ -228,7 +228,8 @@ for cellNum = 1:length(trialData)
     [trialData(cellNum).stats.flags.anti_instr_base, trialData(cellNum).stats.pval.anti_instr_base] = ttest(trialData(cellNum).all.neural.rate_base,trialData(cellNum).anti.neural.rate_instr); 
     [trialData(cellNum).stats.flags.anti_sacc_base, trialData(cellNum).stats.pval.anti_sacc_base] = ttest(trialData(cellNum).all.neural.rate_base,trialData(cellNum).anti.neural.rate_instr); 
     
-    % compare pro vs anti
+    % compare pro vs anti IN PROGRESS TODO compute unequal sample test on
+    % trial spike times
     % instruction
     [trialData(cellNum).stats.pval.proVsAnti_instr,trialData(cellNum).stats.flags.proVsAnti_instr] = ranksum(trialData(cellNum).pro.neural.rate_instr, trialData(cellNum).anti.neural.rate_instr);
     % saccade
