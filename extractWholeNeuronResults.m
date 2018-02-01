@@ -229,11 +229,14 @@ for cellNum = 1:length(trialData)
     [trialData(cellNum).stats.flags.anti_sacc_base, trialData(cellNum).stats.pval.anti_sacc_base] = ttest(trialData(cellNum).all.neural.rate_base,trialData(cellNum).anti.neural.rate_instr); 
     
     % compare pro vs anti IN PROGRESS TODO compute unequal sample test on
+    % matrix of trial rate between pro and anti Welchs' test for unequal
+    % variances and unequal sample sizes. 
     % trial spike times
     % instruction
-    [trialData(cellNum).stats.pval.proVsAnti_instr,trialData(cellNum).stats.flags.proVsAnti_instr] = ranksum(trialData(cellNum).pro.neural.rate_instr, trialData(cellNum).anti.neural.rate_instr);
+    %[trialData(cellNum).stats.pval.proVsAnti_instr,trialData(cellNum).stats.flags.proVsAnti_instr] = ttest2(trialData(cellNum).pro.neural.rate_instr, trialData(cellNum).anti.neural.rate_instr);
     % saccade
-    [trialData(cellNum).stats.pval.proVsAnti_sacc,trialData(cellNum).stats.flags.proVsAnti_sacc] = ranksum(trialData(cellNum).pro.neural.rate_sacc, trialData(cellNum).anti.neural.rate_sacc);
+    
+    %[trialData(cellNum).stats.pval.proVsAnti_sacc,trialData(cellNum).stats.flags.proVsAnti_sacc] = ttest2(trialData(cellNum).pro.neural.rate_sacc, trialData(cellNum).anti.neural.rate_sacc);
     
 end
 
