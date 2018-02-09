@@ -1,7 +1,7 @@
 % Build recording list 
 
 % collect all files and folders 
-clear
+
 allfiles = getAllFiles(cd);
 
 
@@ -23,7 +23,6 @@ stimListFolders=unique(stimListFolders);
   
 % get all containing files
 stimfolder=cell(4,1);
-
 for ii = 1:4
     stimfolder{ii} = getAllFiles(stimListFolders{ii});
 end
@@ -63,9 +62,8 @@ end
 
 
 % first parts of neuron list: path to data, cellname,monkey name, area
-% for i= 1:size(cell_names,1)
-    for i= 1:10
-
+for i= 1:size(cell_names,1)
+    
     % path and name of cells
     neuronList(i).path = cell_folders{i};
     neuronList(i).neuronName = cell_names{i};
@@ -95,11 +93,7 @@ end
     year = regexp(cell_names{i},'1+[234567]+'); % 2012 - 2017
     day = regexp(cell_names{i},'[123]+[0123456789]+') ;% 1 - 31
     daystring = cell_names{i}(year(1):day(end)+1);
-    try
     recDay = datetime(daystring,'InputFormat','yy_MM_dd');
-    catch
-        keyboard
-    end 
     neuronList(i).recordingDate = recDay;
     
     % compare recording date with newer (nico) recordings, these have
@@ -164,11 +158,10 @@ end
  for ii = 1:size(spikeMatFiles,1)
      fileSeperator = strfind(spikeMatFiles,'\');
      fileList{ii,1} =  [spikeMatFiles{1}(fileSeperator{1}(end)+1:end),'.mat'];
-     fileList{ii,2} = recording_channel;
-     fileList{ii,3} = [1,2];
-     fileList{ii,6} = nan;
+     fileList{ii,2} = channel
+     fileList{ii,3} = 
  end
-     neuronList(i).fileList = fileList; 
+     
 
 % neuronList(39).neuronName = '17_01_20_N2';    % 
 % neuronList(39).fileList = {
@@ -255,17 +248,17 @@ end
          neuronList(i)=[];
          continue
      end
-     [m, mi] =  max([possibleStimListFiles{:,3}]);
-     neuronList(i).stimListFile = possibleStimListFiles{mi,1};
-%     take rsd - find matching mat files - these are the spike files. 
-%     
-%      any leftover files are likely the stimlistfile -> check by seeing if it contains variable: epd or stimlistfile or ans. 
-%     find biggest stimlist file in mb's 
+     [m mi] =  max([possibleStimListFiles{:,3}]);
+     neuronList.stimListFile = possibleStimListFiles{mi,1};
+    take rsd - find matching mat files - these are the spike files. 
+    
+     any leftover files are likely the stimlistfile -> check by seeing if it contains variable: epd or stimlistfile or ans. 
+    find biggest stimlist file in mb's 
     
 end
 
 
-% eyeChannels = [1 2] % if recording newer then 2016
+eyeChannels = [1 2] % if recording newer then 2016
 
 % categories=  dir(cd);
 % 
