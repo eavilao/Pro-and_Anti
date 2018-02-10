@@ -255,14 +255,13 @@ for cellNum = 1:length(trialData)
     % instr period pro vs anti
     instr_pro = [vertcat(trialData(cellNum).pro.neural.trial.instr_nspk)];
     instr_anti = [vertcat(trialData(cellNum).anti.neural.trial.instr_nspk)];
-    [trialData(cellNum).stats.pval.proVsAnti_instr,trialData(cellNum).stats.flags.proVsAnti_instr] = ttest2(instr_pro,instr_anti);
+    [trialData(cellNum).stats.flags.proVsAnti_instr,trialData(cellNum).stats.pval.proVsAnti_instr] = ttest2(instr_pro,instr_anti);
 
 
     % sacc pro vs anti
     sacc_pro = [vertcat(trialData(cellNum).pro.neural.trial.sacc_nspk)];
     sacc_anti = [vertcat(trialData(cellNum).anti.neural.trial.sacc_nspk)];
-    [trialData(cellNum).stats.pval.proVsAnti_sacc,trialData(cellNum).stats.flags.proVsAnti_sacc] = ttest2(sacc_pro,sacc_anti);
-    
+    [trialData(cellNum).stats.flags.proVsAnti_sacc,trialData(cellNum).stats.pval.proVsAnti_sacc] = ttest2(sacc_pro,sacc_anti);
     
     % noramlized FR
     
