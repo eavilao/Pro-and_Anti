@@ -248,24 +248,29 @@ for cellNum = 1:length(trialData)
     [trialData(cellNum).stats.flags.anti_instr_base, trialData(cellNum).stats.pval.anti_instr_base] = ttest([trialData(cellNum).anti.neural.trial.base_nspk],[trialData(cellNum).anti.neural.trial.instr_nspk]); 
     [trialData(cellNum).stats.flags.anti_sacc_base, trialData(cellNum).stats.pval.anti_sacc_base] = ttest([trialData(cellNum).anti.neural.trial.base_nspk],[trialData(cellNum).anti.neural.trial.sacc_nspk]);
     
-    % compare pro vs anti IN PROGRESS TODO compute unequal sample test on
+    % compare pro vs anti - compute unequal sample test on
     % matrix of trial rate between pro and anti Welchs' test for unequal
-    % variances and unequal sample sizes.
-    % trial spike times
-    % instruction
+    % variances and unequal sample sizes. Per neuron
     
-    % Instr period
-    instr_pro = [instr_pro; vertcat(trialData(cellNum).pro.neural.trial.instr_nspk)];
-    instr_anti = [instr_anti; vertcat(trialData(cellNum).anti.neural.trial.instr_nspk)];
-    % sacc 
-    sacc_pro = [sacc_pro ; vertcat(trialData(cellNum).pro.neural.trial.sacc_nspk)];
-    sacc_anti = [sacc_anti ; vertcat(trialData(cellNum).anti.neural.trial.sacc_nspk)];
+    % instr period pro vs anti
+    instr_pro = [vertcat(trialData(cellNum).pro.neural.trial.instr_nspk)];
+    instr_anti = [vertcat(trialData(cellNum).anti.neural.trial.instr_nspk)];
+    [trialData(cellNum).stats.pval.proVsAnti_instr,trialData(cellNum).stats.flags.proVsAnti_instr] = ttest2(instr_pro,instr_anti);
+
+
+    % sacc pro vs anti
+    sacc_pro = [vertcat(trialData(cellNum).pro.neural.trial.sacc_nspk)];
+    sacc_anti = [vertcat(trialData(cellNum).anti.neural.trial.sacc_nspk)];
+    [trialData(cellNum).stats.pval.proVsAnti_sacc,trialData(cellNum).stats.flags.proVsAnti_sacc] = ttest2(sacc_pro,sacc_anti);
+    
+    
+    % noramlized FR
+    
+    % discindx
     
 end
 
-% instr pro vs anti
-[trialData(cellNum).stats.pval.proVsAnti_instr,trialData(cellNum).stats.flags.proVsAnti_instr] = ttest2(instr_pro,instr_anti);
-% sacc pro vs anti
-[trialData(cellNum).stats.pval.proVsAnti_sacc,trialData(cellNum).stats.flags.proVsAnti_sacc] = ttest2(sacc_pro,sacc_anti);
+
+
 
 end
