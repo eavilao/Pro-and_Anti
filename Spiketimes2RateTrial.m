@@ -16,7 +16,7 @@ timepoints = timepoints(2:end-1);
 if analyse_sacc_win
     nspk = sum(nspk)/0.2;     %num of spikes/dur of trial
 else
-    nspk = sum(nspk)/8;       %num of spikes/dur of trial (actualy duration of extracted spks in this case)
+    nspk = sum(nspk)/8;       %num of spikes/dur of trial (actually duration of extracted spks in this case)
     
 end
 
