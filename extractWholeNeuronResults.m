@@ -284,7 +284,7 @@ for cellNum = 1:length(trialData)
     
     %% noramlized FR - z-scored
     % aligned to trial onset
-trialData(cellNum).pro.neural.sacc.norm_rate_pst = (trialData(cellNum).pro.neural.instr.rate_pst - mean(trialData(cellNum).pro.neural.instr.rate_pst))/...
+    trialData(cellNum).pro.neural.sacc.norm_rate_pst = (trialData(cellNum).pro.neural.instr.rate_pst - mean(trialData(cellNum).pro.neural.instr.rate_pst))/...
         std(trialData(cellNum).pro.neural.instr.rate_pst);
     
     % aligned to saccade
@@ -292,13 +292,7 @@ trialData(cellNum).pro.neural.sacc.norm_rate_pst = (trialData(cellNum).pro.neura
         std(trialData(cellNum).pro.neural.sacc.align_rate_pst);
     
     
-    % discindx
-    
-    
-    
 end
-
-
 
 
 end
