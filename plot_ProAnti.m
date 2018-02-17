@@ -6,6 +6,12 @@ function plotUnit_ProAnti(trialData, cellNum, plotType)
 %           plotType - plot you want (e.g. raster, psth, etc.)
 
 
+%%
+% shadedErrorBar(trialData(1).anti.neural.sacc_ts_pst,trialData(1).anti.neural.sacc_rate_pst,repmat(trialData(1).anti.neural.sacc_rate_sig,1,21))
+% hold on
+% shadedErrorBar(trialData(1).pro.neural.sacc_ts_pst,trialData(1).pro.neural.sacc_rate_pst,repmat(trialData(1).pro.neural.sacc_rate_sig,1,21))
+
+%%
 
 switch plotType
     case 'raster'   %TODO Sort goCueTime and realign trials to that sorting
