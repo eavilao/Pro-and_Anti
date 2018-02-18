@@ -18,36 +18,16 @@ switch plotType
         
         %% Raster
         
-        %         % aligned to trial onset
-        %         %pro
-        %         figure; hold on;
-        %         for j=1:length(trialData(cellNum).pro.neural.trial)
-        %             if ~isempty(trialData(cellNum).pro.neural.trial(j).tspk_SS)
-        %                 plot(trialData(cellNum).pro.behav.trial(j).goCueTime,j,'.r');
-        %                 plot(trialData(cellNum).pro.neural.trial(j).tspk_SS(1:2:end),i,'.k');%plot every n spikes
-        %                 %plot(trialData(cellNum).pro.neural.trial(j).tspk_SS,j,'.k');
-        %             end
-        %         end
-        %         xlim([-0.5 0.5]);
-        %
-        %         %anti
-        %         figure; hold on;
-        %         for j=1:length(trialData(cellNum).anti.neural.trial)
-        %             if ~isempty(trialData(cellNum).anti.neural.trial(j).tspk_SS)
-        %                 plot(trialData(cellNum).anti.behav.trial(j).goCueTime,j,'.r');
-        %                 plot(trialData(cellNum).anti.neural.trial(j).tspk_SS(1:2:end),i,'.k'); %plot every n spikes
-        %                 %plot(trialData(cellNum).anti.neural.trial(j).tspk_SS,j,'.k');
-        %             end
-        %         end
-        
         % saccade aligned
         % pro
+        [~,indx] = sort([trialData(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
+        sorted_RT = -[trialData(cellNum).pro.behav.trial(indx).reactionTime]; 
         subplot (2,1,1); hold on;box off
-        for j=1:length(trialData(cellNum).pro.neural.trial)
+        for j=1:length(indx)
             if ~isempty(trialData(cellNum).pro.neural.trial(1).tspk_SS_align_sacc)
-                plot(-trialData(cellNum).pro.behav.trial(j).reactionTime,j,'.r');
-                plot(trialData(cellNum).pro.neural.trial(j).tspk_SS_align_sacc(1:2:end),j,'.k');%plot every n spikes
-                %plot(trialData(cellNum).pro.neural.trial(j).tspk_SS_align_sacc,j,'.k');
+                plot(sorted_RT(j),j,'.r');
+                plot(trialData(cellNum).pro.neural.trial(indx(j)).tspk_SS_align_sacc(1:2:end),j,'.k'); %plot every n spikes
+                %plot(trialData(cellNum).pro.neural.trial(indx).tspk_SS_align_sacc,j,'.k');
             end
         end
         vline(0, 'c');
@@ -55,17 +35,19 @@ switch plotType
         title('Prosaccade (aligned to saccade onset)');xlabel('Time (s)');ylabel('Trial Num')
         
         % anti
+       [~,indx] = sort([trialData(cellNum).anti.behav.trial.reactionTime],'descend'); % sort RT
+        sorted_RT = -[trialData(cellNum).anti.behav.trial(indx).reactionTime]; 
         subplot (2,1,2); hold on;box off
-        for j=1:length(trialData(cellNum).anti.neural.trial)
+        for j=1:length(indx)
             if ~isempty(trialData(cellNum).anti.neural.trial(1).tspk_SS_align_sacc)
-                plot(-trialData(cellNum).anti.behav.trial(j).reactionTime,j,'.r');
-                plot(trialData(cellNum).anti.neural.trial(j).tspk_SS_align_sacc(1:2:end),j,'.k');%plot every n spikes
-                %plot(trialData(cellNum).pro.neural.trial(j).tspk_SS_align_sacc,j,'.k');
+                plot(sorted_RT(j),j,'.r');
+                plot(trialData(cellNum).anti.neural.trial(indx(j)).tspk_SS_align_sacc(1:2:end),j,'.k'); %plot every n spikes
+                %plot(trialData(cellNum).anti.neural.trial(indx).tspk_SS_align_sacc,j,'.k');
             end
         end
         vline(0, 'c');
         set (gca, 'xlim', ([-0.5 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-        title('Antisaccade (aligned to saccade onset)');xlabel('Time (s)');ylabel('Trial Num');
+        title('Antisaccade (aligned to saccade onset)');xlabel('Time (s)');ylabel('Trial Num')
         
         
     case 'psth_saccade'
