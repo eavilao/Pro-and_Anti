@@ -19,7 +19,7 @@ function trialData = extractWholeNeuronResults(wholeNeuronResults)
 
 %% Create structure with relevant data (trialData)
 %uiopen;
-tsmooth = 0.025;
+tsmooth = 0.050;
 
 for cellNum = 1:length(wholeNeuronResults);
     for trialNum = 1:length(wholeNeuronResults(cellNum).allStableTrials);

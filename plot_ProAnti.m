@@ -1,4 +1,4 @@
-function plotUnit_ProAnti(trialData, cellNum, plotType)
+function plotUnit_ProAnti(trialData, plotType, cellNum)
 
 % Needed: trialData.mat
 % Input:    trialData  - output from extractWholeNeuronResults.m
@@ -14,10 +14,8 @@ function plotUnit_ProAnti(trialData, cellNum, plotType)
 %%
 
 switch plotType
-    case 'raster'   %TODO Sort goCueTime and realign trials to that sorting
-        
-        %% Raster
-        
+    
+    case 'raster'
         % saccade aligned
         % pro
         [~,indx] = sort([trialData(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
@@ -53,40 +51,60 @@ switch plotType
     case 'psth_saccade'
         
         %gather
-        t= trialData(cellNum).pro.neural.ts_sacc;
-        r_pro= trialData(cellNum).pro.neural.nspk_sacc;
-        r_anti = trialData(cellNum).anti.neural.nspk_sacc;
-        
-        % smooth
-        r_pro_smooth = smooth(r_pro,50);
-        r_anti_smooth = smooth(r_anti,50);
-        % Plot single units aligned to saccade
-        figure;
-        plot(t, r_pro_smooth, 'r', 'LineWidth', 3); hold on
-        plot(t, r_anti_smooth, 'g', 'LineWidth', 3);
+        t= trialData(cellNum).pro.neural.sacc.align_ts_pst;
+        r_pro= trialData(cellNum).pro.neural.sacc.align_rate_pst;
+        sem_pro = std(trialData(cellNum).pro.neural.sacc.align_rate_pst)/sqrt(length(trialData(cellNum).pro.neural.trial));
+        sem_pro = repmat(sem_pro,[1 size(r_pro,2)]);
+        r_anti = trialData(cellNum).anti.neural.sacc.align_rate_pst;
+        sem_anti = std(trialData(cellNum).anti.neural.sacc.align_rate_pst)/sqrt(length(trialData(cellNum).anti.neural.trial));
+        sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
+       
+        %plot
+        figure; hold on;
+        plot(t, r_pro, 'r', 'LineWidth', 3);
+        plot(t, r_anti, 'g', 'LineWidth', 3);
         set (gca, 'xlim',([-0.5 0.5]), 'TickDir', 'out', 'FontSize',18);
         xlabel('Time (s)'); ylabel ('Firing rate (spk/s');
         vline(0, 'k--')
         box off
         
-    case 'psth_instruction'
-        %gather
-        t= trialData(cellNum).pro.neural.ts_rate_instr;
-        r_pro= trialData(cellNum).pro.neural.rate_instr;
-        r_anti = trialData(cellNum).anti.neural.rate_instr;
-
-        % smooth
-        r_pro_smooth = smooth(r_pro,50);
-        r_anti_smooth = smooth(r_anti,50);
-        
-        
-        % Plot single units aligned to saccade
-        plot(t, r_pro_smooth, 'r', 'LineWidth', 3); hold on
-        plot(t, r_anti_smooth, 'g', 'LineWidth', 3);
-        set (gca, 'xlim',([0 0.2]), 'TickDir', 'out', 'FontSize',18);
+        % plot w/sem
+        figure; hold on
+        shadedErrorBar(t, r_pro,sem_pro,'lineprops','r');
+        shadedErrorBar(t, r_anti,sem_anti,'lineprops','g');
+        set (gca, 'xlim',([-0.5 0.5]), 'TickDir', 'out', 'FontSize',18);
         xlabel('Time (s)'); ylabel ('Firing rate (spk/s');
+        vline(0, 'k--');
         box off
-        title('Instruction')
+        
+        
+    case 'psth_instruction'
+     %gather
+        t= trialData(cellNum).pro.neural.sacc.align_ts_pst;
+        r_pro= trialData(cellNum).pro.neural.rate_pst;
+        sem_pro = std(trialData(cellNum).pro.neural.rate_pst)/sqrt(length(trialData(cellNum).pro.neural.trial));
+        sem_pro = repmat(sem_pro,[1 size(r_pro,2)]);
+        r_anti = trialData(cellNum).anti.neural.rate_pst;
+        sem_anti = std(trialData(cellNum).anti.neural.rate_pst)/sqrt(length(trialData(cellNum).anti.neural.trial));
+        sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
+       
+        %plot
+        figure; hold on;
+        plot(t, r_pro, 'r', 'LineWidth', 3);
+        plot(t, r_anti, 'g', 'LineWidth', 3);
+        set (gca, 'xlim',([-0.5 0.5]), 'TickDir', 'out', 'FontSize',18);
+        xlabel('Time (s)'); ylabel ('Firing rate (spk/s');
+        vline(0, 'k--')
+        box off
+        
+        % plot w/sem
+        figure; hold on
+        shadedErrorBar(t, r_pro,sem_pro,'lineprops','r');
+        shadedErrorBar(t, r_anti,sem_anti,'lineprops','g');
+        set (gca, 'xlim',([-0.5 0.5]), 'TickDir', 'out', 'FontSize',18);
+        xlabel('Time (s)'); ylabel ('Firing rate (spk/s');
+        vline(0, 'k--');
+        box off
         
         
     case 'firingVSamp'
