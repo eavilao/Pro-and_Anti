@@ -106,6 +106,43 @@ switch plotType
         vline(0, 'k--');
         box off
         
+    case 'colormap_sacc'
+        units = trialData; nunits = 1:length(trialData);
+        %pro
+        t = units(1).pro.neural.sacc.align_ts_pst; clear r;
+        for j=1:length(nunits)
+            r(j,:) = units(j).pro.neural.sacc.norm_rate_pst(1,:);
+        end
+        
+        [r,t] = smooth_colormap(r,t);
+        % plot colormap
+        B = goodcolormap('wr');
+        figure; set(gcf,'Position',[100 200 300 300]);
+        hold on; colormap(B');
+        %hold on; colormap(jet);
+        imagesc(t,1:nunits,r,[0,1]);
+        set(gca,'xlim',[-0.5 0.5],'ylim',[1 nunits(end)],...
+        'YTickLabel',[],'TickDir','Out','Fontsize',16);
+        xlabel('Time (s)'); ylabel('Neuron');
+        title('Pro')
+        
+        %anti
+        t = units(1).anti.neural.sacc.align_ts_pst; clear r;
+        for j=1:length(nunits)
+            r(j,:) = units(j).anti.neural.sacc.norm_rate_pst(1,:);
+        end
+        
+        [r,t] = smooth_colormap(r,t);
+        % plot colormap
+        B = goodcolormap('wr');
+        figure; set(gcf,'Position',[100 200 300 300]);
+        hold on; colormap(B');
+        %hold on; colormap(jet);
+        imagesc(t,1:nunits,r,[0,1]);
+        set(gca,'xlim',[-0.5 0.5],'ylim',[1 nunits(end)],...
+        'YTickLabel',[],'TickDir','Out','Fontsize',16);
+        xlabel('Time (s)'); ylabel('Neuron');
+        title('Anti')
         
     case 'firingVSamp'
         %gather
@@ -183,5 +220,5 @@ switch plotType
         xlabel ('Amplitude (block per 5 deg)'); ylabel('Firing rate (spk/s)');
         set(gca, 'TickDir', 'out', 'FontSize', 18, 'xlim',([0.5 3.5]), 'ylim',([0 200]), 'XTick',[0 1 2 3]); 
         
-    case 'colormap'
+        
 end
