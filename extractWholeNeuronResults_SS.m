@@ -32,10 +32,11 @@ for cellNum = 1:length(wholeNeuronResults);
             trialData(cellNum).trial.behav(trialNum).saccDuration = wholeNeuronResults(cellNum).allStableTrials(trialNum).saccadeDuration;
             trialData(cellNum).trial.behav(trialNum).saccPeakVel = wholeNeuronResults(cellNum).allStableTrials(trialNum).saccadePeakVel;
             trialData(cellNum).trial.behav(trialNum).reactionTime = wholeNeuronResults(cellNum).allStableTrials(trialNum).reactionTime;
+            trialData(cellNum).trial.behav(trialNum).reward = wholeNeuronResults(cellNum).allStableTrials(trialNum).bit8time;
             
-            %neural data
-            trialData(cellNum).trial.neural(trialNum).tspk_SS =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{1}; % contains spike times for SS aligned to trial onset (?)
-            trialData(cellNum).trial.neural(trialNum).tspk_SS_align_sacc =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{1}-trialData(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for SS aligned to sacc onset
+            %neural data      
+            trialData(cellNum).trial.neural(trialNum).tspk_SS =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{1}; % contains spike times for CS aligned to trial onset (?)
+            trialData(cellNum).trial.neural(trialNum).tspk_SS_align_sacc =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{1}-trialData(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for CS aligned to sacc onset
             trialData(cellNum).id = 'SS';
             
             % select condition type Pro or Antisaccade
@@ -75,6 +76,7 @@ for cellNum = 1:length(trialData)
         trialData(cellNum).pro.behav.trial(trialNum).saccDuration = trialData(cellNum).trial.behav(correctProTrials(trialNum)).saccDuration;
         trialData(cellNum).pro.behav.trial(trialNum).saccPeakVel = trialData(cellNum).trial.behav(correctProTrials(trialNum)).saccPeakVel;
         trialData(cellNum).pro.behav.trial(trialNum).reactionTime = trialData(cellNum).trial.behav(correctProTrials(trialNum)).reactionTime;
+        trialData(cellNum).pro.behav.trial(trialNum).reward = trialData(cellNum).trial.behav(correctProTrials(trialNum)).reward;
     end
     
     % neural
@@ -97,12 +99,13 @@ for cellNum = 1:length(trialData)
         trialData(cellNum).anti.behav.trial(trialNum).saccDuration = trialData(cellNum).trial.behav(correctAntiTrials(trialNum)).saccDuration;
         trialData(cellNum).anti.behav.trial(trialNum).saccPeakVel = trialData(cellNum).trial.behav(correctAntiTrials(trialNum)).saccPeakVel;
         trialData(cellNum).anti.behav.trial(trialNum).reactionTime = trialData(cellNum).trial.behav(correctAntiTrials(trialNum)).reactionTime;
+        trialData(cellNum).anti.behav.trial(trialNum).reward = trialData(cellNum).trial.behav(correctAntiTrials(trialNum)).reward;
     end
     %neural
     trialData(cellNum).anti.neural.trial = trialData(cellNum).trial.neural(trialData(cellNum).anti.indx_correctAntiTrials);
     [trialData(cellNum).anti.neural.rate_pst,trialData(cellNum).anti.neural.ts_pst] = Spiketimes2Rate(trialData(cellNum).anti.neural.trial,timepoints,binwidth,analyse_sacc_win,id); % aligned to trial onset
     trialData(cellNum).anti.neural.rate_pst = smooth_pst(trialData(cellNum).anti.neural.rate_pst,binwidth,tsmooth);
-    % Anti saccade aligned
+    % Anti -  saccade aligned
     analyse_sacc_win = 1;
     [trialData(cellNum).anti.neural.sacc.align_rate_pst,trialData(cellNum).anti.neural.sacc.align_ts_pst] = Spiketimes2Rate(trialData(cellNum).anti.neural.trial,timepoints,binwidth,analyse_sacc_win,id); % aligned to saccade onset
     trialData(cellNum).anti.neural.sacc.align_rate_pst = smooth_pst(trialData(cellNum).anti.neural.sacc.align_rate_pst,binwidth,tsmooth);
@@ -140,10 +143,10 @@ for cellNum = 1:length(trialData)
         analyse_sacc_win = 0;
         
         
-        % get line spks anti
+        % get baseline spks anti
         time_base = find(timepoints>-0.3 & timepoints<-0.1);
         timepoints_base = timepoints(time_base);
-        baseline_win = trialData(cellNum).pro.neural.trial(trialNum).tspk_SS; % 200 ms before trial onset
+        baseline_win = trialData(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc; % 100-300 ms before sacc onset
         win_indx_base = find(baseline_win>-0.3 & baseline_win<-0.1);
         trialData(cellNum).pro.neural.trial(trialNum).base.tspk = baseline_win(win_indx_base);
         analyse_sacc_win = 1;
@@ -180,7 +183,7 @@ for cellNum = 1:length(trialData)
         % get baseline spks anti
         time_base = find(timepoints>-0.3 & timepoints<-0.1);
         timepoints_base = timepoints(time_base);
-        baseline_win = trialData(cellNum).anti.neural.trial(trialNum).tspk_SS; % 200 ms before trial onset
+        baseline_win = trialData(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc; % 200 ms before trial onset
         win_indx_base = find(baseline_win>-0.3 & baseline_win<-0.1);
         trialData(cellNum).anti.neural.trial(trialNum).base.tspk = baseline_win(win_indx_base);
         analyse_sacc_win = 1;
@@ -252,28 +255,20 @@ for cellNum = 1:length(trialData)
     trialData(cellNum).anti.neural.sacc.rate_mu = mean(trialData(cellNum).anti.neural.sacc.rate_pst);
     trialData(cellNum).anti.neural.sacc.rate_sig = std(trialData(cellNum).anti.neural.sacc.rate_pst)/sqrt(ntrls_anti);
     
-    % baseline comparison all (intertrial interval)
-    ntrls_all = length(trialData(cellNum).trial.neural);
-    baseline_win = trialData(cellNum).all.neural.ts_pst>=-0.4 & trialData(cellNum).all.neural.ts_pst<=-0.1; % 300 ms before trial onset
-    trialData(cellNum).all.neural.base.ts_rate_pst = trialData(cellNum).all.neural.ts_pst(baseline_win);
-    trialData(cellNum).all.neural.base.rate_pst = trialData(cellNum).all.neural.rate_pst(baseline_win);
-    trialData(cellNum).all.neural.base.rate_mu = mean(trialData(cellNum).all.neural.base.rate_pst);
-    trialData(cellNum).all.neural.base.rate_sig = std(trialData(cellNum).all.neural.base.rate_pst)/sqrt(ntrls_all);
-    
     % baseline comparison pro and anti (intertrial interval)
     %pro
-    baseline_win = trialData(cellNum).pro.neural.ts_pst>=-0.4 & trialData(cellNum).pro.neural.ts_pst<=-0.1; % 300 ms before trial onset
+    baseline_win = trialData(cellNum).pro.neural.sacc.align_ts_pst>=-0.3 & trialData(cellNum).pro.neural.sacc.align_ts_pst<=-0.1; % 300 ms before sacc onset
     trialData(cellNum).pro.neural.base.ts_pst = trialData(cellNum).pro.neural.ts_pst(baseline_win);
     trialData(cellNum).pro.neural.base.rate_pst = trialData(cellNum).pro.neural.rate_pst(baseline_win);
     trialData(cellNum).pro.neural.base.rate_mu = mean(trialData(cellNum).pro.neural.base.rate_pst);
-    trialData(cellNum).pro.neural.base.rate_sig = std(trialData(cellNum).pro.neural.base.rate_pst)/sqrt(ntrls_all);
+    trialData(cellNum).pro.neural.base.rate_sig = std(trialData(cellNum).pro.neural.base.rate_pst)/sqrt(ntrls_pro);
 
     % anti
-    baseline_win = trialData(cellNum).anti.neural.ts_pst>=-0.4 & trialData(cellNum).anti.neural.ts_pst<=-0.1; % 300 ms before trial onset
+    baseline_win = trialData(cellNum).anti.neural.sacc.align_ts_pst>=-0.3 & trialData(cellNum).anti.neural.sacc.align_ts_pst<=-0.1; % 300 ms before sacc onset
     trialData(cellNum).anti.neural.base.ts_pst = trialData(cellNum).anti.neural.ts_pst(baseline_win);
     trialData(cellNum).anti.neural.base.rate_pst = trialData(cellNum).anti.neural.rate_pst(baseline_win);
     trialData(cellNum).anti.neural.base.rate_mu = mean(trialData(cellNum).anti.neural.base.rate_pst);
-    trialData(cellNum).anti.neural.base.rate_sig = std(trialData(cellNum).anti.neural.base.rate_pst)/sqrt(ntrls_all);
+    trialData(cellNum).anti.neural.base.rate_sig = std(trialData(cellNum).anti.neural.base.rate_pst)/sqrt(ntrls_anti);
     
     %% Stats per neuron
     %% compare windows against baseline activity for pro and anti (concatenate all trials and make comparison)
@@ -330,6 +325,29 @@ for cellNum = 1:length(trialData)
     %% compute increase or decrease of FR in instruction and saccade period
     
     
+    
+    %% compute CV (std dev/mean)
+    % pro -- sacc
+    mean_trials_pro = mean([trialData(cellNum).pro.neural.trial.nspk]); 
+    for i = 1:length(trialData(cellNum).pro.neural.trial)
+    trialData(cellNum).pro.neural.trial(i).sacc.cv(i)= trialData(cellNum).pro.neural.trial(i).sacc.nspk/mean_trials_pro;
+    end
+    
+    % anti -- sacc
+    mean_trials_anti = mean([trialData(cellNum).anti.neural.trial.nspk]); 
+    for i = 1:length(trialData(cellNum).anti.neural.trial)
+    trialData(cellNum).anti.neural.trial(i).sacc.cv(i)= trialData(cellNum).anti.neural.trial(i).sacc.nspk/mean_trials_anti;
+    end
+    
+    % pro -- instr
+    for i = 1:length(trialData(cellNum).pro.neural.trial)
+    trialData(cellNum).pro.neural.trial(i).sacc.cv(i)= trialData(cellNum).pro.neural.trial(i).instr.nspk/mean_trials_pro;
+    end
+    
+    % anti -- instr
+    for i = 1:length(trialData(cellNum).anti.neural.trial)
+    trialData(cellNum).anti.neural.trial(i).sacc.cv(i)= trialData(cellNum).anti.neural.trial(i).instr.nspk/mean_trials_anti;
+    end
     
 end
 
