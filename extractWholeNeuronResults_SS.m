@@ -13,8 +13,6 @@ function trialData = extractWholeNeuronResults_SS(wholeNeuronResults)
 %                       plot_ProAnti.m, eyeKinematics_ProAnti.m
 
 % TODO
-% - normalize FR
-% - discindx
 % - pass eye kin plots to separate code
 
 %% Create structure with relevant data (trialData)
@@ -35,10 +33,17 @@ for cellNum = 1:length(wholeNeuronResults);
             trialData(cellNum).trial.behav(trialNum).reward = wholeNeuronResults(cellNum).allStableTrials(trialNum).bit8time;
             
             %neural data      
-            trialData(cellNum).trial.neural(trialNum).tspk_SS =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{1}; % contains spike times for CS aligned to trial onset (?)
-            trialData(cellNum).trial.neural(trialNum).tspk_SS_align_sacc =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{1}-trialData(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for CS aligned to sacc onset
+            spks =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{1}; % contains spike times for SS aligned to trial onset
+            if ~isempty(trialData(cellNum).trial.behav(trialNum).reward)
+            indx_trial_spks = spks>-0.1 & spks < trialData(cellNum).trial.behav(trialNum).reward+0.2; % just pick 100 ms before trial starts to reward +200 ms
+            trialData(cellNum).trial.neural(trialNum).tspk_SS = spks(indx_trial_spks)
+            trialData(cellNum).trial.neural(trialNum).tspk_SS_align_sacc =  trialData(cellNum).trial.neural(trialNum).tspk_SS-trialData(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for CS aligned to sacc onset
+            else
+                trialData(cellNum).trial.neural(trialNum).tspk_SS = []; 
+                trialData(cellNum).trial.neural(trialNum).tspk_SS_align_sacc = [];
+            end
             trialData(cellNum).id = 'SS';
-            
+
             % select condition type Pro or Antisaccade
             if ismember(wholeNeuronResults(cellNum).allStableTrials(trialNum).conditionCode, [1 4 5 8 10 11 14 15]);
                 trialData(cellNum).trial.behav(trialNum).condition = 'Prosaccade';
@@ -56,7 +61,7 @@ clear cellNum trialNum %wholeNeuronResults
 
 %% Spike times to rate for pro and antisaccades and behav
 binwidth = 0.01;
-timepoints = -4:binwidth:4;
+timepoints = -4:binwidth:4;  %TODO Change from beginning to end
 analyse_sacc_win = 0;
 analyse_instr_win=0;
 
