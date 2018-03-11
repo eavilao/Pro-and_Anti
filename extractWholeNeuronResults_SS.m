@@ -31,8 +31,6 @@ for cellNum = 1:length(wholeNeuronResults);
             trialData(cellNum).trial.behav(trialNum).saccPeakVel = wholeNeuronResults(cellNum).allStableTrials(trialNum).saccadePeakVel;
             trialData(cellNum).trial.behav(trialNum).reactionTime = wholeNeuronResults(cellNum).allStableTrials(trialNum).reactionTime;
             trialData(cellNum).trial.behav(trialNum).reward = wholeNeuronResults(cellNum).allStableTrials(trialNum).relativeRewardTime;
-            trialData(cellNum).trial.behav(trialNum).trialStart = wholeNeuronResults(cellNum).allStableTrials(trialNum).trialStart;
-            trialData(cellNum).trial.behav(trialNum).trialEnd = wholeNeuronResults(cellNum).allStableTrials(trialNum).trialEnd;
             
             %neural data      
             spks =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{1}; % contains spike times for SS aligned to trial onset
@@ -63,7 +61,7 @@ clear cellNum trialNum %wholeNeuronResults
 
 %% Spike times to rate for pro and antisaccades and behav
 binwidth = 0.01;
-timepoints = -0.1:binwidth:4;  %TODO Change from beginning to end
+timepoints = -0.1:binwidth:1;
 analyse_sacc_win = 0;
 analyse_instr_win=0;
 
@@ -93,10 +91,10 @@ for cellNum = 1:length(trialData)
     trialData(cellNum).pro.neural.rate_pst = smooth_pst(trialData(cellNum).pro.neural.rate_pst,binwidth,tsmooth);
     % Pro saccade aligned
     analyse_sacc_win = 1;
-    timepoints = -0.7:binwidth:3.4;
+    timepoints = -0.8:binwidth:0.3;
     [trialData(cellNum).pro.neural.sacc.align_rate_pst,trialData(cellNum).pro.neural.sacc.align_ts_pst] = Spiketimes2Rate(trialData(cellNum).pro.neural.trial,timepoints,binwidth,analyse_sacc_win,id); % aligned to saccade onset
     trialData(cellNum).pro.neural.sacc.align_rate_pst = smooth_pst(trialData(cellNum).pro.neural.sacc.align_rate_pst,binwidth,tsmooth);
-    timepoints = -0.1:binwidth:4;
+    timepoints = -0.1:binwidth:1;
     analyse_sacc_win = 0;
     
     % Anti trials
@@ -117,10 +115,10 @@ for cellNum = 1:length(trialData)
     trialData(cellNum).anti.neural.rate_pst = smooth_pst(trialData(cellNum).anti.neural.rate_pst,binwidth,tsmooth);
     % Anti -  saccade aligned
     analyse_sacc_win = 1;
-    timepoints = -0.7:binwidth:3.4;
+    timepoints = -0.8:binwidth:0.3;
     [trialData(cellNum).anti.neural.sacc.align_rate_pst,trialData(cellNum).anti.neural.sacc.align_ts_pst] = Spiketimes2Rate(trialData(cellNum).anti.neural.trial,timepoints,binwidth,analyse_sacc_win,id); % aligned to saccade onset
     trialData(cellNum).anti.neural.sacc.align_rate_pst = smooth_pst(trialData(cellNum).anti.neural.sacc.align_rate_pst,binwidth,tsmooth);
-    timepoints = -0.1:binwidth:4;
+    timepoints = -0.1:binwidth:1;
     analyse_sacc_win = 0;
     
 end
@@ -135,7 +133,7 @@ for cellNum = 1:length(trialData)
         [trialData(cellNum).pro.neural.trial(trialNum).nspk,trialData(cellNum).pro.neural.trial(trialNum).ts] = Spiketimes2RateTrial(trialData(cellNum).pro.neural.trial(trialNum),timepoints,binwidth,analyse_sacc_win,id); % all trial
         
         % get spks in sacc window
-        timepoints = -0.7:binwidth:3.4;
+        timepoints = -0.8:binwidth:0.3;
         time_sacc = find(timepoints>-0.101 & timepoints<0.201);
         timepoints_sacc = timepoints(time_sacc);
         sacc_window_pro = trialData(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc;
@@ -146,7 +144,7 @@ for cellNum = 1:length(trialData)
         analyse_sacc_win = 0;
         
         %get spikes instruction window
-        timepoints = -0.1:binwidth:4;
+        timepoints = -0.1:binwidth:1;
         time_instr = find(timepoints>0 & timepoints<0.3);
         timepoints_instr = timepoints(time_instr);
         instr_window_pro = trialData(cellNum).pro.neural.trial(trialNum).tspk_SS;
@@ -158,7 +156,7 @@ for cellNum = 1:length(trialData)
         
         
         % get baseline spks anti
-        timepoints = -0.7:binwidth:3.4;
+        timepoints = -0.8:binwidth:0.3;
         time_base = find(timepoints>-0.3 & timepoints<-0.1);
         timepoints_base = timepoints(time_base);
         baseline_win = trialData(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc; % 100-300 ms before sacc onset
@@ -176,7 +174,7 @@ for cellNum = 1:length(trialData)
         [trialData(cellNum).anti.neural.trial(trialNum).nspk,trialData(cellNum).anti.neural.trial(trialNum).ts] = Spiketimes2RateTrial(trialData(cellNum).anti.neural.trial(trialNum),timepoints,binwidth,analyse_sacc_win,id); % all trial
         
         % get spks in sacc window
-        timepoints = -0.7:binwidth:3.4;
+        timepoints = -0.8:binwidth:0.3;
         time_sacc = find(timepoints>-0.101 & timepoints<0.201);
         timepoints_sacc = timepoints(time_sacc);
         sacc_window_anti = trialData(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc;
@@ -187,7 +185,7 @@ for cellNum = 1:length(trialData)
         analyse_sacc_win = 0;%
         
         % get spikes instruction window
-        timepoints = -0.1:binwidth:4;
+        timepoints = -0.1:binwidth:1;
         time_instr = find(timepoints>0 & timepoints<0.3);
         timepoints_instr = timepoints(time_instr);
         instr_window_anti = trialData(cellNum).anti.neural.trial(trialNum).tspk_SS;
@@ -198,7 +196,7 @@ for cellNum = 1:length(trialData)
         analyse_sacc_win = 0;
         
         % get baseline spks anti
-         timepoints = -0.7:binwidth:3.4;
+         timepoints = -0.8:binwidth:0.3;
         time_base = find(timepoints>-0.3 & timepoints<-0.1);
         timepoints_base = timepoints(time_base);
         baseline_win = trialData(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc; % 200 ms before trial onset
