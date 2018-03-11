@@ -142,7 +142,7 @@ switch plotType
         end
         
         
-    case 'psth_sacc'
+    case 'psth'
         
         %gather
         t= trialData(cellNum).pro.neural.sacc.align_ts_pst;
@@ -170,14 +170,13 @@ switch plotType
         shadedErrorBar(t,r_pro,sem_pro,'lineprops','r');
         shadedErrorBar(t,r_anti,sem_anti,'lineprops','g');
         plot(t,mean_base,'--k','LineWidth', 0.3);
-        set (gca, 'xlim',([-0.5 0.5]), 'TickDir', 'out', 'FontSize',18);
-        xlabel('Time (s)'); ylabel ('Firing rate (spk/s');
+        set (gca, 'xlim',([-0.2 0.3]), 'TickDir', 'out', 'FontSize',18);
+        xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
         vline(0, 'k-');
         box off
         title('Aligned to saccade onset')
         
-        
-    case 'psth_instr'
+        %% instruction period
         %gather
         t= trialData(cellNum).pro.neural.sacc.align_ts_pst;
         r_pro= trialData(cellNum).pro.neural.rate_pst;
@@ -200,8 +199,8 @@ switch plotType
         figure; hold on
         shadedErrorBar(t, r_pro,sem_pro,'lineprops','r');
         shadedErrorBar(t, r_anti,sem_anti,'lineprops','g');
-        set (gca, 'xlim',([-0.1 0.5]), 'TickDir', 'out', 'FontSize',18);
-        xlabel('Time (s)'); ylabel ('Firing rate (spk/s');
+        set (gca, 'xlim',([-0.1 0.3]), 'TickDir', 'out', 'FontSize',18);
+        xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
         vline(0, 'k--');
         box off
         title('Aligned to instruction onset')
