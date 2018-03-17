@@ -9,7 +9,9 @@ if strcmp(id,'SS') % either SS or CS
         [nspk,~] = hist(cell2mat({thisTrial_spk}'),timepoints);
     else
         [nspk,~] = hist(cell2mat({thisTrial_spk.tspk_SS}'),timepoints);
-         nspk(nspk>1)=1;
+        if nspk >1
+            nspk=1;
+        end
     end
 else
     
@@ -17,14 +19,15 @@ else
         [nspk,~] = hist(cell2mat({thisTrial_spk}'),timepoints);
     else
         [nspk,~] = hist(cell2mat({thisTrial_spk.tspk_CS}'),timepoints);
-        nspk(nspk>1)=1;
     end
-
+    
+    
 end
 
 % throw away histogram edges
 nspk = nspk(2:end-1);
 timepoints = timepoints(2:end-1);
 
+% Probability dist for each time point
 
 
