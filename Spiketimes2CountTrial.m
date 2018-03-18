@@ -15,7 +15,7 @@ if strcmp(id,'SS') % either SS or CS
 else
     
     if analyse_sacc_align
-        [nspk,~] = hist(cell2mat({thisTrial_spk.tspk_SS_align_sacc}'),timepoints);
+        [nspk,~] = hist(cell2mat({thisTrial_spk.tspk_CS_align_sacc}'),timepoints);
         nspk(nspk>1)=1;
     else
         [nspk,~] = hist(cell2mat({thisTrial_spk.tspk_CS}'),timepoints);
