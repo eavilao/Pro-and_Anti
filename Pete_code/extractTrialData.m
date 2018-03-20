@@ -6,7 +6,15 @@ fileNameBase = thisFileInfo.fileName(1:end-4);
 %load stimulus list file %TODO should warn if it doesnt exist and
 %launch the stimDir2List function somehow
 temp = strfind(fileNameBase, '_');
+if isempty(temp)
+ temp =   strfind(fileNameBase, '-');
+end
+
+try
 load([processDir filesep fileNameBase(1:temp(end)-1) '-stimList']);
+catch em
+    keyboard
+end
 
 
 %load ports (event channels) from AO .mat file (output from their
@@ -14,10 +22,12 @@ load([processDir filesep fileNameBase(1:temp(end)-1) '-stimList']);
 %the new version labels things CInPort
  w = whos('-file',thisFileInfo.fileName);
  if ~isempty(find(strcmpi({w.name},'CPort_005')))
-load(thisFileInfo.fileName,'CPort_005','CPort_003_KHz','CPort_003');
-fs = CPort_003_KHz*1000;
- inFlag = 0;
- portNameString = 'CPort';
+     load(thisFileInfo.fileName,'CPort_005','CPort_003_KHz','CPort_003');
+     fs = CPort_003_KHz*1000;
+     inFlag = 0;
+     portNameString = 'CPort';
+     bitPortNum = 5;
+     wordPortNum = 3;
  elseif ~isempty(find(strcmpi({w.name},'CInPort_005')))
      load(thisFileInfo.fileName,'CInPort_005','CInPort_003_KHz','CInPort_003');
      fs = CInPort_003_KHz*1000;

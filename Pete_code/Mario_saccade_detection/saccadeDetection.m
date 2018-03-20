@@ -109,7 +109,7 @@ function out = saccadeDetection(varargin)
 
 p = inputParser;
 p.addRequired('EyeChannels')  % a matrix with two columns or a cell array with two cells;
-p.addParamValue('threshold', 4) % stdandard deviation criterion for offset threshold
+p.addParamValue('threshold', 6) % stdandard deviation criterion for offset threshold
 p.addParamValue('fixedthreshold', 20) 
 p.addParamValue('sgolayfilter',true)
 p.addParamValue('sgolaywindow', 10)
@@ -284,7 +284,7 @@ end
 	% for all samples with velocities lower than AdapThr calculate the meand and std. Then update threshold to Median+6*sigma. 
 	% -- converges to low enough to detect as many saccades as the noise level allows while reducing false positives.
 	% See Bernquist and Nystrom 2010.
-
+ 
 	if adaptivethreshold
 		theta(1) = adaptiveThreshold(linV,Fs,threshold);
 		theta(2) = adaptiveThreshold(abs(dxy(:,1)),Fs,threshold);
@@ -344,7 +344,7 @@ end
 		disp(['average of tentative peaks:' num2str(mean(val_))])
 		
 		meanvalofpeaks = mean(val_);
-		if meanvalofpeaks>600
+		if meanvalofpeaks>1000
 			warning('Either Monkey is The Flash or we have conversion problems: mean(peakvelocity)>1000. Check conversion to degrees.')
 			
 		end
@@ -1080,13 +1080,13 @@ function [landmarks  theta_off problematic] = findLandmarks(dx,ddx,params)
 
 function [theta] = adaptiveThreshold(V,Fs,param1)
 
-	% cocr = 1/Fs; % convergence criterion 1deg/s
+% 	cocr = 1/Fs; % convergence criterion 1deg/s
 	% T0 = 50/Fs; % initial threshold 50deg/s
 
 	cocr = 1; % convergence criterion 1deg/s
 	T0 = 50; % initial threshold 50deg/s
 
-
+ 
 
 	stdveye = std(V);	
 

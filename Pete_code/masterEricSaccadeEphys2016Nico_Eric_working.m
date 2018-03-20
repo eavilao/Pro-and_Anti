@@ -30,7 +30,11 @@ processDir = [externalHdDriveLetter ':\Nico\_PeteAnalysis\data\_process']; %for 
 resortDir = [externalHdDriveLetter ':\Nico\_PeteAnalysis\data\_to_run']; %loaction of resorted spike files, just neesd adding to path
  addpath(genpath(resortDir))
  addpath(genpath(rawDataDir))
- 
+  
+ newList =1;
+ if newList
+ load(['D:\Nico\_PeteAnalysis\data\neuronLists\neuronList_complete4.mat'])
+ end
 %directory where all results will be saved
 if strcmp(cellList,'full')
 resultsDir = [externalHdDriveLetter ':\Nico\_PeteAnalysis\data\_results']; %for full list
@@ -99,7 +103,7 @@ codeDir = [diskPath '\Mario_saccade_detection'];
 addpath(genpath(codeDir))
 
     otherwise
-        disp('Fill in your PC-name at line 68')
+        disp('Fill in your PC-name at line at :  case(...)')
         return  
 end
 
@@ -118,17 +122,34 @@ end
 %recordingListEricPvAElectrophys %final list
 %recordingListEricPvAElectrophysClean %final list of only clean cs pause neurons
  
-if strcmp(cellList,'full')
+if strcmp(cellList,'full') && ~newList
 recordingListEricPvAElectrophysNicoRec%recordingListEricPvAElectrophysLocResort %recordingListEricPvAElectrophys %for full list
-elseif strcmp(cellList,'clean')
+elseif strcmp(cellList,'clean') && ~newList
 recordingListEricPvAElectrophysClean %for clean units only %TODO won't work any more as no resortFLag field
 end
 %find recordings to analyse by looking for non-empty recording names
- 
- 
+  
+   
 recList = squeeze(struct2cell(neuronList));
+ 
+if newList
+recList2= recList;
 
+recList(1,:) = recList2(2,:);% name
+recList(2,:) = recList2(7,:);% fileList
+recList(3,:) = [];
+recList(4,:) = recList2(3,:);% area
+recList(5,:) = []; %depth
+recList(6,:) = [];% gridloc
+recList(7,:) = recList2(6,:);
+recList(8,:) = recList2(1,:);% path
+recList(9,:) = recList2(4,:);% monkey
+recList(10,:) = recList2(5,:); %datetime
+recList(11,:) = recList2(8,:); % stimListPath
+% recList(12,:) = 
+ 
 recordingsToAnalyse = find(cellfun(@(x) ~isempty(x),recList(1,:)));
+end
 exampleNeurons = [14 31]; %neurons for which eps of the rasters will be exported
 %find where which are neurons are recorded from using field in recording list
 %recList(4,find(cellfun(@(x) isempty(x),recList(4,:))))={nan};
@@ -261,11 +282,16 @@ ccProAnti = [0 1 0;1 0 0];
 %recordingsToAnalyse = recordingsToAnalyse(recordingsToAnalyse>=29);
  
 % % recordingsToAnalyse = [27 28 29 38 40 42];
-recordingsToAnalyse = [ 39 ];
+ 
+notEmptyNeurons = find(~cellfun(@isempty, recList(4,:)));
+
+recordingsToAnalyse = [238] ;
+
+% recordingsToAnalyse =  notEmptyNeurons(1:20);
 
 for neuronNum = recordingsToAnalyse;
     if exist([processDir filesep neuronList(neuronNum).neuronName dataFileNameEnd],'file')~=2
-        
+          
         disp(['stability marking for ' neuronList(neuronNum).neuronName])
         %convert file list to structure
         stimDescript{neuronNum} = cell2struct(neuronList(neuronNum).fileList, ...
@@ -278,7 +304,8 @@ for neuronNum = recordingsToAnalyse;
         drawnow;
         waitfor(hFig)
         else
-             hFig = markStablePeriods(stimDescript{neuronNum},neuronList(neuronNum).eyeChannels);
+            
+            hFig = markStablePeriods(stimDescript{neuronNum},neuronList(neuronNum).eyeChannels);
         drawnow;
         waitfor(hFig)
             
@@ -292,7 +319,7 @@ for neuronNum = recordingsToAnalyse;
     
     end
 end
-
+keyboard
  
 %% FILE BY FILE ANALYSIS
 %loop over all neurons and files within those neurons
@@ -337,14 +364,31 @@ for neuronNum = recordingsToAnalyse;
               
      fileNameBase = thisFileInfo.fileName(1:end-8);
 
-     foldercontent = getAllFiles([resortDir filesep neuronList(neuronNum).neuronName]);
+%      foldercontent = getAllFiles([resortDir filesep neuronList(neuronNum).neuronName]);
      
-     load(cell2mat(foldercontent( ~cellfun(@isempty, regexp(foldercontent,'Moshe')))))
-     stimListFile =epd;
+%      foldercontent = getAllFiles([neuronList(neuronNum).neuronName]);
+%           foldercontent = getAllFiles([neuronList(neuronNum).path]);
+% %           load(cell2mat(foldercontent( cellfun(@isempty, regexp(foldercontent,'\._'))))) % load folder contents
+
+      
+%      load(cell2mat(foldercontent( ~cellfun(@isempty, regexp(foldercontent,'Moshe'))))) % load folder contents
+% load(cell2mat(foldercontent))
+
+% xx=vertcat(foldercontent{cellfun(@isempty, regexp(foldercontent,'\._')),:})
+    load([neuronList(neuronNum).stimListFile])
+
+     stimfilename = whos('-file',neuronList(neuronNum).stimListFile);
+     load(neuronList(neuronNum).stimListFile)
+     
+     if ~strcmp(stimfilename,'stimListFile')
+         eval(['stimListFile ='  stimfilename.name]);
+     end
+     
+       
 %      save([processDir filesep neuronList(neuronNum).neuronName '-stimList.mat'], 'stimListFile')
 %     stimListFile=denoise_eye(stimListFile);
 
-              save([processDir filesep  thisFileInfo.fileName(1:end-8) 'stimList.mat'], 'stimListFile')
+              save([processDir filesep  thisFileInfo.fileName(1:end-9) '-stimList.mat'], 'stimListFile')
          
          
              %get trial information
@@ -377,7 +421,7 @@ for neuronNum = recordingsToAnalyse;
                 for  tempFileNum = 1:numFiles
                     thisTempFileInfo = mLoadedData.editedFileList(tempFileNum,1);
                     fileNameBase = thisTempFileInfo.fileName(1:end-4);
-                    if exist([fileNameBase calibFileNameEnd],'file')==2  && do_sac_detect==0
+                    if exist([fileNameBase calibFileNameEnd],'file')==2  %&& do_sac_detect==0
                         tempCal =  load([fileNameBase calibFileNameEnd],'xOffset','yOffset','xMagRatio','yMagRatio')
                         allFilesCalib{tempFileNum} = tempCal;
                     else
@@ -464,7 +508,7 @@ for neuronNum = recordingsToAnalyse;
 %                filter out high freq peaks from poor tracker calibration
              calData.eyeXcal= medfilt1(calData.eyeXcal,40);
              calData.eyeYcal= medfilt1(calData.eyeYcal,40);
-
+ 
                  saccadeDetectOut = saccadeDetection([calData.eyeXcal' calData.eyeYcal'],'sgolayall', 1,'sgolayfilter', 1,'sgolaywindow', 20,'detectionwindow', [120 180],'wellformed', false); %
                
                 analysisResults(fileNum,1).saccadeDetection = saccadeDetectOut;
@@ -536,20 +580,21 @@ for neuronNum = recordingsToAnalyse;
             if analyseISI
 
                 %find which units actually have spikes on them
-                validUnits = intersect(thisFileInfo.unitNumbers,find(~cellfun('isempty',thisData.alignedSpikes)))
+                validUnits = intersect(thisFileInfo.unitNumbers,find(~cellfun('isempty',thisData.alignedSpikes)));
                 
                 if length(validUnits)>1
                     %if more than 1 then launch the grid of isi's a triggered
                     %spiek triggered rasters
-                    hFi = isiSubplotNd({thisData.alignedSpikes{validUnits}},'rastWinWidth',[0.1 0.1])
+                    hFi = isiSubplotNd({thisData.alignedSpikes{validUnits}},'rastWinWidth',[0.1 0.1]);
                 else
                     %if not then just produce an isi histogram
                     hFi = figure;
                     hAxi = axes('parent',hFi);
                     isiVec = diff(thisData.alignedSpikes{validUnits});
                     [isiHist bins] = hist(isiVec,500);
-                    isiHist = 100*isiHist/length(isiVec);
-                    bar(bins,isiHist,'parent',hAxi);
+%                     isiHist = 100*isiHist/leng 
+                    hFi = isiSubplotNd({thisData.alignedSpikes{validUnits}},'rastWinWidth',[0.1 0.1]);
+
                     xlabel('ISI (s)')
                     ylabel('Percent Spikes')
                     title(['ISI for unit ' num2str(validUnits)])
@@ -613,7 +658,7 @@ for neuronNum = recordingsToAnalyse;
          disp('neuron already analysed')
      end
 end
-
+ 
 %% FILE By FILE BURST/PAUSE -UC
 % allNeuronBurstFileName = [resultsDir filesep 'allNeuronBurstAnalysis2015.mat'];
 % doBursts = 1
@@ -1030,7 +1075,7 @@ smallTimeWindow = [0.3 0.5]; %time window for actual rasters
             
             %stablePeriodTrials{fileNum} =  burstAnalysisResults(fileNum).burstResults;
         end
-        
+        keyboard
         %concatenate all together
         allStableTrials = [stablePeriodTrials{:}];
         wholeNeuronResults(neuronNum).allStableTrials  = allStableTrials;
