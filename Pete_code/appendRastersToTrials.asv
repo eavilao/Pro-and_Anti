@@ -1,4 +1,4 @@
-function newTrialStructure = appendRastersToTrials(trialData,spikeTimes,saccadeDetectOut,eyeData,rasterTimesWindow,pdfFileName)
+function newTrialStructure = appendRastersToTrials(trialData,spikeTimes,saccadeDetectOut,eyeData,rasterTimesWindow,pdfFileName,f2)
 %function to append the eye data and spike times to the trialData structure
 %for Eric's saccade experiemnt
 
@@ -18,15 +18,11 @@ newTrialStructure = trialData;
 allSaccStarts = saccadeDetectOut.saccades.landmarks.v(:,1)/1000;
 
 numTrials = size(trialData,2);
- 
-%  if numTrials ==81
-%      numTrials = [112 137 149 150 157]-83
-%  else
-%      numTrials = 1:numTrials
-%  end
- 
+  if f2==2
+% numTrials = [89 91 108 112 ] -83
+ end
 %loop over every trial
-for trialNum =     1:numTrials
+for trialNum = 1:numTrials% 1:numTrials
     
     disp(['processing trial number ' num2str(trialNum) ' of ' num2str(numTrials)])
     %get start and end time of this trial
@@ -159,7 +155,9 @@ for trialNum =     1:numTrials
             delete(hF)
         end
         
-                  
+        if f2==2
+%        keyboard
+        end         
         
         
         if isempty(thisTrialValidSaccadeNumbers)
@@ -209,10 +207,8 @@ for trialNum =     1:numTrials
                     relativeSaccadeTimes = allSaccStarts(thisTrialValidSaccadeNumbers) - goCueTime ;
                     
                     % trow out saccades with reaction time bigger than 
-                    
-                    if numel(relativeSaccadeTimes) > 1
                     relativeSaccadeTimes(relativeSaccadeTimes>reactionTimeLimit(2))=[];
-                    end 
+                    
                     thisTrialSaccadeOnAndOffset  = eyePosition(saccadeDetectOut.saccades.landmarks.v(thisTrialValidSaccadeNumbers,[1,4]));
                     
                    % find first sac after go-cue! 

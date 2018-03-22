@@ -31,13 +31,7 @@ end
      portNameString = 'CPort';
      bitPortNum = 5;
      wordPortNum = 3;
-  elseif ~isempty(find(strcmpi({w.name},'CPort_004')))
-     load(thisFileInfo.fileName,'CPort_005','CPort_003_KHz','CPort_003');
-     fs = CPort_003_KHz*1000;
-     inFlag = 0;
-     portNameString = 'CPort';
-     bitPortNum = 3;
-     wordPortNum = 4;
+    
  elseif ~isempty(find(strcmpi({w.name},'CInPort_005')))
      load(thisFileInfo.fileName,'CInPort_005','CInPort_003_KHz','CInPort_003');
      fs = CInPort_003_KHz*1000;
@@ -103,12 +97,7 @@ else
       eval(['wordPort  = double(CInPort_' sprintf('%03d',wordPortNum) ');']);
    else
       wordPort = CPort_003;
-      if exist('CPort_005')
         bitPort = CPort_005;
-      else 
-          bitPort= CPort_004;
-      end
-      
    end
    
     A = bitPort(2,:);
