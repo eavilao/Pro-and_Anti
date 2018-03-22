@@ -6,7 +6,7 @@ function [hMainFig] = markStablePeriods(fileList,eyeChannels)
 
 %TODO: should load all files and spike sorting results
 %TODO cycle through units and ask to mark stable section ends (only 1 for now)
-
+  
 %INITIALISE FIGURE
 hMainFig = figure('units','normalized',...
     'position',[0.1 0.1 0.8 0.8],'CloseRequestFcn',{@closeMainWindow},...
@@ -238,12 +238,18 @@ end
 
 function [] = markLaunch(src,eventData,optionArg,optionLims)
 disp('markLaunch')
-
+ 
 %create lines at points marked in graph
 %TODO should be draggable
 %mark artefact period using two impoints, add to table and draw patch
 hMainPlot = findobj('tag','tMainPlot');
 hMarkerPlot = findobj('tag','tMarkerPlot');
+if size(hMainPlot,1)~=1
+    hMainPlot= hMainPlot(1);
+    hMarkerPlot=hMarkerPlot(1);
+end
+
+
 %create two impoints to select artefact periods and get positions
 switch optionArg
     case 1
@@ -264,6 +270,8 @@ end
 
 %create patch in both axes to display marked points
 curYLims = get(hMainPlot,'Ylim');
+
+
 %draw patch around points
 patch([timeLimits(1) timeLimits(1) timeLimits(2) timeLimits(2)],[curYLims(1) curYLims(2) curYLims(2) curYLims(1)],...
     [1 0 0],'FaceAlpha',0.5,'Parent',hMainPlot,'FaceColor','g',...
@@ -289,8 +297,15 @@ hMainPlot = findobj('tag','tMainPlot');
 hPatch = findobj(hMainPlot,'tag','tStablePeriod');
 
 if ~isempty(hPatch)
-    patchLimits = get(hPatch,'XData');
+            patchLimits = get(hPatch,'XData');
+%             keyboard
+classy= whos('patchLimits');
+if strcmp(classy.class,'cell')
+        timeLimits = [patchLimits{1}(1) patchLimits{1}(3)];
+else
     timeLimits = [patchLimits(1) patchLimits(3)];
+end
+
     %startOfFirstFile = dataStructure(1).spkTimeVec(1);
     %relativeTimeLimits = timeLimits - startOfFirstFile
     %fill in start and stop times across file list
@@ -301,9 +316,11 @@ if ~isempty(hPatch)
     numFiles = size(fileList,1);
     %editedFileList = fileList;
     for fileNum = 1:numFiles
+        
+         
         fileStart = dataStructure(fileNum).spkTimeVec(1);
         fileEnd = dataStructure(fileNum).spkTimeVec(end);
-        
+        try
         if fileEnd < timeLimits(1) || fileStart > timeLimits(2)%file before stable period or beyond end
             fileList(fileNum).startTime = NaN;
             fileList(fileNum).stopTime = NaN;
@@ -320,6 +337,9 @@ if ~isempty(hPatch)
             fileList(fileNum).startTime = timeLimits(1)-fileStart ;
             fileList(fileNum).stopTime = timeLimits(2)-fileStart;
         end
+        catch em
+            keyboard
+        end 
     end
     %assign variable to baseworkspace %TODO-needs to be caller function?
 else

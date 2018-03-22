@@ -33,7 +33,7 @@ for i = 1:size(goodtrials,1)
 end
 
 % extract the date of recording
-
+keyboard
 datestring =  stimListFile(1).hour(1:8);
 try
 datestr(datestring,'yymmdd')
