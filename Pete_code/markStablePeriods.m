@@ -10,7 +10,7 @@ function [hMainFig] = markStablePeriods(fileList,eyeChannels)
 %INITIALISE FIGURE
 hMainFig = figure('units','normalized',...
     'position',[0.1 0.1 0.8 0.8],'CloseRequestFcn',{@closeMainWindow},...
-    'toolbar','figure','tag','tMainFig');
+    'toolbar','figure','tag','tMainFig','Renderer','opengl');
 
 setappdata(0,'hMainFig',hMainFig)
 
@@ -166,7 +166,7 @@ for fileNum = 1:numFiles
     
     clear(varList{:})
 end
-
+ 
 timeLims = [min([dataStruct.spkTimeVec]),max([dataStruct.spkTimeVec])];
 set(hMainPlot,'xlim',timeLims)
 

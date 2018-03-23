@@ -30,6 +30,14 @@ processDir = [externalHdDriveLetter ':\DATA\monkey\Pro_and_Anti\_PeteAnalysis\da
 resortDir = [externalHdDriveLetter ':\DATA\monkey\Pro_and_Anti\_PeteAnalysis\data\_to_run']; %loaction of resorted spike files, just neesd adding to path
 neuronListDir =  [externalHdDriveLetter ':\DATA\monkey\Pro_and_Anti\_PeteAnalysis\data\neuronLists'];
 
+
+
+addpath(genpath([externalHdDriveLetter ':\DATA\monkey\Pro_and_Anti\_PeteAnalysis\data\_to_run\Mickey Lateral\_spikeSorted']))
+addpath(genpath([externalHdDriveLetter ':\DATA\monkey\Pro_and_Anti\_PeteAnalysis\data\_to_run\Mickey Vermis\_spikeSorted']))
+addpath(genpath([externalHdDriveLetter ':\DATA\monkey\Pro_and_Anti\_PeteAnalysis\data\_to_run\Moshe Lateral\_spikeSorted']))
+addpath(genpath([externalHdDriveLetter ':\DATA\monkey\Pro_and_Anti\_PeteAnalysis\data\_to_run\Moshe Vermis\_spikeSorted']))
+
+
 addpath(genpath(resortDir))
  addpath(genpath(rawDataDir))
   
@@ -287,15 +295,25 @@ ccProAnti = [0 1 0;1 0 0];
  
 notEmptyNeurons = find(~cellfun(@isempty, recList(4,:)));
 
-recordingsToAnalyse = [72] ;
+% recordingsToAnalyse = [72] ;
 
-recordingsToAnalyse =  notEmptyNeurons(1:20);
+% recordingsToAnalyse =  notEmptyNeurons(1:20);
+% recordingsToAnalyse =  notEmptyNeurons(21:40);
+% recordingsToAnalyse =  notEmptyNeurons(41:50);
+% recordingsToAnalyse =  notEmptyNeurons(51:60);
+% recordingsToAnalyse =  notEmptyNeurons(61:70);
+% recordingsToAnalyse =  notEmptyNeurons(81:90);
+% recordingsToAnalyse =  notEmptyNeurons(91:100);
+% recordingsToAnalyse =  notEmptyNeurons(101:110);
+recordingsToAnalyse =  notEmptyNeurons(111:120);
+
+% flag 667
 
 if ~exist('error_log.mat')
     error_log = cell(size(neuronList,2),3);
     for i= 1:size(neuronList,2)
-        error_log{i,1} =  neuronList(i).neuronName
-        error_log{i,2} = neuronList(i).path
+        error_log{i,1} =  neuronList(i).neuronName;
+        error_log{i,2} = neuronList(i).path;
     end
     
     save([neuronListDir '/error_log.mat'])
@@ -338,7 +356,8 @@ for neuronNum = recordingsToAnalyse;
     end
     
     catch em
-        error_log{i,3} = em ;
+        
+        error_log{neuronNum,3} = em ;
             save([neuronListDir '/error_log.mat'],'error_log')
 
     end 
