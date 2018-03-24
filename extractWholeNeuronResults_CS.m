@@ -11,8 +11,8 @@ function trialData = extractWholeNeuronResults_CS(wholeNeuronResults)
 
 % Associated functions: SpikeTimes2Rate.m, Spiketimes2RateTrial.m,
 %                       plot_ProAnti.m, eyeKinematics_ProAnti.m
-
-% TODO
+  
+% TODO   
 % - normalize FR
 % - discindx
 % - pass eye kin plots to separate code
