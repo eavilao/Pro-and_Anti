@@ -360,7 +360,7 @@ for cellNum = 1:length(units)
         thisTrial = units(cellNum).pro.neural.instr.nspkCount(trialNum,:);
         indx_beg = 1;indx_win_count = win_size;
         for win_num = 1:length(thisTrial(1,:))-indx_win
-            units(cellNum).pro.neural.instr.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count));
+            units(cellNum).pro.neural.instr.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
             indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
         end
     end
@@ -370,7 +370,7 @@ for cellNum = 1:length(units)
         thisTrial = units(cellNum).anti.neural.instr.nspkCount(trialNum,:);
         indx_beg = 1;indx_win_count = win_size;
         for win_num = 1:length(thisTrial(1,:))-indx_win
-            units(cellNum).anti.neural.instr.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count));
+            units(cellNum).anti.neural.instr.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
             indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
         end
     end
@@ -380,7 +380,7 @@ for cellNum = 1:length(units)
         thisTrial = units(cellNum).pro.neural.sacc.nspkCount(trialNum,:);
         indx_beg = 1;indx_win_count = win_size;
         for win_num = 1:length(thisTrial(1,:))-indx_win
-            units(cellNum).pro.neural.sacc.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count));
+            units(cellNum).pro.neural.sacc.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
             indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
         end
     end
@@ -392,7 +392,7 @@ for cellNum = 1:length(units)
         thisTrial = units(cellNum).anti.neural.sacc.nspkCount(trialNum,:);
         indx_beg = 1;indx_win_count = win_size;
         for win_num = 1:length(thisTrial(1,:))-indx_win
-            units(cellNum).anti.neural.sacc.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count));
+            units(cellNum).anti.neural.sacc.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
             indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
         end
     end
