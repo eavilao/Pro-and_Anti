@@ -170,8 +170,8 @@ for cellNum = 1:length(units)
         % win
         tspk_instr= units(cellNum).pro.neural.trial(trialNum).tspk_SS>0 &units(cellNum).pro.neural.trial(trialNum).tspk_SS<0.301;
         t_instr = timepoints_instr > 0 & timepoints_instr<0.301; timepoints_instr = timepoints_instr(t_instr);
-        units(cellNum).pro.neural.instr.tspk = units(cellNum).pro.neural.trial(trialNum).tspk_SS(tspk_instr);
-        [units(cellNum).pro.neural.instr.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(units(cellNum).pro.neural.instr.tspk,timepoints_instr,binwidth,analyse_sacc_align,id);
+        units(cellNum).pro.neural.instr.tspk{trialNum,:} = units(cellNum).pro.neural.trial(trialNum).tspk_SS(tspk_instr);
+        [units(cellNum).pro.neural.instr.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.instr.tspk),timepoints_instr,binwidth,analyse_sacc_align,id);
         
         % align to sacc
         analyse_sacc_align = 1;
@@ -180,15 +180,15 @@ for cellNum = 1:length(units)
         % win
         tspk_sacc= units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc>-0.1 & units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc<0.201;
         t_sacc = timepoints_sacc > -0.1 & timepoints_sacc<0.2; timepoints_sacc = timepoints_sacc(t_sacc);
-        units(cellNum).pro.neural.sacc.tspk = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc(tspk_sacc);
-        [units(cellNum).pro.neural.sacc.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(units(cellNum).pro.neural.sacc.tspk,timepoints_sacc,binwidth,analyse_sacc_align,id);
+        units(cellNum).pro.neural.sacc.tspk{trialNum,:} = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc(tspk_sacc);
+        [units(cellNum).pro.neural.sacc.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.sacc.tspk),timepoints_sacc,binwidth,analyse_sacc_align,id);
         analyse_sacc_align = 0;
         
         % baseline
         tspk_base = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc>-0.3 & units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc<-0.101;
         t_base = timepoints_sacc >-0.3 & timepoints_sacc<-0.1; timepoints_base = timepoints_sacc(t_base);
-        units(cellNum).pro.neural.base.tspk = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc(tspk_sacc);
-        [units(cellNum).pro.neural.base.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(units(cellNum).pro.neural.base.tspk,timepoints_sacc,binwidth,analyse_sacc_align,id);
+        units(cellNum).pro.neural.base.tspk{trialNum,:} = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc(tspk_sacc);
+        [units(cellNum).pro.neural.base.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.base.tspk),timepoints_sacc,binwidth,analyse_sacc_align,id);
         analyse_sacc_align = 0;
     end
     
@@ -201,8 +201,8 @@ for cellNum = 1:length(units)
         % win
         tspk_instr= units(cellNum).anti.neural.trial(trialNum).tspk_SS>0 &units(cellNum).anti.neural.trial(trialNum).tspk_SS<0.301;
         t_instr = timepoints_instr > 0 & timepoints_instr<0.301; timepoints_instr = timepoints_instr(t_instr);
-        units(cellNum).anti.neural.instr.tspk = units(cellNum).anti.neural.trial(trialNum).tspk_SS(tspk_instr);
-        [units(cellNum).anti.neural.instr.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(units(cellNum).anti.neural.instr.tspk,timepoints_instr,binwidth,analyse_sacc_align,id);
+        units(cellNum).anti.neural.instr.tspk{trialNum,:} = units(cellNum).anti.neural.trial(trialNum).tspk_SS(tspk_instr);
+        [units(cellNum).anti.neural.instr.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.instr.tspk),timepoints_instr,binwidth,analyse_sacc_align,id);
         
         % align to sacc
         analyse_sacc_align = 1;
@@ -211,23 +211,68 @@ for cellNum = 1:length(units)
         % win
         tspk_sacc= units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc>-0.1 &units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc<0.2;
         t_sacc = timepoints_sacc > -0.101 & timepoints_sacc<0.2; timepoints_sacc = timepoints_sacc(t_sacc);
-        units(cellNum).anti.neural.sacc.tspk = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc(tspk_sacc);
-        [units(cellNum).anti.neural.sacc.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(units(cellNum).anti.neural.sacc.tspk,timepoints_sacc,binwidth,analyse_sacc_align,id);
+        units(cellNum).anti.neural.sacc.tspk{trialNum,:} = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc(tspk_sacc);
+        [units(cellNum).anti.neural.sacc.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.sacc.tspk),timepoints_sacc,binwidth,analyse_sacc_align,id);
         analyse_sacc_align = 0;
         
         % baseline
         tspk_base = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc>-0.3 & units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc<-0.1;
         t_base = timepoints_sacc >-0.3 & timepoints_sacc<-0.1; timepoints_base = timepoints_sacc(t_base);
-        units(cellNum).anti.neural.base.tspk = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc(tspk_sacc);
-        [units(cellNum).anti.neural.base.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(units(cellNum).anti.neural.base.tspk,timepoints_sacc,binwidth,analyse_sacc_align,id);
+        units(cellNum).anti.neural.base.tspk{trialNum,:} = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc(tspk_sacc);
+        [units(cellNum).anti.neural.base.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.base.tspk),timepoints_sacc,binwidth,analyse_sacc_align,id);
         analyse_sacc_align = 0;
         
     end
     
+    %% probability of spk in pro and anti  - bigger window (5 bins = 50 ms)
+    
+    win_size = 5; % num of bins to take in window. 1 bin = 10 ms
+    indx_win = win_size;
+    % instr pro
+    for trialNum = 1:length(correctProTrials)
+        thisTrial = units(cellNum).pro.neural.instr.nspkCount(trialNum,:);
+        indx_beg = 1;indx_win_count = win_size;
+        for win_num = 1:length(thisTrial(1,:))-indx_win
+            units(cellNum).pro.neural.instr.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
+            indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
+        end
+    end
+    
+    % instr anti
+    for trialNum = 1:length(correctAntiTrials)
+        thisTrial = units(cellNum).anti.neural.instr.nspkCount(trialNum,:);
+        indx_beg = 1;indx_win_count = win_size;
+        for win_num = 1:length(thisTrial(1,:))-indx_win
+            units(cellNum).anti.neural.instr.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
+            indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
+        end
+    end
+    
+    % sacc pro
+    for trialNum = 1:length(correctProTrials)
+        thisTrial = units(cellNum).pro.neural.sacc.nspkCount(trialNum,:);
+        indx_beg = 1;indx_win_count = win_size;
+        for win_num = 1:length(thisTrial(1,:))-indx_win
+            units(cellNum).pro.neural.sacc.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
+            indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
+        end
+    end
+    
+    % sacc anti
+    for trialNum = 1:length(correctAntiTrials)
+        thisTrial = units(cellNum).anti.neural.sacc.nspkCount(trialNum,:);
+        indx_beg = 1;indx_win_count = win_size;
+        for win_num = 1:length(thisTrial(1,:))-indx_win
+            units(cellNum).anti.neural.sacc.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
+            indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
+        end
+    end
+  
 end
 
-
 %% STATS %%
+%%%%%%%%%%%
+%%%%%%%%%%%
 %% Eye kinematics
 eyeKin = eyeKinematics_ProAnti(units); % extract and plot
 
@@ -360,83 +405,87 @@ for cellNum = 1:length(units)
     end
     
     %% statistical test to compare if pro == anti - aligned to instr using spk count with bigger window
-    win_size = 5; % num of bins to take in sliding window. 1 bin = 10 ms
-    indx_win = win_size;
-    % instr pro
-    for trialNum = 1:length(correctProTrials)
-        thisTrial = units(cellNum).pro.neural.instr.nspkCount(trialNum,:);
-        indx_beg = 1;indx_win_count = win_size;
-        for win_num = 1:length(thisTrial(1,:))-indx_win
-            units(cellNum).pro.neural.instr.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
-            indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
-        end
+    
+    for win_num = 1:length(units(cellNum).pro.neural.instr.spkCount_win)
+        
+   
     end
     
-    % instr anti
-    for trialNum = 1:length(correctAntiTrials)
-        thisTrial = units(cellNum).anti.neural.instr.nspkCount(trialNum,:);
-        indx_beg = 1;indx_win_count = win_size;
-        for win_num = 1:length(thisTrial(1,:))-indx_win
-            units(cellNum).anti.neural.instr.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
-            indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
-        end
-    end
-    
-    % sacc pro
-    for trialNum = 1:length(correctProTrials)
-        thisTrial = units(cellNum).pro.neural.sacc.nspkCount(trialNum,:);
-        indx_beg = 1;indx_win_count = win_size;
-        for win_num = 1:length(thisTrial(1,:))-indx_win
-            units(cellNum).pro.neural.sacc.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
-            indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
-        end
-    end
-    units(cellNum).pro.neural.sacc.pbDist_win = (sum(units(cellNum).pro.neural.sacc.nspkCount))/length(correctProTrials);
-    units(cellNum).pro.neural.sacc.pbDist_win_sem = sqrt(units(cellNum).pro.neural.sacc.pbDist_win(1,i)*(1-units(cellNum).pro.neural.sacc.pbDist_win(1,i))/length(correctProTrials));
-    
-    % sacc anti
-    for trialNum = 1:length(correctAntiTrials)
-        thisTrial = units(cellNum).anti.neural.sacc.nspkCount(trialNum,:);
-        indx_beg = 1;indx_win_count = win_size;
-        for win_num = 1:length(thisTrial(1,:))-indx_win
-            units(cellNum).anti.neural.sacc.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
-            indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
-        end
-    end
     
     %% Sliding window to test diff pro vs anti
+    % detect saccade related using sliding window (5 bins) 200 ms before
+    % sacc onset to 200 ms after sacc onset and store time at > or < than 2*std
+    
     win_size = 5; % num of bins to take in sliding window. 1 bin = 10 ms
     indx_win = win_size; win_size_prev = 10;
     t = units(cellNum).pro.neural.sacc.ts_pst;
     indx_beg = find(t>-0.2,1); indx_end = find(t>0.2,1);
-    rate_pst = units(cellNum).pro.neural.sacc.rate_pst; 
-    exc=0; sup=0;
-
-    % detect saccade related using sliding window (5 bins)
-  
+    
+    % pro
+    rate_pst = units(cellNum).pro.neural.sacc.rate_pst;
+    exc_pro=0; sup_pro=0;exc_anti=0; sup_anti=0;
+    
     for indx = indx_beg:indx_end
         r_mu = mean(rate_pst(round(indx-win_size/2):round(indx+win_size/2)));
         r_thresh1 = mean(rate_pst(indx-win_size_prev:indx))+...
             2*std(rate_pst(indx-win_size_prev:indx));
         r_thresh2 = mean(rate_pst(indx-win_size_prev:indx))-...
             2*std(rate_pst(indx-win_size_prev:indx));
-        if (r_thresh1>1 && r_mu>r_thresh1), exc=exc+1;else exc=0;end
-        if (r_thresh2>1 && r_mu<r_thresh2), sup=sup+1;else sup=0;end
-        if exc==3, events.rise.t_on = t(indx); events.rise.type_on = 'exc';
+        if (r_thresh1>1 && r_mu>r_thresh1), exc_pro=exc_pro+1;else exc_pro=0;end
+        if (r_thresh2>1 && r_mu<r_thresh2), sup_pro=sup_pro+1;else sup_pro=0;end
+        if exc_pro==3, events.rise.t_on = t(indx); events.rise.type_on = 'exc';
             break;
-        elseif sup==3, units(cellNum).pro.events.rise.t_on = t(indx); units(cellNum).pro.events.rise.type_on = 'sup';
+        elseif sup_pro==3, units(cellNum).pro.events.rise.t_on = t(indx); units(cellNum).pro.events.rise.type_on = 'sup';
             break;
         end
     end
     
+    % anti
+    rate_pst = units(cellNum).anti.neural.sacc.rate_pst;
+    exc_anti=0; sup_anti=0;
     
-    
-    
-    
-    
+    for indx = indx_beg:indx_end
+        r_mu = mean(rate_pst(round(indx-win_size/2):round(indx+win_size/2)));
+        r_thresh1 = mean(rate_pst(indx-win_size_prev:indx))+...
+            2*std(rate_pst(indx-win_size_prev:indx));
+        r_thresh2 = mean(rate_pst(indx-win_size_prev:indx))-...
+            2*std(rate_pst(indx-win_size_prev:indx));
+        if (r_thresh1>1 && r_mu>r_thresh1), exc_anti=exc_anti+1;else exc_anti=0;end
+        if (r_thresh2>1 && r_mu<r_thresh2), sup_anti=sup_anti+1;else sup_anti=0;end
+        if exc_anti==3, events.rise.t_on = t(indx); events.rise.type_on = 'exc';
+            break;
+        elseif sup_anti==3, units(cellNum).pro.events.rise.t_on = t(indx); units(cellNum).pro.events.rise.type_on = 'sup';
+            break;
+        end
+    end
+ 
 end
 
+% coefficient of variation and fano factor
+
+for cellNum = 1:length(units)
+    correctProTrials = units(cellNum).pro.indx_correctProTrials; % index pro trials
+    correctAntiTrials = units(cellNum).anti.indx_correctAntiTrials;
+    % pro
+    for trialNum = 1:length(correctProTrials)
+        isi_tspk = diff(units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc); std_isi = std(isi_tspk); mean_isi = mean(isi_tspk);
+        % compute CV isi
+        units(cellNum).pro.neural.trial(trialNum).cv_isi= mean_isi/std_isi;
+    end
+
+    %anti
+    for trialNum = 1:length(correctAntiTrials)
+        isi_tspk = diff(units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc); std_isi = std(isi_tspk); mean_isi = mean(isi_tspk);
+        % compute CV isi
+        units(cellNum).anti.neural.trial(trialNum).cv_isi= mean_isi/std_isi;
+    end
+    
+    %MISSING COMPUTE mean CV  (and CV2)
+    
+end 
+% compute fano factor
+
 z=1;
-%fano factor std(isi)^(2)/mean(isi)
+%FanoFactor = (std(NumCounts_vect)^2)/mean(NumCounts_vect)
 
 end
