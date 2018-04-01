@@ -12,8 +12,10 @@ function units = extractWholeNeuronR(wholeNeuronResults)
 %                       SpikeTimes2CountTrial.m
 %                       plot_ProAnti.m, eyeKinematics_ProAnti.m
 
-% TODO
-% - eye kin plots to separate code
+% Windows
+% Baseline = -0.3:-0.1 before saccade onset
+% Instruction = 0:0.3 aligned to trial onset
+% Saccade = -0.1:0.2 aligned to saccade
 
 %% Create structure with relevant data (units)
 %uiopen;
@@ -86,9 +88,10 @@ for cellNum = 1:length(units)
     [units(cellNum).pro.neural.instr.rate_pst,units(cellNum).pro.neural.instr.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,timepoints_instr,binwidth,analyse_sacc_align,id); % aligned to trial onset
     units(cellNum).pro.neural.instr.rate_pst = smooth_pst(units(cellNum).pro.neural.instr.rate_pst,binwidth,tsmooth);
     % sacc aligned
+    analyse_sacc_align=1;
     [units(cellNum).pro.neural.sacc.rate_pst,units(cellNum).pro.neural.sacc.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,timepoints_sacc,binwidth,analyse_sacc_align,id); % aligned to saccade onset
     units(cellNum).pro.neural.sacc.rate_pst = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst,binwidth,tsmooth);
-    
+    analyse_sacc_align=0;
     
     % Anti trials
     correctAntiTrials = units(cellNum).anti.indx_correctAntiTrials; % index pro trials
@@ -108,8 +111,10 @@ for cellNum = 1:length(units)
     [units(cellNum).anti.neural.instr.rate_pst,units(cellNum).anti.neural.instr.ts_pst] = Spiketimes2Rate(units(cellNum).anti.neural.trial,timepoints_instr,binwidth,analyse_sacc_align,id); % aligned to trial onset
     units(cellNum).anti.neural.instr.rate_pst = smooth_pst(units(cellNum).anti.neural.instr.rate_pst,binwidth,tsmooth);
     % sacc aligned
+    analyse_sacc_align=1;
     [units(cellNum).anti.neural.sacc.rate_pst,units(cellNum).anti.neural.sacc.ts_pst] = Spiketimes2Rate(units(cellNum).anti.neural.trial,timepoints_sacc,binwidth,analyse_sacc_align,id); % aligned to saccade onset
     units(cellNum).anti.neural.sacc.rate_pst = smooth_pst(units(cellNum).anti.neural.sacc.rate_pst,binwidth,tsmooth);
+    analyse_sacc_align=0;
 end
 
 %% For every trial - Spike time count and spike times to rate for pro and antisaccades
@@ -249,7 +254,10 @@ for cellNum = 1:length(units)
     units(cellNum).anti.stats.eye.rt.mu = nanmean(eyeKin(cellNum).antiRT); units(cellNum).anti.stats.eye.rt.sig = nanstd(eyeKin(cellNum).antiRT);
 end
 
-%% Neural
+%% Neural %%%%
+%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%
+
 %% stats per neuron - compare windows against baseline activity for pro and anti (concatenate all trials and make comparison)
 %% Extract spks in windows and compute mean and sem
 for cellNum = 1:length(units)
@@ -351,10 +359,9 @@ for cellNum = 1:length(units)
         end
     end
     
-    %% Sliding window to test diff pro vs anti
+    %% statistical test to compare if pro == anti - aligned to instr using spk count with bigger window
     win_size = 5; % num of bins to take in sliding window. 1 bin = 10 ms
     indx_win = win_size;
-    
     % instr pro
     for trialNum = 1:length(correctProTrials)
         thisTrial = units(cellNum).pro.neural.instr.nspkCount(trialNum,:);
@@ -397,11 +404,39 @@ for cellNum = 1:length(units)
         end
     end
     
+    %% Sliding window to test diff pro vs anti
+    win_size = 5; % num of bins to take in sliding window. 1 bin = 10 ms
+    indx_win = win_size; win_size_prev = 10;
+    t = units(cellNum).pro.neural.sacc.ts_pst;
+    indx_beg = find(t>-0.2,1); indx_end = find(t>0.2,1);
+    rate_pst = units(cellNum).pro.neural.sacc.rate_pst; 
+    exc=0; sup=0;
+
+    % detect saccade related using sliding window (5 bins)
+  
+    for indx = indx_beg:indx_end
+        r_mu = mean(rate_pst(round(indx-win_size/2):round(indx+win_size/2)));
+        r_thresh1 = mean(rate_pst(indx-win_size_prev:indx))+...
+            2*std(rate_pst(indx-win_size_prev:indx));
+        r_thresh2 = mean(rate_pst(indx-win_size_prev:indx))-...
+            2*std(rate_pst(indx-win_size_prev:indx));
+        if (r_thresh1>1 && r_mu>r_thresh1), exc=exc+1;else exc=0;end
+        if (r_thresh2>1 && r_mu<r_thresh2), sup=sup+1;else sup=0;end
+        if exc==3, events.rise.t_on = t(indx); events.rise.type_on = 'exc';
+            break;
+        elseif sup==3, units(cellNum).pro.events.rise.t_on = t(indx); units(cellNum).pro.events.rise.type_on = 'sup';
+            break;
+        end
+    end
+    
+    
+    
+    
     
     
 end
 
-
-fano factor std(isi)^(2)/mean(isi)
+z=1;
+%fano factor std(isi)^(2)/mean(isi)
 
 end
