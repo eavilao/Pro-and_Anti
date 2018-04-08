@@ -1,0 +1,20 @@
+% default parameters used to run extractWholeNeuronR
+
+% Windows
+prs.baseline_win = [-0.3 0.1]  % before saccade onset
+prs.instruction_win = [0 0.3]   % aligned to trial onset
+prs.saccade_win = [-0.1 0.2] aligned to saccade
+
+% extract spk timing
+prs.tspk = [-0.1 0.2]; 100 ms before trial starts to reward +200 ms
+
+% Prosaccade condition codes
+prs.proConditions = [1 4 5 8 10 11 14 15];
+prs.antiConditions = [];
+
+prs.binwidth = 0.01;
+prs.timepoints_instr = -0.1:binwidth:1;
+prs.timepoints_sacc = -0.8:binwidth:0.3;
+
+% smoothing window for psth
+prs.tsmooth = 0.050;
