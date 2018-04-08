@@ -461,6 +461,9 @@ for cellNum = 1:length(units)
 end
 
 %% coefficient of variation and fano factor
+% CV = mean_isi/std_isi
+% CV2 =  2x|ISIn+1-ISIn|/(ISIn+1 + ISIn) Holt et al. 199
+
 
 for cellNum = 1:length(units)
     correctProTrials = units(cellNum).pro.indx_correctProTrials; % index pro trials
@@ -494,13 +497,11 @@ for cellNum = 1:length(units)
     
      units(cellNum).anti.meanCV =  mean([units(cellNum).anti.neural.trial.cv_isi]);
 
-   
-    %MISSING COMPUTE CV2 2x |ISIn+1-ISIn|/(ISIn+1 + ISIn)
+   %FanoFactor = (std(NumCounts_vect)^2)/mean(NumCounts_vect)
 
 end
-% compute fano factor
 
 z=1;
-%FanoFactor = (std(NumCounts_vect)^2)/mean(NumCounts_vect)
+
 
 end
