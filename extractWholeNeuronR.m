@@ -24,6 +24,14 @@ tsmooth = 0.050;
 for cellNum = 1:length(wholeNeuronResults);
     for trialNum = 1:length(wholeNeuronResults(cellNum).allStableTrials);
         if ~isempty(wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes)
+            
+            % monkey
+            units(cellNum).monk = wholeNeuronResults(cellNum).monkey; 
+            % area 
+            units(cellNum).area = wholeNeuronResults(cellNum).area;
+            % coord
+            units(cellNum).coord.depth = wholeNeuronResults(cellNum).depth;
+            units(cellNum).coord.loc = wholeNeuronResults(cellNum).gridLoc;
 
             %behavioral
             units(cellNum).trial.behav(trialNum).saccadeOnset =  wholeNeuronResults(cellNum).allStableTrials(trialNum).saccadeTime; % saccade onset from trial start (?)
@@ -56,6 +64,9 @@ for cellNum = 1:length(wholeNeuronResults);
     % Indexes to select Pro and Anti trials
     units(cellNum).pro.indx_correctProTrials = wholeNeuronResults(cellNum).selectedTrials.corProTrials;
     units(cellNum).anti.indx_correctAntiTrials = wholeNeuronResults(cellNum).selectedTrials.corAntiTrials;
+    
+    
+    
 end
 
 clear cellNum trialNum %wholeNeuronResults
