@@ -460,7 +460,7 @@ for cellNum = 1:length(units)
 
 end
 
-%% coefficient of variation and fano factor
+%% coefficient of variation and CV2
 % CV = mean_isi/std_isi
 % CV2 =  2x|ISIn+1-ISIn|/(ISIn+1 + ISIn) Holt et al. 199
 
@@ -497,11 +497,6 @@ for cellNum = 1:length(units)
     
      units(cellNum).anti.meanCV =  mean([units(cellNum).anti.neural.trial.cv_isi]);
 
-   %FanoFactor = (std(NumCounts_vect)^2)/mean(NumCounts_vect)
-
 end
-
-z=1;
-
 
 end
