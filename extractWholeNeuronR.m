@@ -443,7 +443,7 @@ for cellNum = 1:length(units)
 
     %% statistical test to compare if pro == anti - aligned to instr using spk count with bigger window -- CHECK TEST STATISTIC
     
-    for win_num = 1:length(units(cellNum).pro.neural.instr.spkCount_win)
+    for win_num = 1:length(units(cellNum).pro.neural.instr.spkCount_win(1,:));
         % instr pro vs anti
         [units(cellNum).stats.instr.flag.spk_count_bigWin(win_num),units(cellNum).stats.instr.pval.spk_count_bigWin(win_num)] = ttest2(units(cellNum).pro.neural.instr.spkCount_win(:,win_num),...
              units(cellNum).anti.neural.instr.spkCount_win(:,win_num)); 
