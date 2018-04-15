@@ -17,33 +17,37 @@ function units = extractWholeNeuronR(wholeNeuronResults)
 % Instruction = 0:0.3 aligned to trial onset
 % Saccade = -0.1:0.2 aligned to saccade
 
-%% Create structure with relevant data (units)
+%% Create structure with relevant data (units) - extract main info from wholeNeuronResults
 %uiopen;
 tsmooth = 0.050;
 
-for cellNum = 1:length(wholeNeuronResults);
-    for trialNum = 1:length(wholeNeuronResults(cellNum).allStableTrials);
-        if ~isempty(wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes)
-            
+% first find the ones that are not empty
+for i = 1:length(wholeNeuronResults)
+    cell_indx(i) = ~isempty(wholeNeuronResults(i).allStableTrials);
+end
+cell_indx = find(cell_indx); 
+
+for cellNum = 1:length(cell_indx);
+    for trialNum = 1:length(wholeNeuronResults(cell_indx(cellNum)).allStableTrials);
+        if ~isempty(wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).alignedSpikes) 
             % monkey
-            units(cellNum).monk = wholeNeuronResults(cellNum).monkey; 
+            units(cellNum).monk = wholeNeuronResults(cell_indx(cellNum)).monkey; 
             % area 
-            units(cellNum).area = wholeNeuronResults(cellNum).area;
+            units(cellNum).area = wholeNeuronResults(cell_indx(cellNum)).area;
             % coord
-            units(cellNum).coord.depth = wholeNeuronResults(cellNum).depth;
-            units(cellNum).coord.loc = wholeNeuronResults(cellNum).gridLoc;
-
+            units(cellNum).coord.depth = wholeNeuronResults(cell_indx(cellNum)).depth;
+            units(cellNum).coord.loc = wholeNeuronResults(cell_indx(cellNum)).gridLoc;
             %behavioral
-            units(cellNum).trial.behav(trialNum).saccadeOnset =  wholeNeuronResults(cellNum).allStableTrials(trialNum).saccadeTime; % saccade onset from trial start (?)
-            units(cellNum).trial.behav(trialNum).goCueTime = wholeNeuronResults(cellNum).allStableTrials(trialNum).goCueTime; %go cue from trial start
-            units(cellNum).trial.behav(trialNum).saccAmplitude = wholeNeuronResults(cellNum).allStableTrials(trialNum).saccadeAmplitude;
-            units(cellNum).trial.behav(trialNum).saccDuration = wholeNeuronResults(cellNum).allStableTrials(trialNum).saccadeDuration;
-            units(cellNum).trial.behav(trialNum).saccPeakVel = wholeNeuronResults(cellNum).allStableTrials(trialNum).saccadePeakVel;
-            units(cellNum).trial.behav(trialNum).reactionTime = wholeNeuronResults(cellNum).allStableTrials(trialNum).reactionTime;
-            units(cellNum).trial.behav(trialNum).reward = wholeNeuronResults(cellNum).allStableTrials(trialNum).relativeRewardTime;
-
+            units(cellNum).trial.behav(trialNum).saccadeOnset =  wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).saccadeTime; % saccade onset from trial start (?)
+            units(cellNum).trial.behav(trialNum).goCueTime = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).goCueTime; %go cue from trial start
+            units(cellNum).trial.behav(trialNum).saccAmplitude = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).saccadeAmplitude;
+            units(cellNum).trial.behav(trialNum).saccDuration = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).saccadeDuration;
+            units(cellNum).trial.behav(trialNum).saccPeakVel = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).saccadePeakVel;
+            units(cellNum).trial.behav(trialNum).reactionTime = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).reactionTime;
+            units(cellNum).trial.behav(trialNum).reward = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).relativeRewardTime;
+            
             %neural data
-            spks =  wholeNeuronResults(cellNum).allStableTrials(trialNum).alignedSpikes{1}; % contains spike times for SS aligned to trial onset
+            spks =  wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).alignedSpikes{1}; % contains spike times for SS aligned to trial onset
             if ~isempty(units(cellNum).trial.behav(trialNum).reward)
                 indx_trial_spks = spks>-0.1 & spks < units(cellNum).trial.behav(trialNum).reward+0.2; % just pick 100 ms before trial starts to reward +200 ms
                 units(cellNum).trial.neural(trialNum).tspk_SS = spks(indx_trial_spks);
@@ -54,16 +58,20 @@ for cellNum = 1:length(wholeNeuronResults);
             end
             units(cellNum).id = 'SS';
             % select condition type Pro or Antisaccade
-            if ismember(wholeNeuronResults(cellNum).allStableTrials(trialNum).conditionCode, [1 4 5 8 10 11 14 15]);
+            if ismember(wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).conditionCode, [1 4 5 8 10 11 14 15]);
                 units(cellNum).trial.behav(trialNum).condition = 'Prosaccade';
             else
                 units(cellNum).trial.behav(trialNum).condition = 'Antisaccade';
             end
         end
+        
+        % Indexes to select Pro and Anti trials
+        units(cellNum).pro.indx_correctProTrials = wholeNeuronResults(cell_indx(cellNum)).selectedTrials.corProTrials;
+        units(cellNum).anti.indx_correctAntiTrials = wholeNeuronResults(cell_indx(cellNum)).selectedTrials.corAntiTrials;
+        
+        
     end
-    % Indexes to select Pro and Anti trials
-    units(cellNum).pro.indx_correctProTrials = wholeNeuronResults(cellNum).selectedTrials.corProTrials;
-    units(cellNum).anti.indx_correctAntiTrials = wholeNeuronResults(cellNum).selectedTrials.corAntiTrials;
+   
     
     
     
@@ -319,38 +327,47 @@ end
 for cellNum = 1:length(units)
     ntrls_pro = length(units(cellNum).pro.neural.trial);
     ntrls_anti = length(units(cellNum).anti.neural.trial);
-    % pro
+    % windows
     instr_win = units(cellNum).pro.neural.instr.ts_pst > 0 & units(cellNum).pro.neural.instr.ts_pst < 0.301;
     sacc_win = units(cellNum).pro.neural.sacc.ts_pst > -0.1 & units(cellNum).pro.neural.sacc.ts_pst < 0.201;
     base_win = units(cellNum).pro.neural.sacc.ts_pst > -0.301 & units(cellNum).pro.neural.sacc.ts_pst <-0.101;
-    %get spks
-    instr_spks = units(cellNum).pro.neural.instr.rate_pst(instr_win);
-    sacc_spks = units(cellNum).pro.neural.sacc.rate_pst(sacc_win);
-    base_spks = units(cellNum).pro.neural.sacc.rate_pst(base_win);
+    %get spks pro
+    instr_spks_pro = units(cellNum).pro.neural.instr.rate_pst(instr_win);
+    sacc_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(sacc_win);
+    base_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(base_win);
 
-    %mean and sem
-    units(cellNum).pro.neural.instr.rate_mu = mean(instr_spks);
-    units(cellNum).pro.neural.instr.rate_sig = std(instr_spks)/sqrt(ntrls_pro);
-    units(cellNum).pro.neural.sacc.rate_mu = mean(sacc_spks);
-    units(cellNum).pro.neural.sacc.rate_sig = std(sacc_spks)/sqrt(ntrls_pro);
-    units(cellNum).pro.neural.base.rate_mu = mean(base_spks);
-    units(cellNum).pro.neural.base.rate_sig = std(base_spks)/sqrt(ntrls_pro);
-
-    % anti
-    instr_win = units(cellNum).anti.neural.instr.ts_pst > 0 & units(cellNum).anti.neural.instr.ts_pst < 0.301;
-    sacc_win = units(cellNum).anti.neural.sacc.ts_pst > -0.1 & units(cellNum).anti.neural.sacc.ts_pst < 0.201;
-    base_win = units(cellNum).anti.neural.sacc.ts_pst > -0.301 & units(cellNum).anti.neural.sacc.ts_pst <-0.101;
-    %get spks
-    instr_spks = units(cellNum).anti.neural.instr.rate_pst(instr_win);
-    sacc_spks = units(cellNum).anti.neural.sacc.rate_pst(sacc_win);
-    base_spks = units(cellNum).anti.neural.sacc.rate_pst(base_win);
-    %mean and sem
-    units(cellNum).anti.neural.instr.rate_mu = mean(instr_spks);
-    units(cellNum).anti.neural.instr.rate_sig = std(instr_spks)/sqrt(ntrls_anti);
-    units(cellNum).anti.neural.sacc.rate_mu = mean(sacc_spks);
-    units(cellNum).anti.neural.sacc.rate_sig = std(sacc_spks)/sqrt(ntrls_anti);
-    units(cellNum).anti.neural.base.rate_mu = mean(base_spks);
-    units(cellNum).anti.neural.base.rate_sig = std(base_spks)/sqrt(ntrls_anti);
+    %pst, mean and sem
+    units(cellNum).pro.neural.instr.ts_pst_win = units(cellNum).pro.neural.instr.ts_pst(instr_win);
+    units(cellNum).pro.neural.instr.rate_pst_win = units(cellNum).pro.neural.instr.rate_pst(instr_win);
+    units(cellNum).pro.neural.instr.rate_mu = mean(instr_spks_pro);
+    units(cellNum).pro.neural.instr.rate_sig = std(instr_spks_pro)/sqrt(ntrls_pro);
+    units(cellNum).pro.neural.sacc.ts_pst_win = units(cellNum).pro.neural.sacc.ts_pst(sacc_win);
+    units(cellNum).pro.neural.sacc.rate_pst_win = units(cellNum).pro.neural.sacc.rate_pst(sacc_win);
+    units(cellNum).pro.neural.sacc.rate_mu = mean(sacc_spks_pro);
+    units(cellNum).pro.neural.sacc.rate_sig = std(sacc_spks_pro)/sqrt(ntrls_pro);
+    units(cellNum).pro.neural.base.ts_pst_win = units(cellNum).pro.neural.sacc.ts_pst(base_win);
+    units(cellNum).pro.neural.base.rate_pst_win = units(cellNum).pro.neural.sacc.rate_pst(base_win);
+    units(cellNum).pro.neural.base.rate_mu = mean(base_spks_pro);
+    units(cellNum).pro.neural.base.rate_sig = std(base_spks_pro)/sqrt(ntrls_pro);
+    
+    
+    %get spks anti
+    instr_spks_anti = units(cellNum).anti.neural.instr.rate_pst(instr_win);
+    sacc_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(sacc_win);
+    base_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(base_win);
+    %pst, mean and sem
+    units(cellNum).anti.neural.instr.ts_pst_win = units(cellNum).anti.neural.instr.ts_pst(instr_win);
+    units(cellNum).anti.neural.instr.rate_pst_win = units(cellNum).anti.neural.instr.rate_pst(instr_win);
+    units(cellNum).anti.neural.instr.rate_mu = mean(instr_spks_anti);
+    units(cellNum).anti.neural.instr.rate_sig = std(instr_spks_anti)/sqrt(ntrls_anti);
+    units(cellNum).anti.neural.sacc.ts_pst_win = units(cellNum).anti.neural.sacc.ts_pst(sacc_win);
+    units(cellNum).anti.neural.sacc.rate_pst_win = units(cellNum).anti.neural.sacc.rate_pst(sacc_win);
+    units(cellNum).anti.neural.sacc.rate_mu = mean(sacc_spks_anti);
+    units(cellNum).anti.neural.sacc.rate_sig = std(sacc_spks_anti)/sqrt(ntrls_anti);
+    units(cellNum).anti.neural.base.ts_pst_win = units(cellNum).anti.neural.sacc.ts_pst(base_win);
+    units(cellNum).anti.neural.base.rate_pst_win = units(cellNum).anti.neural.sacc.rate_pst(base_win);
+    units(cellNum).anti.neural.base.rate_mu = mean(base_spks_anti);
+    units(cellNum).anti.neural.base.rate_sig = std(base_spks_anti)/sqrt(ntrls_anti);
 
     %% compare windows against baseline activity for pro and anti
     % pro
@@ -365,6 +382,15 @@ for cellNum = 1:length(units)
     [units(cellNum).stats.flags.proVsAnti_instr,units(cellNum).stats.pval.proVsAnti_instr_win] = ttest2(units(cellNum).pro.neural.instr.nspk,units(cellNum).anti.neural.instr.nspk);
     [units(cellNum).stats.flags.proVsAnti_sacc,units(cellNum).stats.pval.proVsAnti_sacc_win] = ttest2(units(cellNum).pro.neural.sacc.nspk,units(cellNum).anti.neural.sacc.nspk);
 
+    %% Compute change in FR from baseline
+    % pro
+    units(cellNum).pro.neural.instr.delta_rate = units(cellNum).pro.neural.instr.rate_pst_win - units(cellNum).pro.neural.instr.rate_mu;
+    units(cellNum).pro.neural.sacc.delta_rate = units(cellNum).pro.neural.sacc.rate_pst_win - units(cellNum).pro.neural.sacc.rate_mu;
+    
+    % anti
+    units(cellNum).anti.neural.instr.delta_rate = units(cellNum).anti.neural.instr.rate_pst_win - units(cellNum).anti.neural.instr.rate_mu;
+    units(cellNum).anti.neural.sacc.delta_rate = units(cellNum).anti.neural.sacc.rate_pst_win - units(cellNum).anti.neural.sacc.rate_mu;
+    
     %% noramlized FR - z-scored
     % pro
     % aligned to trial onset
@@ -415,10 +441,17 @@ for cellNum = 1:length(units)
         end
     end
 
-    %% statistical test to compare if pro == anti - aligned to instr using spk count with bigger window
+    %% statistical test to compare if pro == anti - aligned to instr using spk count with bigger window -- CHECK TEST STATISTIC
     
     for win_num = 1:length(units(cellNum).pro.neural.instr.spkCount_win)
-%         units(cellNum).stats.pval.dist_win(win_num)
+        % instr pro vs anti
+        [units(cellNum).stats.instr.flag.spk_count_bigWin(win_num),units(cellNum).stats.instr.pval.spk_count_bigWin(win_num)] = ttest2(units(cellNum).pro.neural.instr.spkCount_win(:,win_num),...
+             units(cellNum).anti.neural.instr.spkCount_win(:,win_num)); 
+         
+         % sacc pro vs anti
+         [units(cellNum).stats.sacc.flag.spk_count_bigWin(win_num),units(cellNum).stats.sacc.pval.spk_count_bigWin(win_num)] = ttest2(units(cellNum).pro.neural.sacc.spkCount_win(:,win_num),...
+             units(cellNum).anti.neural.sacc.spkCount_win(:,win_num));
+         
     end
 
 
