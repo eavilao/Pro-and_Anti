@@ -14,7 +14,7 @@
 % Different pcs -  different paths
 set(0,'defaultfigurecolor','w')
 set(0,'defaultaxescolor','w')
-
+% global error_log
 
 [~, cn] = system('hostname');
 switch strtrim(cn)
@@ -305,8 +305,11 @@ notEmptyNeurons = find(~cellfun(@isempty, recList(4,:)));
 % recordingsToAnalyse =  notEmptyNeurons(81:90);
 % recordingsToAnalyse =  notEmptyNeurons(91:100);
 % recordingsToAnalyse =  notEmptyNeurons(101:110);
-recordingsToAnalyse =  notEmptyNeurons(111:120);
-
+% recordingsToAnalyse =  notEmptyNeurons(111:120);
+% recordingsToAnalyse =  notEmptyNeurons(121:140);
+% recordingsToAnalyse =  notEmptyNeurons(201:220);
+recordingsToAnalyse =  notEmptyNeurons
+recordingsToAnalyse = notEmptyNeurons
 % flag 667
 
 if ~exist('error_log.mat')
@@ -329,22 +332,56 @@ for neuronNum = recordingsToAnalyse;
     if exist([processDir filesep neuronList(neuronNum).neuronName dataFileNameEnd],'file')~=2
           
         disp(['stability marking for ' neuronList(neuronNum).neuronName])
-        %convert file list to structure
-        stimDescript{neuronNum} = cell2struct(neuronList(neuronNum).fileList, ...
+       
+        
+        
+                        
+ 
+        
+                 %convert file list to structure
+                % clean file list from files without spi file
+                stimDescript{neuronNum} = cell2struct(neuronList(neuronNum).fileList, ...
                     {'fileName', 'spkChannelNumber', 'unitNumbers', 'startTime', 'stopTime','stimStartFile','resortFlag'}, ...
                     2);
+%                 fileList= neuronList(neuronNum).fileList
+                fileList= stimDescript{neuronNum};
+
+                for fileNum = 1: size(fileList,2)
+                    spkChannelNum = fileList(fileNum).spkChannelNumber;
+
+                    spiFile =exist([fileList(fileNum).fileName(1:end-4) '_0' num2str(spkChannelNum) '.spi'] ,'file');
+                    %             inStruct = load([fileList(fileNum).fileName(1:end-4) '_0' num2str(spkChannelNum) '.spi'],'-mat');
+
+                    % if no spifile-edit neuronList 
+                    if spiFile == 0
+
+                        neuronList(neuronNum).fileList(fileNum,:)=[];
+                    end
+       
+                end   
+                
+                
+                % re-initiate cell2struct
+            stimDescript{neuronNum} = cell2struct(neuronList(neuronNum).fileList, ...
+                    {'fileName', 'spkChannelNumber', 'unitNumbers', 'startTime', 'stopTime','stimStartFile','resortFlag'}, ...
+                    2);
+                
         %launch stable period marking
         %PH 171016 added switch to enable use of different eye channels
         if isempty(neuronList(neuronNum).eyeChannels)
-        hFig = markStablePeriods(stimDescript{neuronNum},[17 18]);
-        drawnow;
-        waitfor(hFig)
+            hFig = markStablePeriods(stimDescript{neuronNum},[17 18]);
+            drawnow;
+            waitfor(hFig)
         else
-            
-            hFig = markStablePeriods(stimDescript{neuronNum},neuronList(neuronNum).eyeChannels);
-        drawnow;
-        waitfor(hFig)
-            
+            try
+                hFig = markStablePeriods(stimDescript{neuronNum},neuronList(neuronNum).eyeChannels);
+                drawnow;
+                waitfor(hFig)
+            catch
+                hFig = markStablePeriods(stimDescript{neuronNum},[17 18]);
+                drawnow;
+                waitfor(hFig)
+            end
         end
 
         neuronList(neuronNum).fileList = editedFileList;
@@ -354,23 +391,27 @@ for neuronNum = recordingsToAnalyse;
         disp(['stability already marked for ' neuronList(neuronNum).neuronName])
     
     end
-    
+        error_log{neuronNum,3} = 'stability marked';
+        save([neuronListDir '/error_log.mat'],'error_log')
+
     catch em
         
         error_log{neuronNum,3} = em ;
             save([neuronListDir '/error_log.mat'],'error_log')
 
     end 
-    
+    figgy= gcf;
+    close(figgy);
 end
 
- keyboard
+  
 %% FILE BY FILE ANALYSIS
 %loop over all neurons and files within those neurons
 for neuronNum = recordingsToAnalyse;
     close all %TODO be careful!!
     disp(['    processing file ' num2str(neuronNum) ' of ' num2str(max(recordingsToAnalyse))])
-    
+         try 
+
     %create file name for the summary figure pdf for this neuron
     figureFileName = [resultsDir filesep neuronList(neuronNum).neuronName figPdfFileNameEnd];
     
@@ -379,14 +420,13 @@ for neuronNum = recordingsToAnalyse;
      thisMatFileName = [processDir filesep neuronList(neuronNum).neuronName dataFileNameEnd];
      mLoadedData = matfile(thisMatFileName); %create mat file
     
-   
      
      
      %check for each neuron if the analysis file has already been saved, if
      %not then analyse
      if exist([resultsDir filesep neuronList(neuronNum).neuronName analysisFileNameEnd],'file')~=2
          
-         
+       
          numFiles = size(mLoadedData.editedFileList,1);
          %create blank structure for holdind analysis results for this neuron
         structInitializer = cell(numFiles,1); %has 2 comlums as second is for the sceond unit (complex spikes)
@@ -452,10 +492,11 @@ for neuronNum = recordingsToAnalyse;
              %get trial information
              thisTrialInfoName = [processDir filesep thisFileInfo.fileName(1:end-4) '-trialInfo.mat'];
              
-             if exist(thisTrialInfoName,'file')~=2
-                  
+             if exist(thisTrialInfoName,'file')~=2  
                  trialData = extractTrialData(thisFileInfo,thisData.spkDataStartTime,bitNum,secondBitNum,processDir,neuronList);
                  save(thisTrialInfoName,'trialData');
+                    
+                      
              else
                  load(thisTrialInfoName);
              end
@@ -717,6 +758,17 @@ for neuronNum = recordingsToAnalyse;
          
          disp('neuron already analysed')
      end
+     
+%          catch
+             catch em 
+            error_log{neuronNum,4} = em;
+                        save([neuronListDir '/error_log.mat'],'error_log')
+
+         end
+                     error_log{neuronNum,4} = 'saccades detected';
+                                 save([neuronListDir '/error_log.mat'],'error_log')
+
+
 end
  
 %% FILE By FILE BURST/PAUSE -UC
@@ -1087,7 +1139,13 @@ smallTimeWindow = [0.3 0.5]; %time window for actual rasters
 
 
  if exist([resultsDir filesep wholeNeuronNameEnd],'file')~=2 %delete the file ans start again every time
+     try
      delete([resultsDir filesep wholeNeuronNameEnd])
+     catch
+     end
+     
+     else
+     
  end
     %TODO initialise to correct size
     wholeNeuronResults = struct('allStableTrials',[],'selectedTrials',[],'monkey',[],'area',[],'depth',[],'gridLoc',[]); %allStableTrails contaiins the trial structure for all trials in a neuron within the periods marked as stabel by Eric.
@@ -1099,7 +1157,7 @@ smallTimeWindow = [0.3 0.5]; %time window for actual rasters
     %numbers (eg correct trials)
     
     for neuronNum = recordingsToAnalyse;
-    
+    try 
         
         wholeNeuronResults(neuronNum).monkey = neuronList(neuronNum).monkey;
         wholeNeuronResults(neuronNum).area = neuronList(neuronNum).area;
@@ -1211,7 +1269,14 @@ smallTimeWindow = [0.3 0.5]; %time window for actual rasters
         wholeNeuronResults(neuronNum).selectedTrials.wroSacTrials = wroSacTrialNums;
         clear analysisResults
         
-        
+          catch em 
+            error_log{neuronNum,5} = em;
+                        save([neuronListDir '/error_log.mat'],'error_log')
+
+         end
+                     error_log{neuronNum,5} = 'whole neuron result appended';
+                                 save([neuronListDir '/error_log.mat'],'error_log')
+
     end
     save([resultsDir filesep wholeNeuronNameEnd],'wholeNeuronResults','-v7.3')
     

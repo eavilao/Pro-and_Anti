@@ -22,7 +22,7 @@ end
 %load ports (event channels) from AO .mat file (output from their
 %converter)
 %the new version labels things CInPort
- try
+%  try
  w = whos('-file',thisFileInfo.fileName);
   if ~isempty(find(strcmpi({w.name},'CPort_005')))
      load(thisFileInfo.fileName,'CPort_005','CPort_003_KHz','CPort_003');
@@ -55,10 +55,11 @@ end
      bitPortNum = 2;
      wordPortNum = 1;
  end
- catch
-     load(thisFileInfo.fileName)
-     keyboard
- end
+%  catch em
+%      load(thisFileInfo.fileName)
+%      error_log
+%      keyboard
+%  end
 
     %!!!!!!!!!!!!FROM NOW ON ALL TIMES WITHIN FILE ARE RELATIVE TO
             %START OF FILE (spk start time) eg START OF FILE = 0s!!!!!!!!

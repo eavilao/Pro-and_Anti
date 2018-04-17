@@ -30,6 +30,9 @@ set(get(hMarkerPlot,'yLabel'),'string','Fr Modulation (z-stat)')
 
 linkaxes([hMainPlot hMarkerPlot],'x')
 
+
+
+
 numFiles = size(fileList,1);
 structInitializer = cell(numFiles,1);
 dataStruct = struct('spkData',structInitializer,'spkFs',...
@@ -44,9 +47,17 @@ cc = lines(12); %colour order for units and files
 %Create 1 long plot of all data using file starting times to check
 %continous, colour each file differently
 
+
+
+
 %loop over files and load data
 for fileNum = 1:numFiles
+
     spkChannelNum = fileList(fileNum).spkChannelNumber;
+
+%     keyboard
+%    
+%         
     
     %build variable strings
     

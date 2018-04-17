@@ -430,7 +430,7 @@ while SO<=length(candidates)  %%	iterate through candidates
 		catch
 			disp('problem with findLandmarks')
 			SO = SO+1;
-			keyboard
+% 			keyboard
 			continue
 		end
 		
