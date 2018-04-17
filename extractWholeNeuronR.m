@@ -451,7 +451,6 @@ for cellNum = 1:length(units)
          % sacc pro vs anti
          [units(cellNum).stats.sacc.flag.spk_count_bigWin(win_num),units(cellNum).stats.sacc.pval.spk_count_bigWin(win_num)] = ttest2(units(cellNum).pro.neural.sacc.spkCount_win(:,win_num),...
              units(cellNum).anti.neural.sacc.spkCount_win(:,win_num));
-         
     end
 
 
