@@ -205,7 +205,7 @@ switch plotType
         box off
         title('Aligned to instruction onset')
         
-    case 'colormap_sacc'
+    case 'colormap_sacc'  % TODO pick sacc related
         units = trialData; nunits = 1:length(trialData);
         %pro
         t = units(1).pro.neural.sacc.align_ts_pst; clear r;
