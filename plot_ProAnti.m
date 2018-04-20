@@ -1,15 +1,15 @@
-function plotUnit_ProAnti(trialData, plotType, cellNum)
+function plotUnit_ProAnti(units, plotType, cellNum)
 
-% Needed: trialData.mat
-% Input:    trialData  - output from extractWholeNeuronResults.m
+% Needed: units.mat
+% Input:    units  - output from extractWholeNeuronResults.m
 %           cellNum - cell you want to plot
 %           plotType - plot you want (e.g. raster, psth, etc.)
 
 
 %%
-% shadedErrorBar(trialData(1).anti.neural.sacc_ts_pst,trialData(1).anti.neural.sacc_rate_pst,repmat(trialData(1).anti.neural.sacc_rate_sig,1,21))
+% shadedErrorBar(units(1).anti.neural.sacc_ts_pst,units(1).anti.neural.sacc_rate_pst,repmat(units(1).anti.neural.sacc_rate_sig,1,21))
 % hold on
-% shadedErrorBar(trialData(1).pro.neural.sacc_ts_pst,trialData(1).pro.neural.sacc_rate_pst,repmat(trialData(1).pro.neural.sacc_rate_sig,1,21))
+% shadedErrorBar(units(1).pro.neural.sacc_ts_pst,units(1).pro.neural.sacc_rate_pst,repmat(units(1).pro.neural.sacc_rate_sig,1,21))
 
 %%
 
@@ -18,13 +18,13 @@ switch plotType
     case 'raster_sacc'
         % saccade aligned
         % pro
-        [~,indx] = sort([trialData(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
-        sorted_RT = -[trialData(cellNum).pro.behav.trial(indx).reactionTime];
-        r_pro= trialData(cellNum).pro.neural.trial;
+        [~,indx] = sort([units(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
+        sorted_RT = -[units(cellNum).pro.behav.trial(indx).reactionTime];
+        r_pro= units(cellNum).pro.neural.trial;
         
         subplot (2,1,1); hold on;box off
         
-        if strcmp(trialData(cellNum).id,'SS') % either SS or CS
+        if strcmp(units(cellNum).id,'SS') % either SS or CS
             for j=1:length(indx)
                 if ~isempty(r_pro(indx(j)).tspk_SS_align_sacc)
                     plot(sorted_RT(j),j,'.r');
@@ -49,12 +49,12 @@ switch plotType
         end
         
         % anti
-        [~,indx] = sort([trialData(cellNum).anti.behav.trial.reactionTime],'descend'); % sort RT
-        sorted_RT = -[trialData(cellNum).anti.behav.trial(indx).reactionTime];
-        r_anti=trialData(cellNum).anti.neural.trial;
+        [~,indx] = sort([units(cellNum).anti.behav.trial.reactionTime],'descend'); % sort RT
+        sorted_RT = -[units(cellNum).anti.behav.trial(indx).reactionTime];
+        r_anti=units(cellNum).anti.neural.trial;
         subplot (2,1,2); hold on;box off
         
-        if strcmp(trialData(cellNum).id,'SS') % either SS or CS
+        if strcmp(units(cellNum).id,'SS') % either SS or CS
             for j=1:length(indx)
                 if ~isempty(r_anti(indx(j)).tspk_SS_align_sacc)
                     plot(sorted_RT(j),j,'.r');
@@ -81,13 +81,13 @@ switch plotType
     case 'raster_instr'
         % saccade aligned
         % pro
-        [~,indx] = sort([trialData(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
-        sorted_RT = -[trialData(cellNum).pro.behav.trial(indx).reactionTime];
-        r_pro= trialData(cellNum).pro.neural.trial;
+        [~,indx] = sort([units(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
+        sorted_RT = -[units(cellNum).pro.behav.trial(indx).reactionTime];
+        r_pro= units(cellNum).pro.neural.trial;
         
         subplot (2,1,1); hold on;box off
         
-        if strcmp(trialData(cellNum).id,'SS') % either SS or CS
+        if strcmp(units(cellNum).id,'SS') % either SS or CS
             for j=1:length(indx)
                 if ~isempty(r_pro(indx(j)).tspk_SS)
                     plot(sorted_RT(j),j,'.r');
@@ -112,17 +112,17 @@ switch plotType
         end
         
         % anti
-        [~,indx] = sort([trialData(cellNum).anti.behav.trial.reactionTime],'descend'); % sort RT
-        sorted_RT = -[trialData(cellNum).anti.behav.trial(indx).reactionTime];
-        r_anti=trialData(cellNum).anti.neural.trial;
+        [~,indx] = sort([units(cellNum).anti.behav.trial.reactionTime],'descend'); % sort RT
+        sorted_RT = -[units(cellNum).anti.behav.trial(indx).reactionTime];
+        r_anti=units(cellNum).anti.neural.trial;
         subplot (2,1,2); hold on;box off
         
-        if strcmp(trialData(cellNum).id,'SS') % either SS or CS
+        if strcmp(units(cellNum).id,'SS') % either SS or CS
             for j=1:length(indx)
                 if ~isempty(r_anti(indx(j)).tspk_SS)
                     plot(sorted_RT(j),j,'.r');
                     plot(r_anti(indx(j)).tspk_SS(1:2:end),j,'.k'); %plot every n spikes
-                    %plot(trialData(cellNum).anti.neural.trial(indx).tspk_SS,j,'.k');
+                    %plot(units(cellNum).anti.neural.trial(indx).tspk_SS,j,'.k');
                 end
             end
             vline(0, 'c');
@@ -145,14 +145,14 @@ switch plotType
     case 'psth'
         
         %gather
-        t= trialData(cellNum).pro.neural.sacc.align_ts_pst;
-        r_pro= trialData(cellNum).pro.neural.sacc.align_rate_pst;
-        sem_pro = std(trialData(cellNum).pro.neural.sacc.align_rate_pst)/sqrt(length(trialData(cellNum).pro.neural.trial));
+        t= units(cellNum).pro.neural.sacc.align_ts_pst;
+        r_pro= units(cellNum).pro.neural.sacc.align_rate_pst;
+        sem_pro = std(units(cellNum).pro.neural.sacc.align_rate_pst)/sqrt(length(units(cellNum).pro.neural.trial));
         sem_pro = repmat(sem_pro,[1 size(r_pro,2)]);
-        r_anti = trialData(cellNum).anti.neural.sacc.align_rate_pst;
-        sem_anti = std(trialData(cellNum).anti.neural.sacc.align_rate_pst)/sqrt(length(trialData(cellNum).anti.neural.trial));
+        r_anti = units(cellNum).anti.neural.sacc.align_rate_pst;
+        sem_anti = std(units(cellNum).anti.neural.sacc.align_rate_pst)/sqrt(length(units(cellNum).anti.neural.trial));
         sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
-        mean_base= trialData(cellNum).pro.neural.base.rate_mu;
+        mean_base= units(cellNum).pro.neural.base.rate_mu;
         mean_base = repmat(mean_base,[1 size(r_pro,2)]);
         
         %         %plot
@@ -178,12 +178,12 @@ switch plotType
         
         %% instruction period
         %gather
-        t= trialData(cellNum).pro.neural.sacc.align_ts_pst;
-        r_pro= trialData(cellNum).pro.neural.rate_pst;
-        sem_pro = std(trialData(cellNum).pro.neural.rate_pst)/sqrt(length(trialData(cellNum).pro.neural.trial));
+        t= units(cellNum).pro.neural.sacc.align_ts_pst;
+        r_pro= units(cellNum).pro.neural.rate_pst;
+        sem_pro = std(units(cellNum).pro.neural.rate_pst)/sqrt(length(units(cellNum).pro.neural.trial));
         sem_pro = repmat(sem_pro,[1 size(r_pro,2)]);
-        r_anti = trialData(cellNum).anti.neural.rate_pst;
-        sem_anti = std(trialData(cellNum).anti.neural.rate_pst)/sqrt(length(trialData(cellNum).anti.neural.trial));
+        r_anti = units(cellNum).anti.neural.rate_pst;
+        sem_anti = std(units(cellNum).anti.neural.rate_pst)/sqrt(length(units(cellNum).anti.neural.trial));
         sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
         
         %         %plot
@@ -206,7 +206,7 @@ switch plotType
         title('Aligned to instruction onset')
         
     case 'colormap_sacc'  % TODO pick sacc related
-        units = trialData; nunits = 1:length(trialData);
+        units = units; nunits = 1:length(units);
         %pro
         t = units(1).pro.neural.sacc.align_ts_pst; clear r;
         for j=1:length(nunits)
@@ -246,7 +246,7 @@ switch plotType
         vline(0,'k')
         
     case 'waterfall_sacc'  % TODO sort by max
-        units = trialData; nunits = 1:length(trialData);
+        units = units; nunits = 1:length(units);
         %pro
         t = units(1).pro.neural.sacc.align_ts_pst; clear r;
         for j=1:length(nunits)
@@ -266,11 +266,11 @@ switch plotType
         
     case 'firingVSamp'
         %gather
-        amp_pro = [trialData(cellNum).pro.behav.trial.saccAmplitude];
-        amp_anti = [trialData(cellNum).anti.behav.trial.saccAmplitude];
+        amp_pro = [units(cellNum).pro.behav.trial.saccAmplitude];
+        amp_anti = [units(cellNum).anti.behav.trial.saccAmplitude];
         
-        spk_pro = [trialData(cellNum).pro.neural.trial.nspk_sacc];
-        spk_anti = [trialData(cellNum).anti.neural.trial.nspk_sacc];
+        spk_pro = [units(cellNum).pro.neural.trial.nspk_sacc];
+        spk_anti = [units(cellNum).anti.neural.trial.nspk_sacc];
         
         %plot
         figure; hold on; box off
@@ -285,38 +285,38 @@ switch plotType
         block3 = 20;
         
         %pro
-        block1_pro_indx = find([trialData(cellNum).pro.behav.trial.saccAmplitude]<=block1);
-        block2_pro_indx = find([trialData(cellNum).pro.behav.trial.saccAmplitude]>block1 & [trialData(cellNum).pro.behav.trial.saccAmplitude]<= block2);
-        block3_pro_indx = find([trialData(cellNum).pro.behav.trial.saccAmplitude]>block2 & [trialData(cellNum).pro.behav.trial.saccAmplitude]<= block3);
+        block1_pro_indx = find([units(cellNum).pro.behav.trial.saccAmplitude]<=block1);
+        block2_pro_indx = find([units(cellNum).pro.behav.trial.saccAmplitude]>block1 & [units(cellNum).pro.behav.trial.saccAmplitude]<= block2);
+        block3_pro_indx = find([units(cellNum).pro.behav.trial.saccAmplitude]>block2 & [units(cellNum).pro.behav.trial.saccAmplitude]<= block3);
         
         for i = 1:length(block1_pro_indx)
-            block1_pro(i,1) = trialData(cellNum).pro.neural.trial(block1_pro_indx(i)).nspk_sacc;
+            block1_pro(i,1) = units(cellNum).pro.neural.trial(block1_pro_indx(i)).nspk_sacc;
         end
         for i = 1:length(block2_pro_indx)
-            block2_pro(i,1) = trialData(cellNum).pro.neural.trial(block2_pro_indx(i)).nspk_sacc;
+            block2_pro(i,1) = units(cellNum).pro.neural.trial(block2_pro_indx(i)).nspk_sacc;
         end
         for i = 1:length(block3_pro_indx)
-            block3_pro(i,1) = trialData(cellNum).pro.neural.trial(block1_pro_indx(i)).nspk_sacc;
+            block3_pro(i,1) = units(cellNum).pro.neural.trial(block1_pro_indx(i)).nspk_sacc;
         end
         
         
         %anti
-        block1_anti_indx = find([trialData(cellNum).anti.behav.trial.saccAmplitude]<=block1);
-        block2_anti_indx = find([trialData(cellNum).anti.behav.trial.saccAmplitude]>block1 & [trialData(cellNum).anti.behav.trial.saccAmplitude]<= block2);
-        block3_anti_indx = find([trialData(cellNum).anti.behav.trial.saccAmplitude]>block2 & [trialData(cellNum).anti.behav.trial.saccAmplitude]<= block3);
+        block1_anti_indx = find([units(cellNum).anti.behav.trial.saccAmplitude]<=block1);
+        block2_anti_indx = find([units(cellNum).anti.behav.trial.saccAmplitude]>block1 & [units(cellNum).anti.behav.trial.saccAmplitude]<= block2);
+        block3_anti_indx = find([units(cellNum).anti.behav.trial.saccAmplitude]>block2 & [units(cellNum).anti.behav.trial.saccAmplitude]<= block3);
         
         if ~isempty(block1_anti_indx)
             for i = 1:length(block1_anti_indx)
-                block1_anti(i,1) = trialData(cellNum).anti.neural.trial(block1_anti_indx(i)).nspk_sacc;
+                block1_anti(i,1) = units(cellNum).anti.neural.trial(block1_anti_indx(i)).nspk_sacc;
             end
         else
             block1_anti(i,1) = NaN;
         end
         for i = 1:length(block2_anti_indx)
-            block2_anti(i,1) = trialData(cellNum).anti.neural.trial(block2_anti_indx(i)).nspk_sacc;
+            block2_anti(i,1) = units(cellNum).anti.neural.trial(block2_anti_indx(i)).nspk_sacc;
         end
         for i = 1:length(block3_anti_indx)
-            block3_anti(i,1) = trialData(cellNum).anti.neural.trial(block3_anti_indx(i)).nspk_sacc;
+            block3_anti(i,1) = units(cellNum).anti.neural.trial(block3_anti_indx(i)).nspk_sacc;
         end
         
         % mean pro
