@@ -260,8 +260,22 @@ switch plotType
         grid off
         
     case 'firing_pro_anti'
+        % plot avg firing rate pro vs anti for all cells
+        % instr
+        % gather
+        for i = 1:length(units)
+            rate_pro(i) = units(i).pro.neural.instr.rate_mu; 
+            rate_anti(i) = units(i).anti.neural.instr.rate_mu;
+            sig_pro(i) = units(i).pro.neural.instr.rate_sig;
+            sig_anti(i) = units(i).anti.neural.instr.rate_sig;
+            instr_flag(i) = units(i).stats.instr.flags.proVsAnti_instr; 
+            sacc_flag(i) = units(i).stats.sacc.flags.proVsAnti_sacc; 
+        end
         
-        
+        % plot  % take diff to make it more clear?
+        figure; hold on;
+        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, '.k', 'MarkerSize', 18);
+        plot([0 150],[0 150]);
         
     case 'firingVSamp'
         %gather
