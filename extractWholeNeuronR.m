@@ -371,16 +371,16 @@ for cellNum = 1:length(units)
 
     %% compare windows against baseline activity for pro and anti
     % pro
-    [units(cellNum).stats.flags.pro.instrVSbase, units(cellNum).stats.pval.pro.instrVSbase] = signrank(units(cellNum).pro.neural.instr.nspk,units(cellNum).pro.neural.base.nspk);
-    [units(cellNum).stats.flags.pro.saccVSbase, units(cellNum).stats.pval.pro.saccVSbase] = signrank(units(cellNum).pro.neural.sacc.nspk,units(cellNum).pro.neural.base.nspk);
+    [units(cellNum).stats.pro.pval.instrVSbase, units(cellNum).stats.pro.flags.instrVSbase] = signrank(units(cellNum).pro.neural.instr.nspk,units(cellNum).pro.neural.base.nspk);
+    [units(cellNum).stats.pro.pval.saccVSbase, units(cellNum).stats.pro.flags.saccVSbase] = signrank(units(cellNum).pro.neural.sacc.nspk,units(cellNum).pro.neural.base.nspk);
 
     % anti
-    [units(cellNum).stats.flags.anti.instrVSbase, units(cellNum).stats.pval.anti.instrVSbase] = signrank(units(cellNum).anti.neural.instr.nspk,units(cellNum).anti.neural.base.nspk);
-    [units(cellNum).stats.flags.anti.saccVSbase, units(cellNum).stats.pval.anti.saccVSbase] = signrank(units(cellNum).anti.neural.sacc.nspk,units(cellNum).anti.neural.base.nspk);
+    [units(cellNum).stats.anti.pval.instrVSbase, units(cellNum).stats.anti.flags.instrVSbase] = signrank(units(cellNum).anti.neural.instr.nspk,units(cellNum).anti.neural.base.nspk);
+    [units(cellNum).stats.anti.pval.saccVSbase, units(cellNum).stats.anti.flags.saccVSbase] = signrank(units(cellNum).anti.neural.sacc.nspk,units(cellNum).anti.neural.base.nspk);
 
     %% compare pro vs anti
-    [units(cellNum).stats.flags.proVsAnti_instr,units(cellNum).stats.pval.proVsAnti_instr_win] = ttest2(units(cellNum).pro.neural.instr.nspk,units(cellNum).anti.neural.instr.nspk);
-    [units(cellNum).stats.flags.proVsAnti_sacc,units(cellNum).stats.pval.proVsAnti_sacc_win] = ttest2(units(cellNum).pro.neural.sacc.nspk,units(cellNum).anti.neural.sacc.nspk);
+    [units(cellNum).stats.instr.flags.proVsAnti_instr,units(cellNum).stats.instr.pval.proVsAnti_instr_win] = ttest2(units(cellNum).pro.neural.instr.nspk,units(cellNum).anti.neural.instr.nspk);
+    [units(cellNum).stats.sacc.flags.proVsAnti_sacc,units(cellNum).stats.sacc.pval.proVsAnti_sacc_win] = ttest2(units(cellNum).pro.neural.sacc.nspk,units(cellNum).anti.neural.sacc.nspk);
 
     %% Compute change in FR from baseline
     % pro

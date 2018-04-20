@@ -22,7 +22,7 @@ switch plotType
         sorted_RT = -[units(cellNum).pro.behav.trial(indx).reactionTime];
         r_pro= units(cellNum).pro.neural.trial;
         
-        subplot (2,1,1); hold on;box off
+        figure;subplot (2,1,1); hold on;box off
         
         if strcmp(units(cellNum).id,'SS') % either SS or CS
             for j=1:length(indx)
@@ -33,7 +33,7 @@ switch plotType
                 end
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([-0.5 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
+            set (gca, 'xlim', ([-0.3 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
             title('Prosaccade (aligned to saccade onset) SS');xlabel('Time (s)');ylabel('Trial Num')
         else
             for j= 1:length(indx)
@@ -43,7 +43,7 @@ switch plotType
                 end
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([-0.5 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
+            set (gca, 'xlim', ([-0.3 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
             title('Prosaccade (aligned to saccade onset) CS');xlabel('Time (s)');ylabel('Trial Num')
             
         end
@@ -63,7 +63,7 @@ switch plotType
                 end
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([-0.5 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
+            set (gca, 'xlim', ([-0.3 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
             title('Antisaccade (aligned to saccade onset) SS');xlabel('Time (s)');ylabel('Trial Num')
         else
             for j=1:length(indx)
@@ -73,24 +73,23 @@ switch plotType
                 end
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([-0.5 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
+            set (gca, 'xlim', ([-0.3 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
             title('Antisaccade (aligned to saccade onset) CS');xlabel('Time (s)');ylabel('Trial Num')
             
         end
         
     case 'raster_instr'
-        % saccade aligned
+        % instr aligned
         % pro
         [~,indx] = sort([units(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
         sorted_RT = -[units(cellNum).pro.behav.trial(indx).reactionTime];
         r_pro= units(cellNum).pro.neural.trial;
         
-        subplot (2,1,1); hold on;box off
+        figure;subplot (2,1,1); hold on;box off
         
         if strcmp(units(cellNum).id,'SS') % either SS or CS
             for j=1:length(indx)
                 if ~isempty(r_pro(indx(j)).tspk_SS)
-                    plot(sorted_RT(j),j,'.r');
                     plot(r_pro(indx(j)).tspk_SS(1:2:end),j,'.k'); %plot every n spikes
                     %plot(r_pro(indx(j)).tspk_SS,j,'.k');
                 end
@@ -101,7 +100,6 @@ switch plotType
         else
             for j=1:length(indx)
                 if ~isempty(r_pro(indx(j)).tspk_CS)
-                    plot(sorted_RT(j),j,'.r');
                     plot(r_pro(indx(j)).tspk_CS,j,'.k');
                 end
             end
@@ -120,18 +118,16 @@ switch plotType
         if strcmp(units(cellNum).id,'SS') % either SS or CS
             for j=1:length(indx)
                 if ~isempty(r_anti(indx(j)).tspk_SS)
-                    plot(sorted_RT(j),j,'.r');
                     plot(r_anti(indx(j)).tspk_SS(1:2:end),j,'.k'); %plot every n spikes
                     %plot(units(cellNum).anti.neural.trial(indx).tspk_SS,j,'.k');
                 end
             end
             vline(0, 'c');
             set (gca, 'xlim', ([-0.1 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            title('Antisaccade (aligned to saccade onset) SS');xlabel('Time (s)');ylabel('Trial Num')
+            title('Antisaccade (aligned to instruction onset) SS');xlabel('Time (s)');ylabel('Trial Num')
         else
             for j=1:length(indx)
                 if ~isempty(r_anti(indx(j)).tspk_CS)
-                    plot(sorted_RT(j),j,'.r');
                     plot(r_anti(indx(j)).tspk_CS,j,'.k');
                 end
             end
@@ -145,12 +141,12 @@ switch plotType
     case 'psth'
         
         %gather
-        t= units(cellNum).pro.neural.sacc.align_ts_pst;
-        r_pro= units(cellNum).pro.neural.sacc.align_rate_pst;
-        sem_pro = std(units(cellNum).pro.neural.sacc.align_rate_pst)/sqrt(length(units(cellNum).pro.neural.trial));
+        t= units(cellNum).pro.neural.sacc.ts_pst;
+        r_pro= units(cellNum).pro.neural.sacc.rate_pst;
+        sem_pro = std(units(cellNum).pro.neural.sacc.rate_pst)/sqrt(length(units(cellNum).pro.neural.trial));
         sem_pro = repmat(sem_pro,[1 size(r_pro,2)]);
-        r_anti = units(cellNum).anti.neural.sacc.align_rate_pst;
-        sem_anti = std(units(cellNum).anti.neural.sacc.align_rate_pst)/sqrt(length(units(cellNum).anti.neural.trial));
+        r_anti = units(cellNum).anti.neural.sacc.rate_pst;
+        sem_anti = std(units(cellNum).anti.neural.sacc.rate_pst)/sqrt(length(units(cellNum).anti.neural.trial));
         sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
         mean_base= units(cellNum).pro.neural.base.rate_mu;
         mean_base = repmat(mean_base,[1 size(r_pro,2)]);
@@ -166,11 +162,11 @@ switch plotType
         %         box off
         
         % plot w/sem
-        figure; hold on
+        figure('Position', [375 403 834 536]); subplot(1,2,1); hold on
         shadedErrorBar(t,r_pro,sem_pro,'lineprops','r');
         shadedErrorBar(t,r_anti,sem_anti,'lineprops','g');
         plot(t,mean_base,'--k','LineWidth', 0.3);
-        set (gca, 'xlim',([-0.2 0.3]), 'TickDir', 'out', 'FontSize',18);
+        set (gca, 'xlim',([-0.1 0.2]), 'TickDir', 'out', 'FontSize',18); % analysis window size
         xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
         vline(0, 'k-');
         box off
@@ -178,12 +174,12 @@ switch plotType
         
         %% instruction period
         %gather
-        t= units(cellNum).pro.neural.sacc.align_ts_pst;
-        r_pro= units(cellNum).pro.neural.rate_pst;
-        sem_pro = std(units(cellNum).pro.neural.rate_pst)/sqrt(length(units(cellNum).pro.neural.trial));
+        t= units(cellNum).pro.neural.sacc.ts_pst;
+        r_pro= units(cellNum).pro.neural.instr.rate_pst;
+        sem_pro = std(units(cellNum).pro.neural.instr.rate_pst)/sqrt(length(units(cellNum).pro.neural.trial));
         sem_pro = repmat(sem_pro,[1 size(r_pro,2)]);
-        r_anti = units(cellNum).anti.neural.rate_pst;
-        sem_anti = std(units(cellNum).anti.neural.rate_pst)/sqrt(length(units(cellNum).anti.neural.trial));
+        r_anti = units(cellNum).anti.neural.instr.rate_pst;
+        sem_anti = std(units(cellNum).anti.neural.instr.rate_pst)/sqrt(length(units(cellNum).anti.neural.trial));
         sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
         
         %         %plot
@@ -196,7 +192,7 @@ switch plotType
         %         box off
         
         % plot w/sem
-        figure; hold on
+        subplot(1,2,2);
         shadedErrorBar(t, r_pro,sem_pro,'lineprops','r');
         shadedErrorBar(t, r_anti,sem_anti,'lineprops','g');
         set (gca, 'xlim',([-0.1 0.3]), 'TickDir', 'out', 'FontSize',18);
@@ -262,6 +258,9 @@ switch plotType
         set(gca,'xlim', [-0.2 0.2], 'zlim', [0 2],'CameraViewAngle', 9, 'zTick', [], 'ytick', []);
         view(gca,[0 31]);
         grid off
+        
+    case 'firing_pro_anti'
+        
         
         
     case 'firingVSamp'
@@ -337,5 +336,52 @@ switch plotType
         figure; hold on; box off
         errorbar(pro_blocks(1,:),pro_blocks(2,:), 'Color', 'r');
         errorbar(anti_blocks(1,:),anti_blocks(2,:), 'Color', 'g');
+        
+    case 'binomial_pb_dist'
+        % instr
+        % gather
+        stat_instr = units(cellNum).stats.instr.pval.pbDist_testStat;
+        t = units(cellNum).pro.neural.instr.ts_pst;
+        % plot
+        figure; subplot(2,1,1);
+        plot(t, stat_instr, '.k','MarkerSize', 15);
+        hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
+        set(gca, 'xlim',[-0.1 0.3],'ylim',[-4 4], 'TickDir', 'out', 'FontSize', 18)
+        title ('Binomial pb dist - Instruction')
+        xlabel('time (s)')
+        % sacc
+        %gather
+        t = units(cellNum).pro.neural.sacc.ts_pst
+        stat_sacc = units(cellNum).stats.sacc.pval.pbDist_testStat;
+        % plot
+        subplot(2,1,2)
+        plot(t, stat_sacc, '.k','MarkerSize', 15);
+        hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
+        set(gca, 'xlim',[-0.3 0.2],'ylim',[-4 4], 'TickDir', 'out', 'FontSize', 18)
+        title ('Binomial pb dist - Saccade')
+        xlabel('time')
+        
+    case 'window_pb_dist'
+        % instr
+        % gather
+        stat_instr = units(cellNum).stats.instr.pval.spk_count_bigWin; 
+        % plot
+        figure; subplot(2,1,1);
+        plot(stat_instr, '.k','MarkerSize', 15);
+        hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
+        set(gca, 'ylim',[0 1], 'TickDir', 'out', 'FontSize', 18)
+        title ('Binomial pb dist - Instruction')
+        xlabel('')
+        % sacc
+        %gather
+        stat_sacc = units(cellNum).stats.sacc.pval.spk_count_bigWin; 
+        % plot
+        subplot(2,1,2)
+        plot(stat_sacc, '.k','MarkerSize', 15);
+        hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
+        set(gca, 'ylim',[0 1], 'TickDir', 'out', 'FontSize', 18)
+        title ('Binomial pb dist - Saccade')
+        xlabel('time')
+        
     
 end
