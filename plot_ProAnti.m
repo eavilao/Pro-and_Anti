@@ -5,6 +5,8 @@ function plotUnit_ProAnti(units, plotType, cellNum)
 %           cellNum - cell you want to plot
 %           plotType - plot you want (e.g. raster, psth, etc.)
 
+% if running population (all neurons), just input 0 in cellNum
+
 
 %%
 % shadedErrorBar(units(1).anti.neural.sacc_ts_pst,units(1).anti.neural.sacc_rate_pst,repmat(units(1).anti.neural.sacc_rate_sig,1,21))
@@ -271,10 +273,18 @@ switch plotType
             instr_flag(i) = units(i).stats.instr.flags.proVsAnti_instr; 
             sacc_flag(i) = units(i).stats.sacc.flags.proVsAnti_sacc; 
         end
+        % extract only significantly diff
+        for i = 1:length(units)
+            indx_sign(i) = units(i).stats.instr.flags.proVsAnti_instr;
+            if indx_sign(i) == nan
+                indx_sign(i)=0;
+            end
+        end
         
         % plot  % take diff to make it more clear?
         figure; hold on;
-        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, '.k', 'MarkerSize', 18);
+        plot(rate_pro(indx_sign)
+        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok', 'MarkerSize', 18);
         plot([0 150],[0 150]);
         
     case 'firingVSamp'
