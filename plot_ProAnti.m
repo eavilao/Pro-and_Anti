@@ -276,7 +276,7 @@ switch plotType
         % extract only significantly diff
         for i = 1:length(units)
             indx_sign(i) = units(i).stats.instr.flags.proVsAnti_instr;
-            if indx_sign(i) == nan
+            if indx_sign(i) == NaN
                 indx_sign(i)=0;
             end
         end
