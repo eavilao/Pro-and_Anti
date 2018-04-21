@@ -261,7 +261,7 @@ switch plotType
         view(gca,[0 31]);
         grid off
         
-    case 'firing_pro_anti'
+    case 'scatter_pro_anti'
         % plot avg firing rate pro vs anti for all cells
         % instr
         % gather
@@ -275,17 +275,15 @@ switch plotType
         end
         % extract only significantly diff
         for i = 1:length(units)
-            indx_sign(i) = units(i).stats.instr.flags.proVsAnti_instr;
-            if indx_sign(i) == NaN
-                indx_sign(i)=0;
-            end
+            indx_sign(i) = logical(units(i).stats.instr.flags.proVsAnti_instr);
         end
         
         % plot  % take diff to make it more clear?
         figure; hold on;
-        plot(rate_pro(indx_sign)
+        plot(rate_pro(indx_sign),rate_anti(indx_sign), '.k','MarkerSize', 18);
         errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok', 'MarkerSize', 18);
         plot([0 150],[0 150]);
+        title('Instruction'); xlabel('Prosaccade'); ylabel('Antisaccade');
         
     case 'firingVSamp'
         %gather
