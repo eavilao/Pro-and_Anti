@@ -260,8 +260,19 @@ switch plotType
         set(gca,'xlim', [-0.2 0.2], 'zlim', [0 2],'CameraViewAngle', 9, 'zTick', [], 'ytick', []);
         view(gca,[0 31]);
         grid off
-        
     case 'scatter_pro_anti'
+        %pro
+        %gather
+        rate_anti = units(cellNum).anti.neural.instr.nspk;
+        rate_pro = units(cellNum).pro.neural.instr.nspk(1:size(rate_anti)); 
+        
+        %plot
+        figure; hold on;
+        plot(rate_pro, rate_anti, '.k','MarkerSize', 18);
+        xlim([20 110]); ylim([20 110]); 
+        title('Instruction'); xlabel('Prosaccade'); ylabel('Antisaccade');
+        
+    case 'scatter_pro_anti_pop'
         % plot avg firing rate pro vs anti for all cells
         % instr
         % gather
