@@ -274,27 +274,45 @@ switch plotType
         
     case 'scatter_pro_anti_pop'
         % plot avg firing rate pro vs anti for all cells
-        % instr
+        %% instr
         % gather
         for i = 1:length(units)
             rate_pro(i) = units(i).pro.neural.instr.rate_mu; 
             rate_anti(i) = units(i).anti.neural.instr.rate_mu;
             sig_pro(i) = units(i).pro.neural.instr.rate_sig;
             sig_anti(i) = units(i).anti.neural.instr.rate_sig;
-            instr_flag(i) = units(i).stats.instr.flags.proVsAnti_instr; 
-            sacc_flag(i) = units(i).stats.sacc.flags.proVsAnti_sacc; 
         end
-        % extract only significantly diff
+        % get significantly diff
         for i = 1:length(units)
             indx_sign(i) = logical(units(i).stats.instr.flags.proVsAnti_instr);
         end
         
-        % plot  % take diff to make it more clear?
+        % plot
         figure; hold on;
         plot(rate_pro(indx_sign),rate_anti(indx_sign), '.k','MarkerSize', 18);
-        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok', 'MarkerSize', 18);
+        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok', 'MarkerSize', 18,'Fontsize', 18);
         plot([0 150],[0 150]);
         title('Instruction'); xlabel('Prosaccade'); ylabel('Antisaccade');
+        
+        %% sacc
+        for i = 1:length(units)
+            rate_pro(i) = units(i).pro.neural.sacc.rate_mu; 
+            rate_anti(i) = units(i).anti.neural.sacc.rate_mu;
+            sig_pro(i) = units(i).pro.neural.sacc.rate_sig;
+            sig_anti(i) = units(i).anti.neural.sacc.rate_sig;
+        end
+        % get significantly diff
+        for i = 1:length(units)
+            indx_sign(i) = logical(units(i).stats.sacc.flags.proVsAnti_sacc);
+        end
+        
+         % plot
+        figure; hold on;
+        plot(rate_pro(indx_sign),rate_anti(indx_sign), '.k','MarkerSize', 14);
+        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok', 'MarkerSize', 18, 'Fontsize', 18);
+        plot([0 150],[0 150]);
+        title('Saccade'); xlabel('Prosaccade'); ylabel('Antisaccade');
+        
         
     case 'firingVSamp'
         %gather
