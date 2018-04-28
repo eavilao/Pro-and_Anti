@@ -312,9 +312,64 @@ switch plotType
         errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok', 'MarkerSize', 18, 'Fontsize', 18);
         plot([0 150],[0 150]);
         title('Saccade'); xlabel('Prosaccade'); ylabel('Antisaccade');
+  
         
-    case 'peak_resp'
+        case 'peak_resp_instr'
+        % gather
+        t = units(i).pro.neural.instr.ts_pst_win;
+        for i = 1:length(units)
+            peak_pro(i) = units(i).pro.neural.instr.peak_resp;
+            peak_anti(i) = units(i).anti.neural.instr.peak_resp;
+            peak_time_pro(i) = units(i).pro.neural.instr.peak_resp_time;
+            peak_time_anti(i) = units(i).anti.neural.instr.peak_resp_time;
+        end
+
+        % plot 
+        figure; hold on; 
+        plot(peak_pro,peak_anti, '.k', 'MarkerSize', 16);
+        set(gca, 'xlim',[0 160], 'ylim',[0 160],'FontSize', 18, 'TickDir', 'out');
+        plot([0 160],[0 160]); 
+        title('Instr peak resp'); xlabel('Prosaccade'); ylabel('Antisaccade');
+        box off;
+        % plot peak time resp
+        h_pro = hist(peak_time_pro,t);
+        h_anti = hist(peak_time_anti,t);
+        figure; hold on;
+        plot(t,h_pro, 'r', 'LineWidth', 2);
+        plot(t,h_anti, 'g', 'LineWidth', 2);
+        set(gca, 'xlim',[0 25], 'TickDir', 'out'); box off;
+        title('Peak resp time instr'); xlabel('Time (s)'); ylabel('Neuron nr')
         
+    case 'peak_resp_sacc'
+        % gather
+        t = units(i).pro.neural.sacc.ts_pst_win;
+        for i = 1:length(units)
+            peak_pro(i) = units(i).pro.neural.sacc.peak_resp;
+            peak_anti(i) = units(i).anti.neural.sacc.peak_resp;
+            peak_time_pro(i) = units(i).pro.neural.sacc.peak_resp_time;
+            peak_time_anti(i) = units(i).anti.neural.sacc.peak_resp_time;
+        end
+        % with baseline subtracted
+        for i = 1:length(units)
+            peak_pro_diff(i) = units(i).pro.neural.sacc.peak_resp-units(i).pro.neural.base.rate_mu;
+            peak_anti_diff(i) = units(i).anti.neural.sacc.peak_resp-units(i).anti.neural.base.rate_mu;
+        end
+        
+        % plot 
+        figure; hold on; 
+        plot(peak_pro,peak_anti, '.k', 'MarkerSize', 16);
+        set(gca, 'xlim',[0 160], 'ylim',[0 160],'FontSize', 18, 'TickDir', 'out');
+        plot([0 160],[0 160]); 
+        title('Sacc peak resp'); xlabel('Prosaccade'); ylabel('Antisaccade');
+        box off;
+        % plot peak time resp
+        h_pro = hist(peak_time_pro,t);
+        h_anti = hist(peak_time_anti,t);
+        figure; hold on;
+        plot(t,h_pro, 'r', 'LineWidth', 2);
+        plot(t,h_anti, 'g', 'LineWidth', 2);
+        set(gca, 'xlim',[0 25], 'TickDir', 'out'); box off;
+        title('Peak resp time'); xlabel('Time (s)'); ylabel('Neuron nr')
         
     case 'firingVSamp'
         %gather
