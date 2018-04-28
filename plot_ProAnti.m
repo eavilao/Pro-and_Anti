@@ -313,6 +313,8 @@ switch plotType
         plot([0 150],[0 150]);
         title('Saccade'); xlabel('Prosaccade'); ylabel('Antisaccade');
         
+    case 'peak_resp'
+        
         
     case 'firingVSamp'
         %gather
