@@ -1,5 +1,5 @@
 %masterEricSaccadeElectrophys - just for testing nicos new files
-
+ 
 %master script to do analysis of all Eric' saccade monkey data
 %this is a trimmed down version of masterEricSaccadeEphys
 
