@@ -1,9 +1,10 @@
-function plotUnit_ProAnti(units, plotType, cellNum)
+function plotUnit_ProAnti(units, plotType, cellNum, recArea)
 
 % Needed: units.mat
 % Input:    units  - output from extractWholeNeuronResults.m
-%           cellNum - cell you want to plot
+%           cellNum - cell you want to plot. If all leave empty = []
 %           plotType - plot you want (e.g. raster, psth, etc.)
+%           recArea - OMV, lateral Cb
 
 % if running population (all neurons), just input 0 in cellNum
 
@@ -202,6 +203,70 @@ switch plotType
         vline(0, 'k--');
         box off
         title('Aligned to instruction onset')
+        
+    case 'psth_sacc_all'
+        % gather indx
+        fprintf(['        >>> loading ' recArea ' cells <<< \n']);
+        for cellNum = 1:length(units)
+        indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        
+        
+        for i=1:length(indx_area)
+        t= units(indx_area(i)).pro.neural.sacc.ts_pst; % time
+        r_pro= units(indx_area(i)).pro.neural.sacc.rate_pst; % psth
+        sem_pro = std(units(indx_area(i)).pro.neural.sacc.rate_pst)/sqrt(length(units(indx_area(i)).pro.neural.trial));
+        sem_pro = repmat(sem_pro,[1 size(r_pro,2)]);
+        r_anti = units(indx_area(i)).anti.neural.sacc.rate_pst;
+        sem_anti = std(units(indx_area(i)).anti.neural.sacc.rate_pst)/sqrt(length(units(indx_area(i)).anti.neural.trial));
+        sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
+        mean_base= units(indx_area(i)).pro.neural.base.rate_mu;
+        mean_base = repmat(mean_base,[1 size(r_pro,2)]);
+        
+        % plot w/sem
+        figure; hold on;
+        shadedErrorBar(t,r_pro,sem_pro,'lineprops','r');
+        shadedErrorBar(t,r_anti,sem_anti,'lineprops','g');
+        plot(t,mean_base,'--k','LineWidth', 0.3);
+        set (gca, 'xlim',([-0.1 0.2]), 'TickDir', 'out', 'FontSize',18); % analysis window size
+        xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
+        vline(0, 'k-');
+        box off
+        title(['Aligned to saccade onset ' recArea ' unit= ' num2str(indx_area(i))])
+        waitforbuttonpress; close all;
+        end
+    case 'psth_instr_all'
+        % gather indx
+        fprintf(['        >>> loading ' recArea ' cells <<< \n']);
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+
+        for i=1:length(indx_area)
+        t= units(indx_area(i)).pro.neural.instr.ts_pst; % time
+        r_pro= units(indx_area(i)).pro.neural.instr.rate_pst; % psth
+        sem_pro = std(units(indx_area(i)).pro.neural.instr.rate_pst)/sqrt(length(units(indx_area(i)).pro.neural.trial));
+        sem_pro = repmat(sem_pro,[1 size(r_pro,2)]);
+        r_anti = units(indx_area(i)).anti.neural.instr.rate_pst;
+        sem_anti = std(units(indx_area(i)).anti.neural.instr.rate_pst)/sqrt(length(units(indx_area(i)).anti.neural.trial));
+        sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
+        mean_base= units(indx_area(i)).pro.neural.base.rate_mu;
+        mean_base = repmat(mean_base,[1 size(r_pro,2)]);
+        
+        % plot w/sem
+        figure; hold on;
+        shadedErrorBar(t,r_pro,sem_pro,'lineprops','r');
+        shadedErrorBar(t,r_anti,sem_anti,'lineprops','g');
+        plot(t,mean_base,'--k','LineWidth', 0.3);
+        set (gca, 'xlim',([-0.1 0.2]), 'TickDir', 'out', 'FontSize',18); % analysis window size
+        xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
+        vline(0, 'k-');
+        box off
+        title(['Aligned to instruction onset ' recArea ' unit= ' num2str(indx_area(i))])
+        waitforbuttonpress; close all;
+        end
         
     case 'colormap_sacc'  % TODO pick sacc related
         units = units; nunits = 1:length(units);
