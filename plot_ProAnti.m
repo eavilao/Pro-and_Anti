@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 function plotUnit_ProAnti(units, plotType, cellNum, recArea)
-=======
-function plot_ProAnti(units, plotType, cellNum)
->>>>>>> 71872cd78af936f2279818b39f976d9dc5d42537
 
 % Needed: units.mat
 % Input:    units  - output from extractWholeNeuronResults.m
