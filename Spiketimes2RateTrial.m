@@ -1,6 +1,7 @@
 function [nspk,nspkCount,timepoints] = Spiketimes2RateTrial(thisTrial_spk,timepoints,binwidth,analyse_sacc_align,id)
 
 ntrls = length(thisTrial_spk);
+
 timepoints = [timepoints(1)-binwidth timepoints timepoints(end)+binwidth];
 
 if strcmp(id,'SS') % either SS or CS

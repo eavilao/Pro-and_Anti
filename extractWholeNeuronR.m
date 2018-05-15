@@ -19,7 +19,11 @@ function units = extractWholeNeuronR(wholeNeuronResults)
 
 %% Create structure with relevant data (units) - extract main info from wholeNeuronResults
 %uiopen;
+<<<<<<< HEAD
 default_prs_pro_anti; % load parameters list 
+=======
+tsmooth = 0.01 ;
+>>>>>>> 71872cd78af936f2279818b39f976d9dc5d42537
 
 % first find the ones that are not empty and 
 for i = 1:length(wholeNeuronResults)
@@ -47,7 +51,8 @@ for cellNum = 1:length(cell_indx);
             units(cellNum).trial.behav(trialNum).saccPeakVel = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).saccadePeakVel;
             units(cellNum).trial.behav(trialNum).reactionTime = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).reactionTime;
             units(cellNum).trial.behav(trialNum).reward = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).relativeRewardTime;
-            
+            units(cellNum).trial.behav(trialNum).conditionCode = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).conditionCode;
+
             %neural data
             spks =  wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).alignedSpikes{1}; % contains spike times for SS aligned to trial onset
             if ~isempty(units(cellNum).trial.behav(trialNum).reward)
@@ -78,7 +83,7 @@ clear cellNum trialNum %wholeNeuronResults
 
 %% Spike times to rate for pro and antisaccades and behav
 analyse_sacc_align = 0;
-
+ 
 for cellNum = 1:length(units)
     id=units(cellNum).id;
     % Pro trials
@@ -92,6 +97,8 @@ for cellNum = 1:length(units)
         units(cellNum).pro.behav.trial(trialNum).saccPeakVel = units(cellNum).trial.behav(correctProTrials(trialNum)).saccPeakVel;
         units(cellNum).pro.behav.trial(trialNum).reactionTime = units(cellNum).trial.behav(correctProTrials(trialNum)).reactionTime;
         units(cellNum).pro.behav.trial(trialNum).reward = units(cellNum).trial.behav(correctProTrials(trialNum)).reward;
+        units(cellNum).pro.behav.trial(trialNum).conditionCode = units(cellNum).trial.behav(correctProTrials(trialNum)).conditionCode;
+
     end
     
     % neural
@@ -102,8 +109,13 @@ for cellNum = 1:length(units)
     units(cellNum).pro.neural.instr.rate_pst = smooth_pst(units(cellNum).pro.neural.instr.rate_pst,prs.binwidth,prs.tsmooth);
     % sacc aligned
     analyse_sacc_align=1;
+<<<<<<< HEAD
     [units(cellNum).pro.neural.sacc.rate_pst,units(cellNum).pro.neural.sacc.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to saccade onset
     units(cellNum).pro.neural.sacc.rate_pst = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst,prs.binwidth,prs.tsmooth);
+=======
+    [units(cellNum).pro.neural.sacc.rate_pst,units(cellNum).pro.neural.sacc.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,timepoints_sacc,binwidth,analyse_sacc_align,id); % aligned to saccade onset
+     units(cellNum).pro.neural.sacc.rate_pst = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst,binwidth,tsmooth);
+>>>>>>> 71872cd78af936f2279818b39f976d9dc5d42537
     analyse_sacc_align=0;
     
     % Anti trials
@@ -117,6 +129,8 @@ for cellNum = 1:length(units)
         units(cellNum).anti.behav.trial(trialNum).saccPeakVel = units(cellNum).trial.behav(correctAntiTrials(trialNum)).saccPeakVel;
         units(cellNum).anti.behav.trial(trialNum).reactionTime = units(cellNum).trial.behav(correctAntiTrials(trialNum)).reactionTime;
         units(cellNum).anti.behav.trial(trialNum).reward = units(cellNum).trial.behav(correctAntiTrials(trialNum)).reward;
+        units(cellNum).anti.behav.trial(trialNum).conditionCode = units(cellNum).trial.behav(correctAntiTrials(trialNum)).conditionCode;
+
     end
     %neural
     units(cellNum).anti.neural.trial = units(cellNum).trial.neural(units(cellNum).anti.indx_correctAntiTrials);
@@ -175,6 +189,11 @@ for cellNum = 1:length(units)
     
     % nspk pro - all bins and windows per trial
     for trialNum = 1:length(correctProTrials)
+<<<<<<< HEAD
+=======
+        timepoints_instr = -1:binwidth:1; timepoints_sacc = -1:binwidth:1;
+%         timepoints_instr = -0.1:binwidth:1; timepoints_sacc = -0.8:binwidth:0.3;
+>>>>>>> 71872cd78af936f2279818b39f976d9dc5d42537
         % align to instr
         [~,units(cellNum).pro.neural.instr.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).pro.neural.trial(trialNum).tspk_SS,prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
         
