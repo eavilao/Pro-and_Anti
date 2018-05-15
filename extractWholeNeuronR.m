@@ -21,7 +21,7 @@ function units = extractWholeNeuronR(wholeNeuronResults)
 %uiopen;
 tsmooth = 0.01 ;
 
-% first find the ones that are not empty
+% first find the ones that are not empty and 
 for i = 1:length(wholeNeuronResults)
     if  ~isempty(wholeNeuronResults(i).allStableTrials);
       cell_indx(i) = numel(wholeNeuronResults(i).selectedTrials.corProTrials)>=5 & numel(wholeNeuronResults(i).selectedTrials.corAntiTrials)>=5;  
