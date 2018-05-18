@@ -6,7 +6,8 @@ function plotUnit_ProAnti(units, plotType, cellNum, recArea)
 %           plotType - plot you want (e.g. raster, psth, etc.)
 %           recArea - OMV, lateral Cb
 
-% if running population (all neurons), just input 0 in cellNum
+% if running population (all neurons), just input [] in cellNum.
+% if running single neuron, on recArea input []. Example: plot_ProAnti(units, 'raster_sacc',1,  [])
 
 
 %%
@@ -24,6 +25,7 @@ switch plotType
         [~,indx] = sort([units(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
         sorted_RT = -[units(cellNum).pro.behav.trial(indx).reactionTime];
         r_pro= units(cellNum).pro.neural.trial;
+        recArea = units(cellNum).area; 
         
         figure;subplot (2,1,1); hold on;box off
         
@@ -37,7 +39,7 @@ switch plotType
             end
             vline(0, 'c');
             set (gca, 'xlim', ([-0.3 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            title('Prosaccade (aligned to saccade onset) SS');xlabel('Time (s)');ylabel('Trial Num')
+            title(['Pro (aligned to saccade) SS => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
         else
             for j= 1:length(indx)
                 if ~isempty(r_pro(indx(j)).tspk_CS_align_sacc)
@@ -47,7 +49,7 @@ switch plotType
             end
             vline(0, 'c');
             set (gca, 'xlim', ([-0.3 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            title('Prosaccade (aligned to saccade onset) CS');xlabel('Time (s)');ylabel('Trial Num')
+            title(['Pro (aligned to saccade) CS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
             
         end
         
@@ -67,7 +69,7 @@ switch plotType
             end
             vline(0, 'c');
             set (gca, 'xlim', ([-0.3 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            title('Antisaccade (aligned to saccade onset) SS');xlabel('Time (s)');ylabel('Trial Num')
+            title(['Anti (aligned to saccade) SS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
         else
             for j=1:length(indx)
                 if ~isempty(r_anti(indx(j)).tspk_CS_align_sacc)
@@ -77,7 +79,7 @@ switch plotType
             end
             vline(0, 'c');
             set (gca, 'xlim', ([-0.3 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            title('Antisaccade (aligned to saccade onset) CS');xlabel('Time (s)');ylabel('Trial Num')
+            title(['Anti (aligned to saccade) CS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
             
         end
         
@@ -87,6 +89,7 @@ switch plotType
         [~,indx] = sort([units(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
         sorted_RT = -[units(cellNum).pro.behav.trial(indx).reactionTime];
         r_pro= units(cellNum).pro.neural.trial;
+        recArea = units(cellNum).area; 
         
         figure;subplot (2,1,1); hold on;box off
         
@@ -99,7 +102,7 @@ switch plotType
             end
             vline(0, 'c');
             set (gca, 'xlim', ([-0.1 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            title('Prosaccade (aligned to instruction onset) SS');xlabel('Time (s)');ylabel('Trial Num')
+            title(['Pro (aligned to instruction) SS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
         else
             for j=1:length(indx)
                 if ~isempty(r_pro(indx(j)).tspk_CS)
@@ -108,7 +111,7 @@ switch plotType
             end
             vline(0, 'c');
             set (gca, 'xlim', ([-0.1 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            title('Prosaccade (aligned to instruction onset) CS');xlabel('Time (s)');ylabel('Trial Num')
+            title(['Pro (aligned to instruction) CS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
             
         end
         
@@ -127,7 +130,7 @@ switch plotType
             end
             vline(0, 'c');
             set (gca, 'xlim', ([-0.1 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            title('Antisaccade (aligned to instruction onset) SS');xlabel('Time (s)');ylabel('Trial Num')
+            title(['Anti (aligned to instruction) SS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
         else
             for j=1:length(indx)
                 if ~isempty(r_anti(indx(j)).tspk_CS)
@@ -136,7 +139,7 @@ switch plotType
             end
             vline(0, 'c');
             set (gca, 'xlim', ([-0.1 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            title('Antisaccade (aligned to saccade onset) CS');xlabel('Time (s)');ylabel('Trial Num')
+            title(['Anti (aligned to saccade) CS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
             
         end
         
@@ -153,6 +156,8 @@ switch plotType
         sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
         mean_base= units(cellNum).pro.neural.base.rate_mu;
         mean_base = repmat(mean_base,[1 size(r_pro,2)]);
+        recArea = units(cellNum).area;
+        proVSanti_sacc = units(cellNum).stats.sacc.flags.proVsAnti_sacc; 
         
         %         %plot
         %         figure; hold on;
@@ -173,7 +178,13 @@ switch plotType
         xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
         vline(0, 'k-');
         box off
-        title('Aligned to saccade onset')
+        title(['Aligned to saccade => ' recArea]);
+        % Create textbox
+        annotation('textbox',...
+            [0.148482014388489 0.147388059701493 0.0829328537170263 0.0671641791044775],...
+            'String',['ProVSAnti = ' num2str(proVSanti_sacc)],...
+            'FitBoxToText','on');
+        
         
         %% instruction period
         %gather
@@ -185,6 +196,7 @@ switch plotType
         r_anti = units(cellNum).anti.neural.instr.rate_pst;
         sem_anti = std(units(cellNum).anti.neural.instr.rate_pst)/sqrt(length(units(cellNum).anti.neural.trial));
         sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
+        proVSanti_instr = units(cellNum).stats.instr.flags.proVsAnti_instr; 
         
         %         %plot
         %         figure; hold on;
@@ -203,7 +215,7 @@ switch plotType
         xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
         vline(0, 'k--');
         box off
-        title('Aligned to instruction onset')
+        title(['Aligned to instruction => ' recArea]);
         
     case 'psth_sacc_all'
         % gather indx
@@ -224,6 +236,7 @@ switch plotType
         sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
         mean_base= units(indx_area(i)).pro.neural.base.rate_mu;
         mean_base = repmat(mean_base,[1 size(r_pro,2)]);
+        proVSanti_sacc = units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc; 
         
         % plot w/sem
         figure; hold on;
@@ -234,7 +247,11 @@ switch plotType
         xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
         vline(0, 'k-');
         box off
-        title(['Aligned to saccade onset ' recArea ' unit= ' num2str(indx_area(i))])
+        title(['Aligned to saccade => ' recArea ' unit= ' num2str(indx_area(i))])
+        annotation('textbox',...
+            [0.159928571428571 0.154761904761905 0.150785714285714 0.104761904761905],...
+            'String',['Pro VS Anti = ' num2str(proVSanti_sacc)],...
+            'FitBoxToText','on');
         waitforbuttonpress; close all;
         end
     case 'psth_instr_all'
@@ -265,68 +282,98 @@ switch plotType
         xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
         vline(0, 'k-');
         box off
-        title(['Aligned to instruction onset ' recArea ' unit= ' num2str(indx_area(i))])
+        title(['Aligned to instruction => ' recArea ' unit= ' num2str(indx_area(i))])
         waitforbuttonpress; close all;
         end
         
-    case 'colormap_sacc'  % TODO pick sacc related
+    case 'colormap_sacc'
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        nunits = 1:length(indx_area);
         
-        units = units; nunits = 1:length(units);
         %pro
-        t = units(1).pro.neural.sacc.align_ts_pst; clear r;
+        t = units(1).pro.neural.sacc.ts_pst; clear r;
         for j=1:length(nunits)
-            r(j,:) = units(j).pro.neural.sacc.norm_rate_pst(1,:);
+            r(j,:) = units(indx_area(j)).pro.neural.sacc.norm_rate_pst(1,:);
         end
         
         [r,t] = smooth_colormap(r,t);
         % plot colormap
         B = goodcolormap('bwr');
         figure; set(gcf,'Position',[100 200 300 300]);
-        hold on; colormap(B');
-        %hold on; colormap(bluewhitered);
+        %hold on; colormap(B');
+        hold on; colormap(bluewhitered);
         imagesc(t,1:nunits,r,[0,1]);
-        set(gca,'xlim',[-0.5 0.5],'ylim',[1 nunits(end)],...
+        set(gca,'xlim',[-0.2 0.255],'ylim',[1 nunits(end)],...
             'YTickLabel',[],'TickDir','Out','Fontsize',16);
         xlabel('Time (s)'); ylabel('Neuron');
         title('Pro')
         vline(0,'k')
         
         %anti
-        t = units(1).anti.neural.sacc.align_ts_pst; clear r;
-        for j=1:length(nunits)
-            r(j,:) = units(j).anti.neural.sacc.norm_rate_pst(1,:);
+        t = units(1).anti.neural.sacc.ts_pst; clear r;
+       for j=1:length(nunits)
+            r(j,:) = units(indx_area(j)).anti.neural.sacc.norm_rate_pst(1,:);
         end
         
         [r,t] = smooth_colormap(r,t);
         % plot colormap
         B = goodcolormap('bwr');
         figure; set(gcf,'Position',[100 200 300 300]);
-        hold on; colormap(B');
-        %hold on; colormap(bluewhitered);
+        %hold on; colormap(B');
+        hold on; colormap(bluewhitered);
         imagesc(t,1:nunits,r,[0,1]);
-        set(gca,'xlim',[-0.5 0.5],'ylim',[1 nunits(end)],...
+        set(gca,'xlim',[-0.2 0.255],'ylim',[1 nunits(end)],...
             'YTickLabel',[],'TickDir','Out','Fontsize',16);
         xlabel('Time (s)'); ylabel('Neuron');
         title('Anti')
         vline(0,'k')
         
     case 'waterfall_sacc'  % TODO sort by max
-        units = units; nunits = 1:length(units);
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        nunits = 1:length(indx_area);
+        
         %pro
-        t = units(1).pro.neural.sacc.align_ts_pst; clear r;
+        t = units(1).pro.neural.sacc.ts_pst; clear r;
         for j=1:length(nunits)
-            r(j,:) = units(j).pro.neural.sacc.norm_rate_pst(1,:);
+            r(j,:) = units(indx_area(j)).pro.neural.sacc.norm_rate_pst(1,:);
             indx_neg=find(r(j,:)<0);
             r(j,indx_neg) = 0;
         end
         
+        % plot
         figure; hold on; %colormap(d);
         for j=1:length(nunits)
             waterfall(t,j,r(j,:));
         end
-        set(gca,'xlim', [-0.2 0.2], 'zlim', [0 2],'CameraViewAngle', 9, 'zTick', [], 'ytick', []);
-        view(gca,[0 31]);
-        grid off
+        set(gca,'xlim', [-0.255 0.255], 'zlim', [0 2],'CameraViewAngle', 9, 'zTick', [], 'ytick', []);
+        view(gca,[-0.399999999999989 59]);
+        grid off;
+        title(['Pro'])
+        
+        %anti
+        t = units(1).anti.neural.sacc.ts_pst; clear r;
+        for j=1:length(nunits)
+            r(j,:) = units(indx_area(j)).anti.neural.sacc.norm_rate_pst(1,:);
+            indx_neg=find(r(j,:)<0);
+            r(j,indx_neg) = 0;
+        end
+        
+        % plot
+        figure; hold on; %colormap(d);
+        for j=1:length(nunits)
+            waterfall(t,j,r(j,:));
+        end
+        set(gca,'xlim', [-0.255 0.255], 'zlim', [0 2],'CameraViewAngle', 9, 'zTick', [], 'ytick', []);
+        view(gca,[-0.399999999999989 59]);
+        grid off;
+        title(['Anti'])
+        
     case 'scatter_pro_anti'
         %pro
         %gather

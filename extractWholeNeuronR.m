@@ -417,8 +417,7 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.instr.delta_rate = units(cellNum).anti.neural.instr.rate_pst_win - units(cellNum).anti.neural.instr.rate_mu;
     units(cellNum).anti.neural.sacc.delta_rate = units(cellNum).anti.neural.sacc.rate_pst_win - units(cellNum).anti.neural.sacc.rate_mu;
     
-    %% noramlized FR - z-scored
-    % pro
+    %% noramlized FR - z-scored aligned to sacc
     % aligned to trial onset
     units(cellNum).pro.neural.sacc.norm_rate_pst = (units(cellNum).pro.neural.instr.rate_pst - mean(units(cellNum).pro.neural.instr.rate_pst))/...
         std(units(cellNum).pro.neural.instr.rate_pst);
