@@ -1,4 +1,4 @@
-function pro_anti_table = createTable_pro_anti(units)
+function createTable_pro_anti(units)
 % Create stats table
 total_cells = length(units);
 
@@ -75,6 +75,6 @@ disp(['Sign pro vs anti sacc = ' num2str(lateral_diff_pro_anti_sacc)]);
 disp(['Proportion sign pro vs anti sacc = ' num2str(proportion_lateral_sacc)]);
 disp(['Sign diff base vs instr pro = ' num2str(lateral_diff_instr_base_pro)]);
 disp(['Sign diff base vs sacc pro = ' num2str(lateral_diff_sacc_base_pro)]);
-disp(['Sign diff base vs instr anti = ' num2str(lateral_diff_instr_base_pro)]);
-disp(['Sign diff base vs sacc anti = ' num2str(lateral_diff_sacc_base_pro)]);
+disp(['Sign diff base vs instr anti = ' num2str(lateral_diff_instr_base_anti)]);
+disp(['Sign diff base vs sacc anti = ' num2str(lateral_diff_sacc_base_anti)]);
 
