@@ -300,12 +300,23 @@ switch plotType
         end
         
         [r,t] = smooth_colormap(r,t);
+        
+        % sort 
+        t_sacc = t>-0.2 & t<=0.255;
+        for i=1:length(r(:,1))
+            this_r = r(i,:);
+            this_r_sacc = this_r(t_sacc);
+            [~,max_r(i)]= max(this_r_sacc);
+        end
+
+        
         % plot colormap
         B = goodcolormap('bwr');
         figure; set(gcf,'Position',[100 200 300 300]);
         %hold on; colormap(B');
         hold on; colormap(bluewhitered);
-        imagesc(t,1:nunits,r,[0,1]);
+        %imagesc(t,1:nunits,r,[0,1]);
+        imagesc(t,1:nunits,rates_sacc,[0,1]);
         set(gca,'xlim',[-0.2 0.255],'ylim',[1 nunits(end)],...
             'YTickLabel',[],'TickDir','Out','Fontsize',16);
         xlabel('Time (s)'); ylabel('Neuron');
