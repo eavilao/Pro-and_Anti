@@ -18,7 +18,6 @@ function units = extractWholeNeuronR(wholeNeuronResults)
 % Saccade = -0.1:0.2 aligned to saccade
 
 %% Create structure with relevant data (units) - extract main info from wholeNeuronResults
-%uiopen;
 default_prs_pro_anti; % load parameters list 
 
 % first find the ones that are not empty and 
@@ -294,7 +293,7 @@ end
 %%%%%%%%%%%
 %%%%%%%%%%%
 %% Eye kinematics
-eyeKin = eyeKinematics_ProAnti(units); % extract and plot
+eyeKin = eyeKinematics_ProAnti(units); % extract
 
 proAmp = vertcat(eyeKin(1,:).proAmp);
 antiAmp = vertcat(eyeKin(1,:).antiAmp);

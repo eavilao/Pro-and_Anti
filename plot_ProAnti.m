@@ -9,16 +9,101 @@ function plotUnit_ProAnti(units, plotType, cellNum, recArea)
 % if running population (all neurons), just input [] in cellNum.
 % if running single neuron, on recArea input []. Example: plot_ProAnti(units, 'raster_sacc',1,  [])
 
+% List of plots
+
+% 'eyeKin' : plot eye kinematics for all cells and trials
+% 'raster_sacc': saccade aligned raster plot for the chosen cell
+% 'raster_instr': instruction aligned raster plot for the chosen cell
+% 'psth': psth for the chosen cell, aligned to saccade and instruction
+% 'psth_sacc_all': psth aligned to saccade onset for all cells. Press any key to plot next cell
+% 'psth_instr_all':psth aligned to instruction onset for all cells. Press any key to plot next cell
+% 'colormap_sacc': plot time-course of normalized firing rate for all cells
+% 'waterfall_sacc': waterfall plot of time-course of normalized firing rate for all cells
+% ''
+% ''
 
 %%
-% shadedErrorBar(units(1).anti.neural.sacc_ts_pst,units(1).anti.neural.sacc_rate_pst,repmat(units(1).anti.neural.sacc_rate_sig,1,21))
-% hold on
-% shadedErrorBar(units(1).pro.neural.sacc_ts_pst,units(1).pro.neural.sacc_rate_pst,repmat(units(1).pro.neural.sacc_rate_sig,1,21))
-
 %%
 
 switch plotType
-    
+    case 'eye_kin'
+        %% plot
+        % gather
+        eyeKin = eyeKinematics_ProAnti(units);
+        
+        proAmp = vertcat(eyeKin(1,:).proAmp);
+        antiAmp = vertcat(eyeKin(1,:).antiAmp);
+        
+        proDur = vertcat(eyeKin(1,:).proDur);
+        antiDur = vertcat(eyeKin(1,:).antiDur);
+        
+        proPV = vertcat(eyeKin(1,:).proPV);
+        antiPV = vertcat(eyeKin(1,:).antiPV);
+        
+        proRT = vertcat(eyeKin(1,:).proRT)*1000;
+        antiRT = vertcat(eyeKin(1,:).antiRT)*1000;
+        
+        % plot amp
+        figure; hold on
+        h1 = histfit(proAmp,20,'kernel');
+        h2 = histfit(antiAmp,20,'kernel');
+        xlabel('Saccade amplitude (deg)')
+        ylabel('Number of trials')
+        set (gca, 'TickDir', 'out','FontSize', 18);
+        alpha(0.25)
+        set(h1(1),'FaceColor', [1 0 0], 'EdgeColor', [1 0 0]);
+        set(h2(1),'FaceColor', [0 1 0],'EdgeColor', [0 1 0]);
+        set(h1(2),'Color',[1 0 0]);
+        set(h2(2),'Color',[0 1 0]);
+        vline(mean(proAmp),'r'); % draw line on mean
+        vline(mean(antiAmp),'g'); % draw line on mean
+        
+        %plot dur
+        figure; hold on
+        h1 = histfit(proDur,20,'kernel');
+        h2 = histfit(antiDur,20,'kernel');
+        xlabel('Saccade duration (ms)')
+        ylabel('Number of trials')
+        set (gca, 'TickDir', 'out','FontSize', 18);
+        alpha(0.25)
+        set(h1(1),'FaceColor', [1 0 0], 'EdgeColor', [1 0 0]);
+        set(h2(1),'FaceColor', [0 1 0],'EdgeColor', [0 1 0]);
+        set(h1(2),'Color',[1 0 0]);
+        set(h2(2),'Color',[0 1 0]);
+        vline(mean(proDur),'r'); % draw line on mean
+        vline(mean(antiDur),'g'); % draw line on mean
+        
+        % plot PV
+        figure; hold on
+        h1 = histfit(proPV,20,'kernel');
+        h2 = histfit(antiPV,20,'kernel');
+        xlabel('Saccade peak velocity (deg/s)')
+        ylabel('Number of trials')
+        set (gca, 'TickDir', 'out','FontSize', 18);
+        alpha(0.25)
+        set(h1(1),'FaceColor', [1 0 0], 'EdgeColor', [1 0 0]);
+        set(h2(1),'FaceColor', [0 1 0],'EdgeColor', [0 1 0]);
+        set(h1(2),'Color',[1 0 0]);
+        set(h2(2),'Color',[0 1 0]);
+        vline(mean(proPV),'r'); % draw line on mean
+        vline(mean(antiPV),'g'); % draw line on mean
+        
+        % plot RT
+        figure; hold on
+        h1 = histfit(proRT,20,'kernel');
+        h2 = histfit(antiRT,20,'kernel');
+        xlabel('Reaction time (ms)')
+        ylabel('Number of trials')
+        set (gca, 'TickDir', 'out','FontSize', 18);
+        alpha(0.25)
+        set(h1(1),'FaceColor', [1 0 0], 'EdgeColor', [1 0 0]);
+        set(h2(1),'FaceColor', [0 1 0],'EdgeColor', [0 1 0]);
+        set(h1(2),'Color',[1 0 0]);
+        set(h2(2),'Color',[0 1 0]);
+        vline(mean(proRT),'r'); % draw line on mean
+        vline(mean(antiRT),'g'); % draw line on mean
+        
+        
     case 'raster_sacc'
         % saccade aligned
         % pro
@@ -158,6 +243,7 @@ switch plotType
         mean_base = repmat(mean_base,[1 size(r_pro,2)]);
         recArea = units(cellNum).area;
         proVSanti_sacc = units(cellNum).stats.sacc.flags.proVsAnti_sacc; 
+        proVSanti_instr = units(cellNum).stats.instr.flags.proVsAnti_instr; 
         
         %         %plot
         %         figure; hold on;
@@ -196,7 +282,7 @@ switch plotType
         r_anti = units(cellNum).anti.neural.instr.rate_pst;
         sem_anti = std(units(cellNum).anti.neural.instr.rate_pst)/sqrt(length(units(cellNum).anti.neural.trial));
         sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
-        proVSanti_instr = units(cellNum).stats.instr.flags.proVsAnti_instr; 
+        proVSanti_instr = units(cellNum).stats.instr.flags.proVsAnti_instr;
         
         %         %plot
         %         figure; hold on;
@@ -216,6 +302,10 @@ switch plotType
         vline(0, 'k--');
         box off
         title(['Aligned to instruction => ' recArea]);
+        annotation('textbox',...
+            [0.592778202676864 0.128125 0.0859980879541108 0.0484375],...
+            'String',['ProVSAnti = ' num2str(proVSanti_instr)],...
+            'FitBoxToText','on');
         
     case 'psth_sacc_all'
         % gather indx
@@ -272,6 +362,7 @@ switch plotType
         sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
         mean_base= units(indx_area(i)).pro.neural.base.rate_mu;
         mean_base = repmat(mean_base,[1 size(r_pro,2)]);
+        proVSanti_instr = units(indx_area(i)).stats.instr.flags.proVsAnti_instr;
         
         % plot w/sem
         figure; hold on;
@@ -283,6 +374,10 @@ switch plotType
         vline(0, 'k-');
         box off
         title(['Aligned to instruction => ' recArea ' unit= ' num2str(indx_area(i))])
+        annotation('textbox',...
+            [0.159928571428571 0.154761904761905 0.150785714285714 0.104761904761905],...
+            'String',['Pro VS Anti = ' num2str(proVSanti_sacc)],...
+            'FitBoxToText','on');
         waitforbuttonpress; close all;
         end
         
@@ -301,13 +396,13 @@ switch plotType
         
         [r,t] = smooth_colormap(r,t);
         
-        % sort 
-        t_sacc = t>-0.2 & t<=0.255;
-        for i=1:length(r(:,1))
-            this_r = r(i,:);
-            this_r_sacc = this_r(t_sacc);
-            [~,max_r(i)]= max(this_r_sacc);
-        end
+%         % sort 
+%         t_sacc = t>-0.2 & t<=0.255;
+%         for i=1:length(r(:,1))
+%             this_r = r(i,:);
+%             this_r_sacc = this_r(t_sacc);
+%             [~,max_r(i)]= max(this_r_sacc);
+%         end
 
         
         % plot colormap
@@ -316,7 +411,7 @@ switch plotType
         %hold on; colormap(B');
         hold on; colormap(bluewhitered);
         %imagesc(t,1:nunits,r,[0,1]);
-        imagesc(t,1:nunits,rates_sacc,[0,1]);
+        imagesc(t,1:nunits,r,[0,1]);
         set(gca,'xlim',[-0.2 0.255],'ylim',[1 nunits(end)],...
             'YTickLabel',[],'TickDir','Out','Fontsize',16);
         xlabel('Time (s)'); ylabel('Neuron');
@@ -342,7 +437,7 @@ switch plotType
         title('Anti')
         vline(0,'k')
         
-    case 'waterfall_sacc'  % TODO sort by max
+    case 'waterfall_sacc'  % TODO sort by max?
         for cellNum = 1:length(units)
             indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
         end
@@ -387,15 +482,33 @@ switch plotType
         
     case 'scatter_pro_anti'
         %pro
-        %gather
-        rate_anti = units(cellNum).anti.neural.instr.nspk;
-        rate_pro = units(cellNum).pro.neural.instr.nspk(1:size(rate_anti)); 
+        %gather instr
+        % find the min of trials
+        pro_trials = size(units(cellNum).pro.neural.instr.nspk,1);anti_trials = size(units(cellNum).anti.neural.instr.nspk,1);
+        min_trials = min(pro_trials, anti_trials); 
+        
+        % instr
+        r_anti_instr = units(cellNum).anti.neural.instr.nspk(1:min_trials);
+        r_pro_instr = units(cellNum).pro.neural.instr.nspk(1:size(rate_anti)); 
+        
+        % sacc 
+        r_anti_sacc = units(cellNum).anti.neural.sacc.nspk(1:min_trials);
+        r_pro_sacc = units(cellNum).pro.neural.sacc.nspk(1:size(rate_anti));
         
         %plot
+        % instr
         figure; hold on;
-        plot(rate_pro, rate_anti, '.k','MarkerSize', 18);
+        plot(r_pro_instr, r_anti_instr, '.k','MarkerSize', 18);
         xlim([20 110]); ylim([20 110]); 
         title('Instruction'); xlabel('Prosaccade'); ylabel('Antisaccade');
+        set(gca, 'TickDir', 'out', 'FontSize', 18);
+        
+        % sacc
+        figure; hold on;
+        plot(r_pro_sacc, r_anti_sacc, '.k','MarkerSize', 18);
+        xlim([20 160]); ylim([20 160]); 
+        title('Saccade'); xlabel('Prosaccade'); ylabel('Antisaccade');
+        set(gca, 'TickDir', 'out', 'FontSize', 18);
         
     case 'scatter_pro_anti_pop'
         % plot avg firing rate pro vs anti for all cells
@@ -414,10 +527,15 @@ switch plotType
         
         % plot
         figure; hold on;
-        plot(rate_pro(indx_sign),rate_anti(indx_sign), '.k','MarkerSize', 18);
-        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok', 'MarkerSize', 18,'Fontsize', 18);
+        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok','MarkerSize', 4)
+        plot(rate_pro(indx_sign),rate_anti(indx_sign), '.c','MarkerSize', 18);
         plot([0 150],[0 150]);
+        set(gca, 'TickDir', 'out', 'FontSize', 18);
         title('Instruction'); xlabel('Prosaccade'); ylabel('Antisaccade');
+        annotation('textbox',...
+            [0.659928571428571 0.152380952380952 0.227571428571429 0.116666666666667],...
+            'String',{'n= ' num2str(size(indx_sign,2)),'sign diff = ' num2str(sum(indx_sign))},...
+            'FitBoxToText','on');
         
         %% sacc
         for i = 1:length(units)
@@ -431,17 +549,23 @@ switch plotType
             indx_sign(i) = logical(units(i).stats.sacc.flags.proVsAnti_sacc);
         end
         
-         % plot
+        % plot
         figure; hold on;
-        plot(rate_pro(indx_sign),rate_anti(indx_sign), '.k','MarkerSize', 14);
-        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok', 'MarkerSize', 18, 'Fontsize', 18);
+        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok', 'MarkerSize', 4)
+        plot(rate_pro(indx_sign),rate_anti(indx_sign), '.c','MarkerSize', 18);
         plot([0 150],[0 150]);
+        set(gca, 'TickDir', 'out', 'FontSize', 18);
         title('Saccade'); xlabel('Prosaccade'); ylabel('Antisaccade');
-  
+        annotation('textbox',...
+            [0.659928571428571 0.152380952380952 0.227571428571429 0.116666666666667],...
+            'String',{'n= ' num2str(size(indx_sign,2)),'sign diff = ' num2str(sum(indx_sign))},...
+            'FitBoxToText','on');
         
         case 'peak_resp_instr'
         % gather
-        t = units(i).pro.neural.instr.ts_pst_win;
+        t = units(1).pro.neural.instr.ts_pst_win;
+        
+        
         for i = 1:length(units)
             peak_pro(i) = units(i).pro.neural.instr.peak_resp;
             peak_anti(i) = units(i).anti.neural.instr.peak_resp;
