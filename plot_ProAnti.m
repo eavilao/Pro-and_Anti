@@ -564,8 +564,6 @@ switch plotType
         case 'peak_resp_instr'
         % gather
         t = units(1).pro.neural.instr.ts_pst_win;
-        
-        
         for i = 1:length(units)
             peak_pro(i) = units(i).pro.neural.instr.peak_resp;
             peak_anti(i) = units(i).anti.neural.instr.peak_resp;
@@ -586,7 +584,7 @@ switch plotType
         figure; hold on;
         plot(t,h_pro, 'r', 'LineWidth', 2);
         plot(t,h_anti, 'g', 'LineWidth', 2);
-        set(gca, 'xlim',[0 25], 'TickDir', 'out'); box off;
+        set(gca, 'TickDir', 'out'); box off;
         title('Peak resp time instr'); xlabel('Time (s)'); ylabel('Neuron nr')
         
     case 'peak_resp_sacc'
@@ -604,20 +602,20 @@ switch plotType
             peak_anti_diff(i) = units(i).anti.neural.sacc.peak_resp-units(i).anti.neural.base.rate_mu;
         end
         
-        % plot 
+        % plot (baseline subtracted) 
         figure; hold on; 
-        plot(peak_pro,peak_anti, '.k', 'MarkerSize', 16);
-        set(gca, 'xlim',[0 160], 'ylim',[0 160],'FontSize', 18, 'TickDir', 'out');
-        plot([0 160],[0 160]); 
-        title('Sacc peak resp'); xlabel('Prosaccade'); ylabel('Antisaccade');
-        box off;
+        plot(peak_pro_diff,peak_anti_diff, '.k', 'MarkerSize', 16);
+        set(gca,'XScale','Log','YScale','Log' ,'FontSize', 18, 'TickDir', 'out');axis ([1e0 1e2 1e0 1e2]);
+        plot([1e0 1e2],[1e0 1e2]); 
+        title('Sacc peak resp (baseline subtracted)'); xlabel('Prosaccade'); ylabel('Antisaccade');
+        box off; axis square
         % plot peak time resp
         h_pro = hist(peak_time_pro,t);
         h_anti = hist(peak_time_anti,t);
         figure; hold on;
         plot(t,h_pro, 'r', 'LineWidth', 2);
         plot(t,h_anti, 'g', 'LineWidth', 2);
-        set(gca, 'xlim',[0 25], 'TickDir', 'out'); box off;
+        set(gca, 'TickDir', 'out'); box off;
         title('Peak resp time'); xlabel('Time (s)'); ylabel('Neuron nr')
         
     case 'firingVSamp'
@@ -625,13 +623,13 @@ switch plotType
         amp_pro = [units(cellNum).pro.behav.trial.saccAmplitude];
         amp_anti = [units(cellNum).anti.behav.trial.saccAmplitude];
         
-        spk_pro = [units(cellNum).pro.neural.trial.nspk_sacc];
-        spk_anti = [units(cellNum).anti.neural.trial.nspk_sacc];
+        spk_pro = [units(cellNum).pro.neural.sacc.nspk];
+        spk_anti = [units(cellNum).anti.neural.sacc.nspk];
         
         %plot
         figure; hold on; box off
-        plot(amp_pro,spk_pro, '.r');
-        plot(amp_anti,spk_anti, '.g');
+        plot(amp_pro,spk_pro, '.r', 'MarkerSize',16);
+        plot(amp_anti,spk_anti, '.g','MarkerSize',16);
         xlabel('Amplitude (deg)'); ylabel('Firing rate (spk/s)');
         set(gca, 'TickDir', 'out', 'FontSize', 18)
         
@@ -646,13 +644,13 @@ switch plotType
         block3_pro_indx = find([units(cellNum).pro.behav.trial.saccAmplitude]>block2 & [units(cellNum).pro.behav.trial.saccAmplitude]<= block3);
         
         for i = 1:length(block1_pro_indx)
-            block1_pro(i,1) = units(cellNum).pro.neural.trial(block1_pro_indx(i)).nspk_sacc;
+            block1_pro(i,1) = units(cellNum).pro.neural.sacc.nspk(block1_pro_indx(i));
         end
         for i = 1:length(block2_pro_indx)
-            block2_pro(i,1) = units(cellNum).pro.neural.trial(block2_pro_indx(i)).nspk_sacc;
+            block2_pro(i,1) = units(cellNum).pro.neural.sacc.nspk(block2_pro_indx(i));
         end
         for i = 1:length(block3_pro_indx)
-            block3_pro(i,1) = units(cellNum).pro.neural.trial(block1_pro_indx(i)).nspk_sacc;
+            block3_pro(i,1) = units(cellNum).pro.neural.sacc.nspk(block1_pro_indx(i));
         end
         
         
@@ -663,16 +661,16 @@ switch plotType
         
         if ~isempty(block1_anti_indx)
             for i = 1:length(block1_anti_indx)
-                block1_anti(i,1) = units(cellNum).anti.neural.trial(block1_anti_indx(i)).nspk_sacc;
+                block1_anti(i,1) = units(cellNum).anti.neural.sacc.nspk(block1_anti_indx(i));
             end
         else
             block1_anti(i,1) = NaN;
         end
         for i = 1:length(block2_anti_indx)
-            block2_anti(i,1) = units(cellNum).anti.neural.trial(block2_anti_indx(i)).nspk_sacc;
+            block2_anti(i,1) = units(cellNum).anti.neural.sacc.nspk(block2_anti_indx(i));
         end
         for i = 1:length(block3_anti_indx)
-            block3_anti(i,1) = units(cellNum).anti.neural.trial(block3_anti_indx(i)).nspk_sacc;
+            block3_anti(i,1) = units(cellNum).anti.neural.sacc.nspk(block3_anti_indx(i));
         end
         
         % mean pro
@@ -691,8 +689,9 @@ switch plotType
         
         % plot means
         figure; hold on; box off
-        errorbar(pro_blocks(1,:),pro_blocks(2,:), 'Color', 'r');
-        errorbar(anti_blocks(1,:),anti_blocks(2,:), 'Color', 'g');
+        errorbar(pro_blocks(1,:),pro_blocks(2,:), 'Color', 'r','LineWidth', 2);
+        errorbar(anti_blocks(1,:),anti_blocks(2,:), 'Color', 'g','LineWidth', 2);
+        set(gca, 'TickDir', 'out', 'xlim',[0.5 3.5]);
         
     case 'binomial_pb_dist'
         % instr
@@ -702,7 +701,7 @@ switch plotType
         t = units(cellNum).pro.neural.instr.ts_pst;
         % plot
         figure; subplot(2,1,1);
-        plot(t, stat_instr, '.k','MarkerSize', 15);
+        plot(t, stat_instr, 'k','MarkerSize', 15);
         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
         set(gca, 'xlim',[-0.1 0.3],'ylim',[-4 4], 'TickDir', 'out', 'FontSize', 18)
         title ('Binomial pb dist - Instruction')
@@ -713,7 +712,7 @@ switch plotType
         stat_sacc = units(cellNum).stats.sacc.pval.pbDist_testStat;
         % plot
         subplot(2,1,2)
-        plot(t, stat_sacc, '.k','MarkerSize', 15);
+        plot(t, stat_sacc, 'k','MarkerSize', 15);
         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
         set(gca, 'xlim',[-0.3 0.2],'ylim',[-4 4], 'TickDir', 'out', 'FontSize', 18)
         title ('Binomial pb dist - Saccade')
