@@ -1,4 +1,4 @@
-function plotUnit_ProAnti(units, plotType, cellNum, recArea)
+function plot_ProAnti(units, plotType, cellNum, recArea)
 
 % Needed: units.mat
 % Input:    units  - output from extractWholeNeuronResults.m
@@ -342,6 +342,8 @@ switch plotType
             [0.159928571428571 0.154761904761905 0.150785714285714 0.104761904761905],...
             'String',['Pro VS Anti = ' num2str(proVSanti_sacc)],...
             'FitBoxToText','on');
+        fname = ['psth_sacc_all_' recArea];
+        print(fname,'-append', '-dpsc2')
         waitforbuttonpress; close all;
         end
     case 'psth_instr_all'
@@ -696,27 +698,40 @@ switch plotType
     case 'binomial_pb_dist'
         % instr
         % gather
+        fprintf(['        >>> loading ' recArea ' cells <<< \n']);
+        for cellNum = 1:length(units)
+        indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area); 
+        
+        for i=1:length(indx_area)
+        stat_instr = units(indx_area(i)).stats.instr.pval.pbDist_testStat;
+        t = units(indx_area(i)).pro.neural.instr.ts_pst;
          
-        stat_instr = units(cellNum).stats.instr.pval.pbDist_testStat;
-        t = units(cellNum).pro.neural.instr.ts_pst;
-        % plot
+        
+        % plot instr
         figure; subplot(2,1,1);
         plot(t, stat_instr, 'k','MarkerSize', 15);
         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-        set(gca, 'xlim',[-0.1 0.3],'ylim',[-4 4], 'TickDir', 'out', 'FontSize', 18)
+        set(gca, 'xlim',[-0.1 0.3],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
         title ('Binomial pb dist - Instruction')
         xlabel('time (s)')
+        
         % sacc
         %gather
-        t = units(cellNum).pro.neural.sacc.ts_pst;
-        stat_sacc = units(cellNum).stats.sacc.pval.pbDist_testStat;
+        t = units(indx_area(i)).pro.neural.sacc.ts_pst;
+        stat_sacc = units(indx_area(i)).stats.sacc.pval.pbDist_testStat;
         % plot
         subplot(2,1,2)
         plot(t, stat_sacc, 'k','MarkerSize', 15);
         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-        set(gca, 'xlim',[-0.3 0.2],'ylim',[-4 4], 'TickDir', 'out', 'FontSize', 18)
-        title ('Binomial pb dist - Saccade')
+        set(gca, 'xlim',[-0.1 0.2],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
+        title (['Binomial pb dist - Saccade cell: ' num2str(indx_area(i))])
         xlabel('time')
+        fname = 'Binomial_pb_dist';
+        print(fname,'-append', '-dpsc2')
+            waitforbuttonpress; close all;
+        end
         
     case 'window_pb_dist'
         % instr
@@ -724,7 +739,7 @@ switch plotType
         stat_instr = units(cellNum).stats.instr.pval.spk_count_bigWin; 
         % plot
         figure; subplot(2,1,1);
-        plot(stat_instr, '.k','MarkerSize', 15);
+        plot(stat_instr, 'k','MarkerSize', 15);
         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
         set(gca, 'ylim',[0 1], 'TickDir', 'out', 'FontSize', 18)
         title ('Binomial pb dist - Instruction')
@@ -734,63 +749,63 @@ switch plotType
         stat_sacc = units(cellNum).stats.sacc.pval.spk_count_bigWin; 
         % plot
         subplot(2,1,2)
-        plot(stat_sacc, '.k','MarkerSize', 15);
+        plot(stat_sacc, 'k','MarkerSize', 15);
         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
         set(gca, 'ylim',[0 1], 'TickDir', 'out', 'FontSize', 18)
         title ('Binomial pb dist - Saccade')
         xlabel('time')
         
-    case 'rosePlots'
-        
-        % plot mean firing rate + STD of different directions for pro and
-        % anti during sac or instruction period 
-        
-        % TODO - Correct for different amplitudes (maybe in spikes/degree)
-        
-         
-        proLegend =[10 8 15 14 4 11 5 1; 1 2 3 4 5 6 7 8] ;
-        antiLegend = [2 16 7 6 12 3 13 9; 1 2 3 4 5 6 7 8];
-
-        sacc= 01;
-        instr=0;
-        
-        if sacc
-            pro_trials =units(cellNum).pro.neural.sacc.nspk ;
-            anti_trials =units(cellNum).pro.neural.sacc.nspk ;
-            title_flag = 'saccade'            ;
-        elseif instr 
-            pro_trials =units(cellNum).pro.neural.instr.nspk ;
-            anti_trials =units(cellNum).pro.neural.instr.nspk ;
-            title_flag = 'instruction';
-                    
-        end
-        
-        % loop over all directions to gather average and std's of firing
-        % freqeuncies 
-        for i=1:8
-            
-            thisDirection = proLegend(1,i);
-            trialIndex = find([units(cellNum).pro.behav.trial.conditionCode]==thisDirection);
-            meanRates(1,i) = mean(pro_trials(trialIndex));
-            upperbound(1,i) = meanRates(1,i) + std(pro_trials(trialIndex));
-            lowerbound(1,i) = meanRates(1,i) - std(pro_trials(trialIndex));
-            
-            thisDirection = antiLegend(1,i);
-            trialIndex = find([units(cellNum).anti.behav.trial.conditionCode]==thisDirection);
-            meanRates(2,i) = mean(anti_trials(trialIndex));
-            upperbound(2,i) = meanRates(2,i) + std(anti_trials(trialIndex));
-            lowerbound(2,i) = meanRates(2,i) - std(anti_trials(trialIndex));
-            
-        end
-       
-        % do the actual plotting 
-       rosePlotProAnti(meanRates,lowerbound,upperbound  )
-       
-       set(gca,   'TickDir', 'out', 'FontSize', 18)
-       title (['Average rates during ' title_flag ' window'])
-       xlabel('Firing frequency(hz)')
-       ylabel('Firing frequency(hz)')
-       
-        
-        
+%     case 'rosePlots'
+%         
+%         % plot mean firing rate + STD of different directions for pro and
+%         % anti during sac or instruction period 
+%         
+%         % TODO - Correct for different amplitudes (maybe in spikes/degree)
+%         
+%          
+%         proLegend =[10 8 15 14 4 11 5 1; 1 2 3 4 5 6 7 8] ;
+%         antiLegend = [2 16 7 6 12 3 13 9; 1 2 3 4 5 6 7 8];
+% 
+%         sacc= 01;
+%         instr=0;
+%         
+%         if sacc
+%             pro_trials =units(cellNum).pro.neural.sacc.nspk ;
+%             anti_trials =units(cellNum).pro.neural.sacc.nspk ;
+%             title_flag = 'saccade'            ;
+%         elseif instr 
+%             pro_trials =units(cellNum).pro.neural.instr.nspk ;
+%             anti_trials =units(cellNum).pro.neural.instr.nspk ;
+%             title_flag = 'instruction';
+%                     
+%         end
+%         
+%         % loop over all directions to gather average and std's of firing
+%         % freqeuncies 
+%         for i=1:8
+%             
+%             thisDirection = proLegend(1,i);
+%             trialIndex = find([units(cellNum).pro.behav.trial.conditionCode]==thisDirection);
+%             meanRates(1,i) = mean(pro_trials(trialIndex));
+%             upperbound(1,i) = meanRates(1,i) + std(pro_trials(trialIndex));
+%             lowerbound(1,i) = meanRates(1,i) - std(pro_trials(trialIndex));
+%             
+%             thisDirection = antiLegend(1,i);
+%             trialIndex = find([units(cellNum).anti.behav.trial.conditionCode]==thisDirection);
+%             meanRates(2,i) = mean(anti_trials(trialIndex));
+%             upperbound(2,i) = meanRates(2,i) + std(anti_trials(trialIndex));
+%             lowerbound(2,i) = meanRates(2,i) - std(anti_trials(trialIndex));
+%             
+%         end
+%        
+%         % do the actual plotting 
+%        rosePlotProAnti(meanRates,lowerbound,upperbound  )
+%        
+%        set(gca,   'TickDir', 'out', 'FontSize', 18)
+%        title (['Average rates during ' title_flag ' window'])
+%        xlabel('Firing frequency(hz)')
+%        ylabel('Firing frequency(hz)')
+%        
+%         
+%         
 end
