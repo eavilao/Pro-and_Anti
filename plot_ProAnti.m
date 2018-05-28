@@ -17,10 +17,16 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'psth': psth for the chosen cell, aligned to saccade and instruction
 % 'psth_sacc_all': psth aligned to saccade onset for all cells. Press any key to plot next cell
 % 'psth_instr_all':psth aligned to instruction onset for all cells. Press any key to plot next cell
+% 'delta_rate': plots time-course of change in firing rate (firing rate-baseline) for all cells and then plots max change in a scatter plot for significant cells. 
 % 'colormap_sacc': plot time-course of normalized firing rate for all cells
 % 'waterfall_sacc': waterfall plot of time-course of normalized firing rate for all cells
-% ''
-% ''
+% 'scatter_pro_anti': scatter plot of nspk of pro vs anti for a cell
+% 'scatter_pro_anti_pop': scatter plit of mean firing rates of all cells pro vs anti
+% 'peak_resp_instr': scatter plot of peak response instr pro vs anti
+% 'peak_resp_sacc': scatter plot of peak response sacc pro vs anti
+% 'firingVSamp': firing rate vs sacc amplitude for a cell and also per sacc amplitude blocks
+% 'binomial_pb_dist': Binomial probability distribution across time aligned to instr and sacc. >1.96 is significant. 
+% 'window_pb_dist': spk probability distribution for a 50 ms window across time
 
 %%
 %%
@@ -383,6 +389,42 @@ switch plotType
         waitforbuttonpress; close all;
         end
         
+    case 'delta_rate'
+        % Plot change in FR from baseline
+        fprintf(['        >>> loading ' recArea ' cells <<< \n']);
+        for cellNum = 1:length(units)
+        indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area); 
+        
+        % gather pro
+        figure; hold on; 
+        for cells = 1:length(indx_area)
+            max_delta_pro(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate));
+            delta_pro(cells,:)=units(indx_area(cells)).pro.neural.sacc.delta_rate;
+            plot(units(indx_area(cells)).pro.neural.sacc.delta_rate)
+        end 
+        
+        % gather anti
+        figure; hold on;
+        for cells = 1:length(indx_area)
+            max_delta_anti(cells) = max(abs(units(indx_area(cells)).anti.neural.sacc.delta_rate));
+            delta_anti(cells,:)=units(indx_area(cells)).anti.neural.sacc.delta_rate;
+            plot(units(indx_area(cells)).anti.neural.sacc.delta_rate)
+        end
+        
+        % get significant cells
+        for i = 1:length(indx_area)
+            indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
+        end
+        
+        figure; hold on;
+        plot(max_delta_pro(indx_sign),max_delta_anti(indx_sign), '.k','MarkerSize', 18);
+        set(gca,'XScale','Log','YScale','Log' ,'FontSize', 18, 'TickDir', 'out');axis ([1e0 1e2 1e0 1e2]);
+        plot([1e0 1e2],[1e0 1e2]); 
+        xlabel('Max change pro'); ylabel('Max change anti'); 
+        title('Max change in firing rate')
+    
     case 'colormap_sacc'
         for cellNum = 1:length(units)
             indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
