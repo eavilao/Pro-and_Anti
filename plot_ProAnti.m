@@ -398,32 +398,54 @@ switch plotType
         indx_area = find(indx_area); 
         
         % gather pro
+        t = units(1).pro.neural.sacc.ts_pst_win;
         figure; hold on; 
         for cells = 1:length(indx_area)
             max_delta_pro(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate));
             delta_pro(cells,:)=units(indx_area(cells)).pro.neural.sacc.delta_rate;
-            plot(units(indx_area(cells)).pro.neural.sacc.delta_rate)
-        end 
+        end
+        %plot(t, delta_pro');
         
         % gather anti
         figure; hold on;
         for cells = 1:length(indx_area)
             max_delta_anti(cells) = max(abs(units(indx_area(cells)).anti.neural.sacc.delta_rate));
             delta_anti(cells,:)=units(indx_area(cells)).anti.neural.sacc.delta_rate;
-            plot(units(indx_area(cells)).anti.neural.sacc.delta_rate)
         end
+         %plot(t, delta_anti');
         
-        % get significant cells
+        %plot change in FR from baseline for all cells
+        figure; hold on; 
+        plot(t, mean(delta_pro), 'Color', 'r', 'LineWidth', 2);
+        plot(t, mean(delta_anti),'Color', 'g', 'LineWidth', 2);
+        set(gca,'TickDir', 'out', 'FontSize', 18)
+        xlabel('Time (s)'); ylabel('Change in firing rate (Hz)')
+        
+        % get significantly different cells
         for i = 1:length(indx_area)
             indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
         end
         
+        % plot change in FR for significantly different cells
+        mean_delta_pro = mean(delta_pro(indx_sign,:)); 
+        sem_delta_pro = std(delta_pro(indx_sign,:))/sqrt(sum(indx_sign));
+        mean_delta_anti = mean(delta_anti(indx_sign,:)); 
+        sem_delta_anti = std(delta_anti(indx_sign,:))/sqrt(sum(indx_sign));
+        
+        figure; hold on; 
+        shadedErrorBar(t, mean_delta_pro, sem_delta_pro, 'lineprops','r');
+        shadedErrorBar(t, mean_delta_anti, sem_delta_anti, 'lineprops','g');
+        set(gca,'TickDir', 'out', 'FontSize', 18)
+        xlabel('Time (s)'); ylabel('Change in firing rate (Hz)')
+        
+        % plot scatter for significantly diff cells
         figure; hold on;
         plot(max_delta_pro(indx_sign),max_delta_anti(indx_sign), '.k','MarkerSize', 18);
+        plot(max_delta_pro,max_delta_anti, '.k','MarkerSize', 18);
         set(gca,'XScale','Log','YScale','Log' ,'FontSize', 18, 'TickDir', 'out');axis ([1e0 1e2 1e0 1e2]);
         plot([1e0 1e2],[1e0 1e2]); 
         xlabel('Max change pro'); ylabel('Max change anti'); 
-        title('Max change in firing rate')
+        title(['Max change in firing rate >> ' recArea])
     
     case 'colormap_sacc'
         for cellNum = 1:length(units)
