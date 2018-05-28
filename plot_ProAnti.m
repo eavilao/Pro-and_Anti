@@ -25,6 +25,8 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'peak_resp_instr': scatter plot of peak response instr pro vs anti
 % 'peak_resp_sacc': scatter plot of peak response sacc pro vs anti
 % 'firingVSamp': firing rate vs sacc amplitude for a cell and also per sacc amplitude blocks
+% 'firingVSvel': firing rate vs sacc peak vel
+% 'firingVSdur': firing rate vs sacc duration
 % 'binomial_pb_dist': Binomial probability distribution across time aligned to instr and sacc. >1.96 is significant. 
 % 'window_pb_dist': spk probability distribution for a 50 ms window across time
 
@@ -758,6 +760,34 @@ switch plotType
         errorbar(pro_blocks(1,:),pro_blocks(2,:), 'Color', 'r','LineWidth', 2);
         errorbar(anti_blocks(1,:),anti_blocks(2,:), 'Color', 'g','LineWidth', 2);
         set(gca, 'TickDir', 'out', 'xlim',[0.5 3.5]);
+        
+    case 'firingVSvel'
+        pv_pro = [units(cellNum).pro.behav.trial.saccPeakVel];
+        pv_anti = [units(cellNum).anti.behav.trial.saccPeakVel];
+        
+        spk_pro = [units(cellNum).pro.neural.sacc.nspk];
+        spk_anti = [units(cellNum).anti.neural.sacc.nspk];
+        
+        %plot
+        figure; hold on; box off
+        plot(pv_pro,spk_pro, '.r', 'MarkerSize',16);
+        plot(pv_anti,spk_anti, '.g','MarkerSize',16);
+        xlabel('Peak Vel (deg/s)'); ylabel('Firing rate (spk/s)');
+        set(gca, 'TickDir', 'out', 'FontSize', 18)
+        
+    case 'firingVSdur'
+        dur_pro = [units(cellNum).pro.behav.trial.saccDuration];
+        dur_anti = [units(cellNum).anti.behav.trial.saccDuration];
+        
+        spk_pro = [units(cellNum).pro.neural.sacc.nspk];
+        spk_anti = [units(cellNum).anti.neural.sacc.nspk];
+        
+        %plot
+        figure; hold on; box off
+        plot(dur_pro,spk_pro, '.r', 'MarkerSize',16);
+        plot(dur_anti,spk_anti, '.g','MarkerSize',16);
+        xlabel('Duration (ms)'); ylabel('Firing rate (spk/s)');
+        set(gca, 'TickDir', 'out', 'FontSize', 18)
         
     case 'binomial_pb_dist'
         % instr
