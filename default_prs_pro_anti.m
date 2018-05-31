@@ -2,8 +2,7 @@
 
 prs.min_trial = 5; % min amount of trials to have to extract a cell
 
-prs.pro_conditionCode = [1 4 5 8 10 11 14 15];
-
+ 
 % Windows
 prs.baseline_win = [-0.3 -0.101];  % before saccade onset
 prs.instruction_win = [0 0.301];  % aligned to trial onset
@@ -14,8 +13,9 @@ prs.tspk = [-0.1 0.2]; %100 ms before trial starts to reward +200 ms
 
 % Prosaccade condition codes
 prs.proConditions = [1 4 5 8 10 11 14 15];
-prs.antiConditions = [];
+prs.antiConditions = [ 2 16 7 6 12 3 13 9 ];
 
+ 
 prs.binwidth = 0.01;
 prs.timepoints_instr = -0.1:prs.binwidth:1;
 prs.timepoints_sacc = -0.8:prs.binwidth:0.3;

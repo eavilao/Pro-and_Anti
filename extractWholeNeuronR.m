@@ -19,6 +19,7 @@ function units = extractWholeNeuronR(wholeNeuronResults)
 
 %% Create structure with relevant data (units) - extract main info from wholeNeuronResults
 default_prs_pro_anti; % load parameters list 
+run_error_trials =1 ; % if run_error_trials = 1 - extract only error trials same way as normal, min trial number from default prs 
 
 % first find the ones that are not empty and 
 for i = 1:length(wholeNeuronResults)
@@ -28,9 +29,14 @@ for i = 1:length(wholeNeuronResults)
 end
 cell_indx = find(cell_indx);
 
+  
 for cellNum = 1:length(cell_indx);
+    trials_with_spk=zeros(1,length(wholeNeuronResults(cell_indx(cellNum)).allStableTrials));
+    
     for trialNum = 1:length(wholeNeuronResults(cell_indx(cellNum)).allStableTrials);
+    
         if ~isempty(wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).alignedSpikes)
+            trials_with_spk(trialNum)=1;
             % monkey
             units(cellNum).monk = wholeNeuronResults(cell_indx(cellNum)).monkey;
             % area
@@ -47,37 +53,77 @@ for cellNum = 1:length(cell_indx);
             units(cellNum).trial.behav(trialNum).reactionTime = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).reactionTime;
             units(cellNum).trial.behav(trialNum).reward = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).relativeRewardTime;
             units(cellNum).trial.behav(trialNum).conditionCode = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).conditionCode;
+            units(cellNum).trial.behav(trialNum).correctResponse = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).correctResponse;
 
             %neural data
             spks =  wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).alignedSpikes{1}; % contains spike times for SS aligned to trial onset
-            if ~isempty(units(cellNum).trial.behav(trialNum).reward)
+            if ~isempty(units(cellNum).trial.behav(trialNum).reward) & ~isnan(units(cellNum).trial.behav(trialNum).reward) 
+                
                 indx_trial_spks = spks>prs.tspk(1) & spks < units(cellNum).trial.behav(trialNum).reward+prs.tspk(2); % just pick 100 ms before trial starts to reward +200 ms
                 units(cellNum).trial.neural(trialNum).tspk_SS = spks(indx_trial_spks);
                 units(cellNum).trial.neural(trialNum).tspk_SS_align_sacc =  units(cellNum).trial.neural(trialNum).tspk_SS-units(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for CS aligned to sacc onset
-            else
+            elseif run_error_trials
+                 
+                indx_trial_spks = spks>prs.tspk(1) & spks < units(cellNum).trial.behav(trialNum).goCueTime+0.5+prs.tspk(2); % just pick 100 ms before trial starts to reward +200 ms
+                units(cellNum).trial.neural(trialNum).tspk_SS = spks(indx_trial_spks);
+                units(cellNum).trial.neural(trialNum).tspk_SS_align_sacc =  units(cellNum).trial.neural(trialNum).tspk_SS-units(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for CS aligned to sacc onset
+            else 
+                keyboard
                 units(cellNum).trial.neural(trialNum).tspk_SS = [];
                 units(cellNum).trial.neural(trialNum).tspk_SS_align_sacc = [];
             end
             units(cellNum).id = 'SS';
             % select condition type Pro or Antisaccade
-            if ismember(wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).conditionCode, prs.pro_conditionCode);
+            if ismember(wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).conditionCode, prs.proConditions);
                 units(cellNum).trial.behav(trialNum).condition = 'Prosaccade';
             else
                 units(cellNum).trial.behav(trialNum).condition = 'Antisaccade';
             end
         end
+          
+    end
+        % gather incorrect pro and anti trials 
+        response =   [wholeNeuronResults(cell_indx(cellNum)).allStableTrials.correctResponse];
+        conditionCode = [wholeNeuronResults(cell_indx(cellNum)).allStableTrials.conditionCode];
+
+        anti = ismember(conditionCode,  prs.antiConditions);
+        pro = ismember(conditionCode, prs.proConditions );
+        
+        incorrect = ismember(response, 1);
+        
+        incorrectProTrials = find((incorrect+pro+trials_with_spk)==3)  ;
+        incorrectAntiTrials = find((incorrect+anti+trials_with_spk)==3)  ;
         
         % Indexes to select Pro and Anti trials
         units(cellNum).pro.indx_correctProTrials = wholeNeuronResults(cell_indx(cellNum)).selectedTrials.corProTrials;
         units(cellNum).anti.indx_correctAntiTrials = wholeNeuronResults(cell_indx(cellNum)).selectedTrials.corAntiTrials;
+               
+        units(cellNum).pro.indx_incorrectProTrials = incorrectProTrials;
+        units(cellNum).anti.indx_incorrectAntiTrials = incorrectAntiTrials;
         
-    end
+       
+        % pretend error trials are normal trials to not have to rewrite
+        % everything
+        if run_error_trials
+            if numel(incorrectProTrials)<prs.min_trial |  numel(incorrectAntiTrials)<prs.min_trial
+                throw(cellNum)=1;
+            end 
+            
+            units(cellNum).pro.indx_correctProTrials = incorrectProTrials;
+            units(cellNum).anti.indx_correctAntiTrials = incorrectAntiTrials;
+            
+            
+        end
 end
-
 clear cellNum trialNum %wholeNeuronResults
 
 %% Spike times to rate for pro and antisaccades and behav
 analyse_sacc_align = 0;
+ 
+% throw out units with no error trials in pro or anti f
+if run_error_trials
+     units(find(throw))=[];
+end
  
 for cellNum = 1:length(units)
     id=units(cellNum).id;
@@ -95,12 +141,19 @@ for cellNum = 1:length(units)
         units(cellNum).pro.behav.trial(trialNum).conditionCode = units(cellNum).trial.behav(correctProTrials(trialNum)).conditionCode;
 
     end
+   
+    
     
     % neural
     % instr
     units(cellNum).pro.neural.trial = units(cellNum).trial.neural(units(cellNum).pro.indx_correctProTrials);
     %instr
+    try
     [units(cellNum).pro.neural.instr.rate_pst,units(cellNum).pro.neural.instr.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+    catch
+        keyboard
+    end
+    
     units(cellNum).pro.neural.instr.rate_pst = smooth_pst(units(cellNum).pro.neural.instr.rate_pst,prs.binwidth,prs.tsmooth);
     % sacc aligned
     analyse_sacc_align=1;
@@ -145,6 +198,7 @@ for cellNum = 1:length(units)
     correctProTrials = units(cellNum).pro.indx_correctProTrials; % index pro trials
     % get spk counts
     for trialNum = 1:length(correctProTrials)
+         
         [units(cellNum).pro.neural.instr.spkCount(trialNum,:),units(cellNum).pro.neural.instr.ts_spkCount(trialNum,:)] = Spiketimes2CountTrial(units(cellNum).pro.neural.trial(trialNum),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id); % spk counts
         analyse_sacc_align=1;
         [units(cellNum).pro.neural.sacc.spkCount(trialNum,:),units(cellNum).pro.neural.sacc.ts_spkCount(trialNum,:)] = Spiketimes2CountTrial(units(cellNum).pro.neural.trial(trialNum),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
@@ -159,6 +213,7 @@ for cellNum = 1:length(units)
         units(cellNum).pro.neural.sacc.pbDist(1,i)= sum(units(cellNum).pro.neural.sacc.spkCount(:,i))/length(correctProTrials); % compute probability of spk sacc aligned
         units(cellNum).pro.neural.sacc.pbDist_sem = sqrt(units(cellNum).pro.neural.sacc.pbDist(1,i)*(1-units(cellNum).pro.neural.sacc.pbDist(1,i))/length(correctProTrials));
     end
+    
     
     % anti trials
     correctAntiTrials = units(cellNum).anti.indx_correctAntiTrials;
@@ -556,5 +611,6 @@ for cellNum = 1:length(units)
     units(cellNum).anti.meanCV =  mean([units(cellNum).anti.neural.trial.cv_isi]);
     
 end
-
 end
+
+

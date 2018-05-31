@@ -6,7 +6,7 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 %           plotType - plot you want (e.g. raster, psth, etc.)
 %           recArea - OMV, lateral Cb
 
-% if running population (all neurons), just input [] in cellNum.
+% if running population (all neurons), just inpu t [] in cellNum.
 % if running single neuron, on recArea input []. Example: plot_ProAnti(units, 'raster_sacc',1,  [])
 
 % List of plots
@@ -179,6 +179,7 @@ switch plotType
     case 'raster_instr'
         % instr aligned
         % pro
+         
         [~,indx] = sort([units(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
         sorted_RT = -[units(cellNum).pro.behav.trial(indx).reactionTime];
         r_pro= units(cellNum).pro.neural.trial;
@@ -315,7 +316,7 @@ switch plotType
             'String',['ProVSAnti = ' num2str(proVSanti_instr)],...
             'FitBoxToText','on');
         
-    case 'psth_sacc_all'
+    case 'pplsth_sacc_all'
         % gather indx
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
         for cellNum = 1:length(units)
@@ -509,12 +510,17 @@ switch plotType
         for cellNum = 1:length(units)
             indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
         end
+        if isempty(recArea)
+            disp('no enough input arguments')
+        end
+        
         indx_area = find(indx_area);
         nunits = 1:length(indx_area);
         
+        keyboard
         %pro
         t = units(1).pro.neural.sacc.ts_pst; clear r;
-        for j=1:length(nunits)
+        for j=1:length(units)
             r(j,:) = units(indx_area(j)).pro.neural.sacc.norm_rate_pst(1,:);
             indx_neg=find(r(j,:)<0);
             r(j,indx_neg) = 0;
@@ -657,7 +663,8 @@ switch plotType
         
     case 'peak_resp_sacc'
         % gather
-        t = units(i).pro.neural.sacc.ts_pst_win;
+        
+        t = units(1).pro.neural.sacc.ts_pst_win;
         for i = 1:length(units)
             peak_pro(i) = units(i).pro.neural.sacc.peak_resp;
             peak_anti(i) = units(i).anti.neural.sacc.peak_resp;
@@ -669,6 +676,7 @@ switch plotType
             peak_pro_diff(i) = units(i).pro.neural.sacc.peak_resp-units(i).pro.neural.base.rate_mu;
             peak_anti_diff(i) = units(i).anti.neural.sacc.peak_resp-units(i).anti.neural.base.rate_mu;
         end
+        
         
         % plot (baseline subtracted) 
         figure; hold on; 
@@ -849,57 +857,57 @@ switch plotType
         title ('Binomial pb dist - Saccade')
         xlabel('time')
         
-%     case 'rosePlots'
-%         
-%         % plot mean firing rate + STD of different directions for pro and
-%         % anti during sac or instruction period 
-%         
-%         % TODO - Correct for different amplitudes (maybe in spikes/degree)
-%         
-%          
-%         proLegend =[10 8 15 14 4 11 5 1; 1 2 3 4 5 6 7 8] ;
-%         antiLegend = [2 16 7 6 12 3 13 9; 1 2 3 4 5 6 7 8];
-% 
-%         sacc= 01;
-%         instr=0;
-%         
-%         if sacc
-%             pro_trials =units(cellNum).pro.neural.sacc.nspk ;
-%             anti_trials =units(cellNum).pro.neural.sacc.nspk ;
-%             title_flag = 'saccade'            ;
-%         elseif instr 
-%             pro_trials =units(cellNum).pro.neural.instr.nspk ;
-%             anti_trials =units(cellNum).pro.neural.instr.nspk ;
-%             title_flag = 'instruction';
-%                     
-%         end
-%         
-%         % loop over all directions to gather average and std's of firing
-%         % freqeuncies 
-%         for i=1:8
-%             
-%             thisDirection = proLegend(1,i);
-%             trialIndex = find([units(cellNum).pro.behav.trial.conditionCode]==thisDirection);
-%             meanRates(1,i) = mean(pro_trials(trialIndex));
-%             upperbound(1,i) = meanRates(1,i) + std(pro_trials(trialIndex));
-%             lowerbound(1,i) = meanRates(1,i) - std(pro_trials(trialIndex));
-%             
-%             thisDirection = antiLegend(1,i);
-%             trialIndex = find([units(cellNum).anti.behav.trial.conditionCode]==thisDirection);
-%             meanRates(2,i) = mean(anti_trials(trialIndex));
-%             upperbound(2,i) = meanRates(2,i) + std(anti_trials(trialIndex));
-%             lowerbound(2,i) = meanRates(2,i) - std(anti_trials(trialIndex));
-%             
-%         end
-%        
-%         % do the actual plotting 
-%        rosePlotProAnti(meanRates,lowerbound,upperbound  )
-%        
-%        set(gca,   'TickDir', 'out', 'FontSize', 18)
-%        title (['Average rates during ' title_flag ' window'])
-%        xlabel('Firing frequency(hz)')
-%        ylabel('Firing frequency(hz)')
-%        
-%         
-%         
+    case 'rosePlots'
+        
+        % plot mean firing rate + STD of different directions for pro and
+        % anti during sac or instruction period 
+        
+        % TODO - Correct for different amplitudes (maybe in spikes/degree)
+        
+         
+        proLegend =[10 8 15 14 4 11 5 1; 1 2 3 4 5 6 7 8] ;
+        antiLegend = [2 16 7 6 12 3 13 9; 1 2 3 4 5 6 7 8];
+
+        sacc= 01;
+        instr=0;
+        
+        if sacc
+            pro_trials =units(cellNum).pro.neural.sacc.nspk ;
+            anti_trials =units(cellNum).pro.neural.sacc.nspk ;
+            title_flag = 'saccade'            ;
+        elseif instr 
+            pro_trials =units(cellNum).pro.neural.instr.nspk ;
+            anti_trials =units(cellNum).pro.neural.instr.nspk ;
+            title_flag = 'instruction';
+                    
+        end
+        
+        % loop over all directions to gather average and std's of firing
+        % freqeuncies 
+        for i=1:8
+            
+            thisDirection = proLegend(1,i);
+            trialIndex = find([units(cellNum).pro.behav.trial.conditionCode]==thisDirection);
+            meanRates(1,i) = mean(pro_trials(trialIndex));
+            upperbound(1,i) = meanRates(1,i) + std(pro_trials(trialIndex));
+            lowerbound(1,i) = meanRates(1,i) - std(pro_trials(trialIndex));
+            
+            thisDirection = antiLegend(1,i);
+            trialIndex = find([units(cellNum).anti.behav.trial.conditionCode]==thisDirection);
+            meanRates(2,i) = mean(anti_trials(trialIndex));
+            upperbound(2,i) = meanRates(2,i) + std(anti_trials(trialIndex));
+            lowerbound(2,i) = meanRates(2,i) - std(anti_trials(trialIndex));
+            
+        end
+       
+        % do the actual plotting 
+       rosePlotProAnti(meanRates,lowerbound,upperbound  )
+       
+       set(gca,   'TickDir', 'out', 'FontSize', 18)
+       title (['Average rates during ' title_flag ' window'])
+       xlabel('Firing frequency(hz)')
+       ylabel('Firing frequency(hz)')
+       
+        
+        
 end
