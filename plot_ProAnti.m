@@ -132,7 +132,7 @@ switch plotType
             end
             vline(0, 'c');
             set (gca, 'xlim', ([-0.3 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            title(['Pro (aligned to saccade) SS => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
+            title(['Pro (aligned to saccade) SS => ' recArea ' cellNum ' num2str(cellNum)]); xlabel('Time (s)');ylabel('Trial Num')
         else
             for j= 1:length(indx)
                 if ~isempty(r_pro(indx(j)).tspk_CS_align_sacc)
@@ -142,7 +142,7 @@ switch plotType
             end
             vline(0, 'c');
             set (gca, 'xlim', ([-0.3 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            title(['Pro (aligned to saccade) CS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
+            title(['Pro (aligned to saccade) CS  => ' recArea ' cellNum ' num2str(cellNum) ]); xlabel('Time (s)');ylabel('Trial Num')
             
         end
         
@@ -316,7 +316,7 @@ switch plotType
             'String',['ProVSAnti = ' num2str(proVSanti_instr)],...
             'FitBoxToText','on');
         
-    case 'pplsth_sacc_all'
+    case 'pplsth_sacc_all'   % plot all neurons per area
         % gather indx
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
         for cellNum = 1:length(units)
@@ -563,11 +563,11 @@ switch plotType
         
         % instr
         r_anti_instr = units(cellNum).anti.neural.instr.nspk(1:min_trials);
-        r_pro_instr = units(cellNum).pro.neural.instr.nspk(1:size(rate_anti)); 
+        r_pro_instr = units(cellNum).pro.neural.instr.nspk(1:min_trials); 
         
         % sacc 
         r_anti_sacc = units(cellNum).anti.neural.sacc.nspk(1:min_trials);
-        r_pro_sacc = units(cellNum).pro.neural.sacc.nspk(1:size(rate_anti));
+        r_pro_sacc = units(cellNum).pro.neural.sacc.nspk(1:min_trials);
         
         %plot
         % instr
@@ -685,6 +685,7 @@ switch plotType
         plot([1e0 1e2],[1e0 1e2]); 
         title('Sacc peak resp (baseline subtracted)'); xlabel('Prosaccade'); ylabel('Antisaccade');
         box off; axis square
+        [h,p] = ttest(peak_pro_diff,peak_anti_diff)
         % plot peak time resp
         h_pro = hist(peak_time_pro,t);
         h_anti = hist(peak_time_anti,t);
@@ -702,17 +703,23 @@ switch plotType
         spk_pro = [units(cellNum).pro.neural.sacc.nspk];
         spk_anti = [units(cellNum).anti.neural.sacc.nspk];
         
+        % correlation
+        [rho_pro,pval_pro] = corr(amp_pro',spk_pro)
+        [rho_anti,pval_anti] = corr(amp_anti',spk_anti) 
+        
         %plot
         figure; hold on; box off
         plot(amp_pro,spk_pro, '.r', 'MarkerSize',16);
         plot(amp_anti,spk_anti, '.g','MarkerSize',16);
         xlabel('Amplitude (deg)'); ylabel('Firing rate (spk/s)');
-        set(gca, 'TickDir', 'out', 'FontSize', 18)
+        set(gca, 'TickDir', 'out', 'FontSize', 18
+        
+        
         
         %Avg per amplitude blocks
         block1 = 4.9;
         block2 = 9.9;
-        block3 = 20;
+        block3 = 15;
         
         %pro
         block1_pro_indx = find([units(cellNum).pro.behav.trial.saccAmplitude]<=block1);
