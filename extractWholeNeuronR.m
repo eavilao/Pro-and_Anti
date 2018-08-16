@@ -19,7 +19,7 @@ function units = extractWholeNeuronR(wholeNeuronResults)
 
 %% Create structure with relevant data (units) - extract main info from wholeNeuronResults
 default_prs_pro_anti; % load parameters list 
-run_error_trials =1 ; % if run_error_trials = 1 - extract only error trials same way as normal, min trial number from default prs 
+run_error_trials =0 ; % if run_error_trials = 1 - extract only error trials same way as normal, min trial number from default prs 
 
 % first find the ones that are not empty and 
 for i = 1:length(wholeNeuronResults)
@@ -68,7 +68,7 @@ for cellNum = 1:length(cell_indx);
                 units(cellNum).trial.neural(trialNum).tspk_SS = spks(indx_trial_spks);
                 units(cellNum).trial.neural(trialNum).tspk_SS_align_sacc =  units(cellNum).trial.neural(trialNum).tspk_SS-units(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for CS aligned to sacc onset
             else 
-                keyboard
+                %keyboard
                 units(cellNum).trial.neural(trialNum).tspk_SS = [];
                 units(cellNum).trial.neural(trialNum).tspk_SS_align_sacc = [];
             end

@@ -21,7 +21,7 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'colormap_sacc': plot time-course of normalized firing rate for all cells
 % 'waterfall_sacc': waterfall plot of time-course of normalized firing rate for all cells
 % 'scatter_pro_anti': scatter plot of nspk of pro vs anti for a cell
-% 'scatter_pro_anti_pop': scatter plit of mean firing rates of all cells pro vs anti
+% 'scatter_pro_anti_pop': scatter plot of mean firing rates of all cells pro vs anti
 % 'peak_resp_instr': scatter plot of peak response instr pro vs anti
 % 'peak_resp_sacc': scatter plot of peak response sacc pro vs anti
 % 'firingVSamp': firing rate vs sacc amplitude for a cell and also per sacc amplitude blocks
@@ -402,7 +402,6 @@ switch plotType
         
         % gather pro
         t = units(1).pro.neural.sacc.ts_pst_win;
-        figure; hold on; 
         for cells = 1:length(indx_area)
             max_delta_pro(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate));
             delta_pro(cells,:)=units(indx_area(cells)).pro.neural.sacc.delta_rate;
@@ -410,7 +409,6 @@ switch plotType
         %plot(t, delta_pro');
         
         % gather anti
-        figure; hold on;
         for cells = 1:length(indx_area)
             max_delta_anti(cells) = max(abs(units(indx_area(cells)).anti.neural.sacc.delta_rate));
             delta_anti(cells,:)=units(indx_area(cells)).anti.neural.sacc.delta_rate;
@@ -443,12 +441,14 @@ switch plotType
         
         % plot scatter for significantly diff cells
         figure; hold on;
-        plot(max_delta_pro(indx_sign),max_delta_anti(indx_sign), '.k','MarkerSize', 18);
         plot(max_delta_pro,max_delta_anti, '.k','MarkerSize', 18);
+        plot(max_delta_pro(indx_sign),max_delta_anti(indx_sign), '.c','MarkerSize', 18);
         set(gca,'XScale','Log','YScale','Log' ,'FontSize', 18, 'TickDir', 'out');axis ([1e0 1e2 1e0 1e2]);
         plot([1e0 1e2],[1e0 1e2]); 
         xlabel('Max change pro'); ylabel('Max change anti'); 
         title(['Max change in firing rate >> ' recArea])
+        axis square
+        [h,p] = ttest(max_delta_pro,max_delta_anti)
     
     case 'colormap_sacc'
         for cellNum = 1:length(units)
@@ -585,18 +585,25 @@ switch plotType
         set(gca, 'TickDir', 'out', 'FontSize', 18);
         
     case 'scatter_pro_anti_pop'
-        % plot avg firing rate pro vs anti for all cells
+        % plot avg firing rate pro vs anti for all cells.
         %% instr
         % gather
-        for i = 1:length(units)
-            rate_pro(i) = units(i).pro.neural.instr.rate_mu; 
-            rate_anti(i) = units(i).anti.neural.instr.rate_mu;
-            sig_pro(i) = units(i).pro.neural.instr.rate_sig;
-            sig_anti(i) = units(i).anti.neural.instr.rate_sig;
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        nunits = 1:length(indx_area);
+        
+        
+        for i = 1:length(nunits)
+            rate_pro(i) = units(indx_area(i)).pro.neural.instr.rate_mu; 
+            rate_anti(i) = units(indx_area(i)).anti.neural.instr.rate_mu;
+            sig_pro(i) = units(indx_area(i)).pro.neural.instr.rate_sig;
+            sig_anti(i) = units(indx_area(i)).anti.neural.instr.rate_sig;
         end
         % get significantly diff
-        for i = 1:length(units)
-            indx_sign(i) = logical(units(i).stats.instr.flags.proVsAnti_instr);
+        for i = 1:length(nunits)
+            indx_sign(i) = logical(units(indx_area(i)).stats.instr.flags.proVsAnti_instr);
         end
         
         % plot
@@ -612,15 +619,15 @@ switch plotType
             'FitBoxToText','on');
         
         %% sacc
-        for i = 1:length(units)
-            rate_pro(i) = units(i).pro.neural.sacc.rate_mu; 
-            rate_anti(i) = units(i).anti.neural.sacc.rate_mu;
-            sig_pro(i) = units(i).pro.neural.sacc.rate_sig;
-            sig_anti(i) = units(i).anti.neural.sacc.rate_sig;
+        for i = 1:length(nunits)
+            rate_pro(i) = units(indx_area(i)).pro.neural.sacc.rate_mu; 
+            rate_anti(i) = units(indx_area(i)).anti.neural.sacc.rate_mu;
+            sig_pro(i) = units(indx_area(i)).pro.neural.sacc.rate_sig;
+            sig_anti(i) = units(indx_area(i)).anti.neural.sacc.rate_sig;
         end
         % get significantly diff
-        for i = 1:length(units)
-            indx_sign(i) = logical(units(i).stats.sacc.flags.proVsAnti_sacc);
+        for i = 1:length(nunits)
+            indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
         end
         
         % plot
@@ -637,6 +644,13 @@ switch plotType
         
         case 'peak_resp_instr'
         % gather
+         % gather
+        fprintf(['        >>> loading ' recArea ' cells <<< \n']);
+        for cellNum = 1:length(units)
+        indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area); 
+        
         t = units(1).pro.neural.instr.ts_pst_win;
         for i = 1:length(units)
             peak_pro(i) = units(i).pro.neural.instr.peak_resp;
@@ -663,26 +677,32 @@ switch plotType
         
     case 'peak_resp_sacc'
         % gather
+        fprintf(['        >>> loading ' recArea ' cells <<< \n']);
+        for cellNum = 1:length(units)
+        indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area); 
         
         t = units(1).pro.neural.sacc.ts_pst_win;
-        for i = 1:length(units)
-            peak_pro(i) = units(i).pro.neural.sacc.peak_resp;
-            peak_anti(i) = units(i).anti.neural.sacc.peak_resp;
-            peak_time_pro(i) = units(i).pro.neural.sacc.peak_resp_time;
-            peak_time_anti(i) = units(i).anti.neural.sacc.peak_resp_time;
+        for i = 1:length(units(indx_area))
+            peak_pro(i) = units(indx_area(i)).pro.neural.sacc.peak_resp;
+            peak_anti(i) = units(indx_area(i)).anti.neural.sacc.peak_resp;
+            peak_time_pro(i) = units(indx_area(i)).pro.neural.sacc.peak_resp_time;
+            peak_time_anti(i) = units(indx_area(i)).anti.neural.sacc.peak_resp_time;
         end
         % with baseline subtracted
-        for i = 1:length(units)
-            peak_pro_diff(i) = units(i).pro.neural.sacc.peak_resp-units(i).pro.neural.base.rate_mu;
-            peak_anti_diff(i) = units(i).anti.neural.sacc.peak_resp-units(i).anti.neural.base.rate_mu;
+        for i = 1:length(units(indx_area))
+            peak_pro_diff(i) = units(indx_area(i)).pro.neural.sacc.peak_resp-units(i).pro.neural.base.rate_mu;
+            peak_anti_diff(i) = units(indx_area(i)).anti.neural.sacc.peak_resp-units(i).anti.neural.base.rate_mu;
         end
         
         
         % plot (baseline subtracted) 
         figure; hold on; 
         plot(peak_pro_diff,peak_anti_diff, '.k', 'MarkerSize', 16);
-        set(gca,'XScale','Log','YScale','Log' ,'FontSize', 18, 'TickDir', 'out');axis ([1e0 1e2 1e0 1e2]);
-        plot([1e0 1e2],[1e0 1e2]); 
+        %set(gca,'XScale','Log','YScale','Log' ,'FontSize', 18, 'TickDir', 'out');axis ([1e0 1e2 1e0 1e2]);
+        set(gca,'FontSize', 18, 'TickDir', 'out');
+        plot([-150 100],[-150 100]); 
         title('Sacc peak resp (baseline subtracted)'); xlabel('Prosaccade'); ylabel('Antisaccade');
         box off; axis square
         [h,p] = ttest(peak_pro_diff,peak_anti_diff)
@@ -705,15 +725,15 @@ switch plotType
         
         % correlation
         [rho_pro,pval_pro] = corr(amp_pro',spk_pro)
-        [rho_anti,pval_anti] = corr(amp_anti',spk_anti) 
+        [rho_anti,pval_anti] = corr(amp_anti',spk_anti)
         
         %plot
         figure; hold on; box off
         plot(amp_pro,spk_pro, '.r', 'MarkerSize',16);
         plot(amp_anti,spk_anti, '.g','MarkerSize',16);
         xlabel('Amplitude (deg)'); ylabel('Firing rate (spk/s)');
-        set(gca, 'TickDir', 'out', 'FontSize', 18
-        
+        set(gca, 'TickDir', 'out', 'FontSize', 18);
+        lsline(gca)
         
         
         %Avg per amplitude blocks
@@ -789,6 +809,7 @@ switch plotType
         plot(pv_anti,spk_anti, '.g','MarkerSize',16);
         xlabel('Peak Vel (deg/s)'); ylabel('Firing rate (spk/s)');
         set(gca, 'TickDir', 'out', 'FontSize', 18)
+        lsline(gca)
         
     case 'firingVSdur'
         dur_pro = [units(cellNum).pro.behav.trial.saccDuration];
@@ -803,8 +824,10 @@ switch plotType
         plot(dur_anti,spk_anti, '.g','MarkerSize',16);
         xlabel('Duration (ms)'); ylabel('Firing rate (spk/s)');
         set(gca, 'TickDir', 'out', 'FontSize', 18)
+        lsline(gca)
         
     case 'binomial_pb_dist'
+        % statistical test to compare if pro == anti - aligned to instr/sacc using spk count
         % instr
         % gather
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
@@ -848,9 +871,9 @@ switch plotType
         stat_instr = units(cellNum).stats.instr.pval.spk_count_bigWin; 
         % plot
         figure; subplot(2,1,1);
-        plot(stat_instr, 'k','MarkerSize', 15);
+        plot(stat_instr, '.k','MarkerSize', 15);
         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-        set(gca, 'ylim',[0 1], 'TickDir', 'out', 'FontSize', 18)
+        set(gca, 'ylim',[-0.05 0.05], 'TickDir', 'out', 'FontSize', 18)
         title ('Binomial pb dist - Instruction')
         xlabel('')
         % sacc
@@ -858,10 +881,10 @@ switch plotType
         stat_sacc = units(cellNum).stats.sacc.pval.spk_count_bigWin; 
         % plot
         subplot(2,1,2)
-        plot(stat_sacc, 'k','MarkerSize', 15);
+        plot(stat_sacc, '.k','MarkerSize', 15);
         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-        set(gca, 'ylim',[0 1], 'TickDir', 'out', 'FontSize', 18)
-        title ('Binomial pb dist - Saccade')
+        set(gca, 'ylim',[-0.05 0.05], 'TickDir', 'out', 'FontSize', 18)
+        title ('window pb dist - Saccade')
         xlabel('time')
         
     case 'rosePlots'
