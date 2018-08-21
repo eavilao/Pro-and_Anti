@@ -828,6 +828,7 @@ switch plotType
         
     case 'binomial_pb_dist'
         % statistical test to compare if pro == anti - aligned to instr/sacc using spk count
+        % Plot Z-statistic over time. 
         % instr
         % gather
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
@@ -864,6 +865,14 @@ switch plotType
         print(fname,'-append', '-dpsc2')
             waitforbuttonpress; close all;
         end
+        
+        %% Take the absolute value of the Z-statistic and average across neurons - average for each time point and plot it as a function of time
+        % This will reveal how well an average neuron can discriminate between the two conditions.
+        
+        z = 1;
+        
+        
+        
         
     case 'window_pb_dist'
         % instr
