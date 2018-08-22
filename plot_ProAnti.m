@@ -837,42 +837,115 @@ switch plotType
         end
         indx_area = find(indx_area); 
         
-        for i=1:length(indx_area)
-        stat_instr = units(indx_area(i)).stats.instr.pval.pbDist_testStat;
-        t = units(indx_area(i)).pro.neural.instr.ts_pst;
+         for i=1:length(indx_area)
+        
+             stat_instr(i,:) = units(indx_area(i)).stats.instr.pval.pbDist_testStat;
+             t_instr = units(indx_area(i)).pro.neural.instr.ts_pst;
+             position_stat_sign_instr(i,:) = abs(stat_instr(i,:))>=1.96;
+             
+             %         % plot instr
+             %         figure; subplot(2,1,1);
+             %         plot(t, stat_instr, 'k','MarkerSize', 15);
+             %         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
+             %         set(gca, 'xlim',[-0.1 0.3],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
+             %         title ('Binomial pb dist - Instruction')
+             %         xlabel('time (s)')
+             
+             % sacc
+             %gather
+             t_sacc = units(indx_area(i)).pro.neural.sacc.ts_pst;
+             stat_sacc(i,:) = units(indx_area(i)).stats.sacc.pval.pbDist_testStat;
+             position_stat_sign_sacc(i,:) = abs(stat_sacc(i,:))>=1.96;
+             % plot
+             %         subplot(2,1,2)
+             %         plot(t, stat_sacc, 'k','MarkerSize', 15);
+             %         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
+             %         set(gca, 'xlim',[-0.1 0.2],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
+%         title (['Binomial pb dist - Saccade cell: ' num2str(indx_area(i))])
+%         xlabel('time')
+%         fname = 'Binomial_pb_dist';
+%         print(fname,'-append', '-dpsc2')
+%             waitforbuttonpress; close all;
          
+         end
         
-        % plot instr
-        figure; subplot(2,1,1);
-        plot(t, stat_instr, 'k','MarkerSize', 15);
-        hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-        set(gca, 'xlim',[-0.1 0.3],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
-        title ('Binomial pb dist - Instruction')
-        xlabel('time (s)')
-        
-        % sacc
-        %gather
-        t = units(indx_area(i)).pro.neural.sacc.ts_pst;
-        stat_sacc = units(indx_area(i)).stats.sacc.pval.pbDist_testStat;
-        % plot
-        subplot(2,1,2)
-        plot(t, stat_sacc, 'k','MarkerSize', 15);
-        hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-        set(gca, 'xlim',[-0.1 0.2],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
-        title (['Binomial pb dist - Saccade cell: ' num2str(indx_area(i))])
-        xlabel('time')
-        fname = 'Binomial_pb_dist';
-        print(fname,'-append', '-dpsc2')
-            waitforbuttonpress; close all;
-        end
-        
-        %% Take the absolute value of the Z-statistic and average across neurons - average for each time point and plot it as a function of time
+       %% Disused %% Take the absolute value of the Z-statistic and average across neurons - average for each time point and plot it as a function of time
         % This will reveal how well an average neuron can discriminate between the two conditions.
         
-        z = 1;
-        
-        
-        
+%         sacc_Z_stat = mean(abs(stat_sacc)); 
+%         instr_Z_stat = mean(abs(stat_instr)); 
+%         
+%         % plot instr Z stat
+%         figure; hold on; 
+%         plot(abs(stat_instr), '.k'); hold on; hline(1.96);  % data points 11 to 41
+%         %plot(nanmedian(abs(stat_instr)), '-r', 'LineWidth',2)
+%         set(gca, 'xlim',[10.5 41.5], 'TickDir', 'out', 'FontSize', 18);
+%         
+%         % side histogram
+%         figure; hold on;
+%         histogram(abs(stat_instr), 25)
+%         set(gca,'Xdir','reverse','TickDir', 'out', 'FontSize', 18);
+%         
+%         % Histogram of >1.96 only
+%         figure; hold on
+%         histogram(stat_instr(position_stat_sign_instr),25);
+%         plot(t_sacc(),abs(stat_instr(position_stat_sign_instr)), '.k')
+%         
+%         figure; hold on
+%         histogram(abs(stat_instr(position_stat_sign_instr)),25);
+%          set(gca,'TickDir', 'out', 'FontSize', 18);
+%         
+%          % plot sacc Z stat
+%          figure; hold on; 
+%         plot(abs(stat_sacc), '.k'); hold on; hline(1.96);  % data points 11 to 41
+%         %plot(nanmedian(abs(stat_instr)), '-r', 'LineWidth',2)
+%         set(gca, 'xlim',[10.5 41.5], 'TickDir', 'out', 'FontSize', 18);
+%         
+%         % side histogram
+%         figure; hold on;
+%         histogram(abs(stat_sacc), 25)
+%         set(gca,'Xdir','reverse','TickDir', 'out', 'FontSize', 18);
+
+%% Take the absolute value of the Z-statistic and average across significantly different neurons
+% instr -> get significantly different neurons
+% get significantly diff instr
+nunits = 1:length(indx_area);
+for i = 1:length(nunits)
+    indx_sign_instr(i) = logical(units(indx_area(i)).stats.instr.flags.proVsAnti_instr);
+end
+
+% get Z stat for those neurons and plot
+z_sign_instr = stat_instr(indx_sign_instr,:);
+figure; hold on;
+%plot(z_sign_instr); hline([-1.96 1.96]);xlim([10 40]);
+plot(t_instr,smooth(nanmean(abs(z_sign_instr)),3),'LineWidth', 2,'Color','k'); % smoothed
+hline(1.96,'k')
+set(gca, 'xlim',[0 0.3],'ylim',[0 2], 'TickDir', 'out', 'FontSize', 18);
+title(['Absolute Z stat Instr => ' recArea]);
+
+% sacc -> get significantly different neurons
+for i = 1:length(nunits)
+    indx_sign_sacc(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
+end
+
+% get Z stat for those neurons and plot
+z_sign_sacc = stat_sacc(indx_sign_sacc,:);
+figure; hold on;
+%plot(t_sacc,nanmean(abs(z_sign_sacc))); raw
+plot(t_sacc,smooth(nanmean(abs(z_sign_sacc)),3),'LineWidth', 2,'Color','k'); % smoothed
+hline(1.96,'k')
+set(gca, 'xlim',[-0.2 0.3], 'TickDir', 'out', 'FontSize', 18);
+title(['Absolute Z stat Sacc => ' recArea]);
+
+%% Same as above but take mean of Z-stat only on sacc window (0-0.2s)
+sacc_win = t_sacc>-0.0100 & t_sacc<0.21;
+t_sacc_win = t_sacc(sacc_win); 
+z_sign_sacc_win = z_sign_sacc(:,sacc_win); 
+
+for i=1:size(z_sign_sacc_win,1)
+    z_win_mu(i) = mean(abs(z_sign_sacc_win(i,:)));
+end 
+
         
     case 'window_pb_dist'
         % instr
