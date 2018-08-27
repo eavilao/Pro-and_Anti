@@ -869,7 +869,7 @@ switch plotType
          
          end
         
-       %% Disused %% Take the absolute value of the Z-statistic and average across neurons - average for each time point and plot it as a function of time
+      %% Disused %% Take the absolute value of the Z-statistic and average across neurons - average for each time point and plot it as a function of time
         % This will reveal how well an average neuron can discriminate between the two conditions.
         
 %         sacc_Z_stat = mean(abs(stat_sacc)); 
@@ -907,35 +907,62 @@ switch plotType
 %         set(gca,'Xdir','reverse','TickDir', 'out', 'FontSize', 18);
 
 %% Take the absolute value of the Z-statistic and average across significantly different neurons
-% instr -> get significantly different neurons
+%                    instr -> get significantly different neurons
 % get significantly diff instr
 nunits = 1:length(indx_area);
 for i = 1:length(nunits)
     indx_sign_instr(i) = logical(units(indx_area(i)).stats.instr.flags.proVsAnti_instr);
 end
+n_instr = sum(indx_sign_instr);
 
-% get Z stat for those neurons and plot
+% plot 
 z_sign_instr = stat_instr(indx_sign_instr,:);
 figure; hold on;
-%plot(z_sign_instr); hline([-1.96 1.96]);xlim([10 40]);
 plot(t_instr,smooth(nanmean(abs(z_sign_instr)),3),'LineWidth', 2,'Color','k'); % smoothed
 hline(1.96,'k')
 set(gca, 'xlim',[0 0.3],'ylim',[0 2], 'TickDir', 'out', 'FontSize', 18);
-title(['Absolute Z stat Instr => ' recArea]);
+title(['Abs Z stat Instr => ' recArea ' n= ' num2str(n_instr)]);
+xlabel('time(s)'); ylabel('Z-stat')
 
-% sacc -> get significantly different neurons
+% get Z stat for those neurons and plot
+%plot
+figure; hold on;
+plot(t_instr,abs(z_sign_instr), '.k');
+set(gca, 'xlim',[-0.1 0.3], 'TickDir', 'out', 'FontSize', 18);
+hline(1.96);xlabel('time(s)'); ylabel('Z-stat') 
+
+plot(t_instr,smooth(nanmean(abs(z_sign_instr)),3),'LineWidth', 2,'Color','k'); % smoothed
+hline(1.96,'k')
+set(gca, 'xlim',[0 0.3],'ylim',[0 2], 'TickDir', 'out', 'FontSize', 18);
+title(['Abs Z stat Instr => ' recArea ' n= ' num2str(n_instr)]);
+xlabel('time(s)'); ylabel('Z-stat')
+
+%                      sacc -> get significantly different neurons
 for i = 1:length(nunits)
     indx_sign_sacc(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
 end
+n_sacc = sum(indx_sign_sacc);
 
 % get Z stat for those neurons and plot
 z_sign_sacc = stat_sacc(indx_sign_sacc,:);
 figure; hold on;
-%plot(t_sacc,nanmean(abs(z_sign_sacc))); raw
 plot(t_sacc,smooth(nanmean(abs(z_sign_sacc)),3),'LineWidth', 2,'Color','k'); % smoothed
-hline(1.96,'k')
 set(gca, 'xlim',[-0.2 0.3], 'TickDir', 'out', 'FontSize', 18);
-title(['Absolute Z stat Sacc => ' recArea]);
+title(['Abs Z stat Sacc => ' recArea ' n= ' num2str(n_sacc)]);
+xlabel('time(s)'); ylabel('Z-stat')
+
+
+%plot(t_sacc,nanmean(abs(z_sign_sacc)));
+figure; hold on;
+plot(t_sacc,abs(z_sign_sacc), '.k');
+set(gca, 'xlim',[-0.1 0.3], 'TickDir', 'out', 'FontSize', 18);
+hline(1.96); 
+xlabel('time(s)'); ylabel('Z-stat')
+
+plot(t_sacc,smooth(nanmean(abs(z_sign_sacc)),3),'LineWidth', 2,'Color','k'); % smoothed
+set(gca, 'xlim',[-0.2 0.3], 'TickDir', 'out', 'FontSize', 18);
+title(['Abs Z stat Sacc => ' recArea ' n= ' num2str(n_sacc)]);
+xlabel('time(s)'); ylabel('Z-stat')
 
 %% Same as above but take mean of Z-stat only on sacc window (0-0.2s)
 sacc_win = t_sacc>-0.0100 & t_sacc<0.21;
@@ -943,8 +970,14 @@ t_sacc_win = t_sacc(sacc_win);
 z_sign_sacc_win = z_sign_sacc(:,sacc_win); 
 
 for i=1:size(z_sign_sacc_win,1)
-    z_win_mu(i) = mean(abs(z_sign_sacc_win(i,:)));
+    z_win_mu(i) = mean(abs(z_sign_sacc_win(i,:))); % mean for every cell in its window
 end 
+
+figure; hold on; 
+plot(z_win_mu,'.k', 'MarkerSize', 18)
+set(gca, 'TickDir', 'out', 'FontSize', 18); hline(1.96)
+xlabel('cell'); ylabel('Z-stat')
+title(['Z stat sacc window(0-0.2s) recarea => ' recArea])
 
         
     case 'window_pb_dist'
