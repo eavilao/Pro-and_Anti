@@ -924,6 +924,12 @@ set(gca, 'xlim',[0 0.3],'ylim',[0 2], 'TickDir', 'out', 'FontSize', 18);
 title(['Abs Z stat Instr => ' recArea ' n= ' num2str(n_instr)]);
 xlabel('time(s)'); ylabel('Z-stat')
 
+% histogram of z stat instr
+figure; hold on; 
+histogram(z_sign_instr); 
+vline([-1.96 1.96])
+title ('Z stat instruction signif neurons')
+
 % get Z stat for those neurons and plot
 %plot
 figure; hold on;
@@ -951,6 +957,12 @@ set(gca, 'xlim',[-0.2 0.3], 'TickDir', 'out', 'FontSize', 18);
 title(['Abs Z stat Sacc => ' recArea ' n= ' num2str(n_sacc)]);
 xlabel('time(s)'); ylabel('Z-stat')
 
+% histogram of z stat instr
+figure; hold on; 
+histogram(z_sign_sacc,100); 
+vline([-1.96 1.96])
+title ('Z stat sacc signif neurons')
+set(gca, 'TickDir', 'out', 'FontSize', 18);
 
 %plot(t_sacc,nanmean(abs(z_sign_sacc)));
 figure; hold on;
