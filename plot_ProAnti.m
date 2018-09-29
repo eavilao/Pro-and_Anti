@@ -433,12 +433,24 @@ switch plotType
         for i = 1:length(indx_area)
             indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
         end
+        nunits = size(abs(delta_pro(indx_sign,:)),2); 
         
         % plot change in FR for significantly different cells
         mean_delta_pro = mean(abs(delta_pro(indx_sign,:)),1); 
         sem_delta_pro = std(abs(delta_pro(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
         mean_delta_anti = mean(abs(delta_anti(indx_sign,:)),1); 
         sem_delta_anti = std(abs(delta_anti(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
+        
+        % all
+        figure; hold on; 
+        plot(t, abs(delta_pro(indx_sign,:)))
+        figure; hold on;
+        plot(t, abs(delta_anti(indx_sign,:)))
+        
+        figure; hold on; 
+        plot(t,nanmean(abs(delta_anti(indx_sign,:))-abs(delta_pro(indx_sign,:))), 'LineWidth', 2); 
+        set(gca,'TickDir','out','ylim',[0.5 3], 'FontSize', 18)
+        xlabel('Time (s)'); ylabel('Change in FR anti-pro')
         
         figure; hold on; 
         shadedErrorBar(t, mean_delta_pro, sem_delta_pro, 'lineprops','r');
