@@ -15,7 +15,7 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'raster_sacc': saccade aligned raster plot for the chosen cell
 % 'raster_instr': instruction aligned raster plot for the chosen cell
 % 'psth': psth for the chosen cell, aligned to saccade and instruction
-% 'psth_sacc_all': psth aligned to saccade onset for all cells. Press any key to plot next cell
+% 'pplsth_sacc_all': psth aligned to saccade onset for all cells. Press any key to plot next cell
 % 'psth_instr_all':psth aligned to instruction onset for all cells. Press any key to plot next cell
 % 'delta_rate': plots time-course of change in firing rate (firing rate-baseline) for all cells and then plots max change in a scatter plot for significant cells. 
 % 'colormap_sacc': plot time-course of normalized firing rate for all cells
@@ -406,21 +406,28 @@ switch plotType
             max_delta_pro(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate));
             delta_pro(cells,:)=units(indx_area(cells)).pro.neural.sacc.delta_rate;
         end
-        %plot(t, delta_pro');
+        % plot(t, mean(abs(delta_pro)'));
+        % plot for pro all cells 
+       
         
         % gather anti
         for cells = 1:length(indx_area)
             max_delta_anti(cells) = max(abs(units(indx_area(cells)).anti.neural.sacc.delta_rate));
             delta_anti(cells,:)=units(indx_area(cells)).anti.neural.sacc.delta_rate;
         end
-         %plot(t, delta_anti');
+         %plot(t, delta_anti'); 
         
         %plot change in FR from baseline for all cells
-        figure; hold on; 
-        plot(t, mean(delta_pro), 'Color', 'r', 'LineWidth', 2);
-        plot(t, mean(delta_anti),'Color', 'g', 'LineWidth', 2);
+        figure; hold on;
+        %pro
+        plot(t, mean(abs(delta_pro)', 2),'r', 'LineWidth',2); 
         set(gca,'TickDir', 'out', 'FontSize', 18)
-        xlabel('Time (s)'); ylabel('Change in firing rate (Hz)')
+        % anti
+         plot(t, mean(abs(delta_anti)', 2),'g', 'LineWidth',2); 
+        set(gca,'TickDir', 'out', 'FontSize', 18)
+        box off
+        xlabel('time from saccade onset') ;ylabel('Change in firing (spks/s)')
+        title('Lateral (all cells)')
         
         % get significantly different cells
         for i = 1:length(indx_area)
@@ -428,16 +435,17 @@ switch plotType
         end
         
         % plot change in FR for significantly different cells
-        mean_delta_pro = mean(delta_pro(indx_sign,:)); 
-        sem_delta_pro = std(delta_pro(indx_sign,:))/sqrt(sum(indx_sign));
-        mean_delta_anti = mean(delta_anti(indx_sign,:)); 
-        sem_delta_anti = std(delta_anti(indx_sign,:))/sqrt(sum(indx_sign));
+        mean_delta_pro = mean(abs(delta_pro(indx_sign,:)),1); 
+        sem_delta_pro = std(abs(delta_pro(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
+        mean_delta_anti = mean(abs(delta_anti(indx_sign,:)),1); 
+        sem_delta_anti = std(abs(delta_anti(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
         
         figure; hold on; 
         shadedErrorBar(t, mean_delta_pro, sem_delta_pro, 'lineprops','r');
         shadedErrorBar(t, mean_delta_anti, sem_delta_anti, 'lineprops','g');
         set(gca,'TickDir', 'out', 'FontSize', 18)
         xlabel('Time (s)'); ylabel('Change in firing rate (Hz)')
+        title('Only sign diff cells')
         
         % plot scatter for significantly diff cells
         figure; hold on;
