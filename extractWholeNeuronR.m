@@ -310,6 +310,7 @@ for cellNum = 1:length(units)
         indx_beg = 1;indx_win_count = win_size;
         for win_num = 1:length(thisTrial(1,:))-win_size
             units(cellNum).pro.neural.instr.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
+            units(cellNum).pro.neural.instr.ts_spkCount_win(win_num,:) = units(cellNum).pro.neural.instr.ts_pst(indx_beg:indx_win_count)
             indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
         end
     end
@@ -320,6 +321,7 @@ for cellNum = 1:length(units)
         indx_beg = 1;indx_win_count = win_size;
         for win_num = 1:length(thisTrial(1,:))-win_size
             units(cellNum).anti.neural.instr.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
+            units(cellNum).anti.neural.instr.ts_spkCount_win(win_num,:) = units(cellNum).anti.neural.instr.ts_pst(indx_beg:indx_win_count);
             indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
         end
     end
@@ -341,6 +343,7 @@ for cellNum = 1:length(units)
         indx_beg = 1;indx_win_count = win_size;
         for win_num = 1:length(thisTrial(1,:))-win_size
             units(cellNum).anti.neural.sacc.spkCount_win(trialNum,win_num) = sum(thisTrial(indx_beg:indx_win_count))/win_size;
+            units(cellNum).anti.neural.sacc.ts_spkCount_win(win_num,:) = units(cellNum).anti.neural.sacc.ts_pst(indx_beg:indx_win_count);
             indx_beg = indx_beg+1; indx_win_count = indx_win_count+1;
         end
     end

@@ -1039,7 +1039,8 @@ title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
     case 'window_pb_dist'
         % instr
         % gather
-        stat_instr = units(cellNum).stats.instr.pval.spk_count_bigWin; 
+        stat_instr = units(cellNum).stats.instr.pval.spk_count_bigWin;
+       
         % plot
         figure; subplot(2,1,1);
         plot(stat_instr, '.k','MarkerSize', 15);
@@ -1049,7 +1050,8 @@ title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
         xlabel('')
         % sacc
         %gather
-        stat_sacc = units(cellNum).stats.sacc.pval.spk_count_bigWin; 
+        stat_sacc = units(cellNum).stats.sacc.pval.spk_count_bigWin;
+        t = units(1).pro.neural.sacc.ts_spkCount_win(:,1)';
         % plot
         subplot(2,1,2)
         plot(stat_sacc, '.k','MarkerSize', 15);
