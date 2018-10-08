@@ -427,7 +427,7 @@ switch plotType
         set(gca,'TickDir', 'out', 'FontSize', 18)
         box off
         xlabel('time from saccade onset') ;ylabel('Change in firing (spks/s)')
-        title('Lateral (all cells)')
+        title([recArea ' (all cells)'])
         
         % get significantly different cells
         for i = 1:length(indx_area)
@@ -444,13 +444,26 @@ switch plotType
         % all
         figure; hold on; 
         plot(t, abs(delta_pro(indx_sign,:)))
+        set(gca,'TickDir', 'out', 'FontSize', 18)
+        xlabel('Time (s) aligned to saccade onset'); ylabel('Change in FR (Hz)')
+        title(['All sign cells - prosaccade ' num2str(sum(indx_sign))]);
+        
         figure; hold on;
         plot(t, abs(delta_anti(indx_sign,:)))
+        set(gca,'TickDir', 'out', 'FontSize', 18)
+        xlabel('Time (s) aligned to saccade onset'); ylabel('Change in FR (Hz)')
+        title(['All sign cells - antisaccade ' num2str(sum(indx_sign))]);
         
+        %stat over time
+        [h_change,p_change] = ttest(abs(delta_anti(indx_sign,:)), abs(delta_pro(indx_sign,:)))
+        
+        % diff anti-pro change in FR
         figure; hold on; 
-        plot(t,nanmean(abs(delta_anti(indx_sign,:))-abs(delta_pro(indx_sign,:))), 'LineWidth', 2); 
-        set(gca,'TickDir','out','ylim',[0.5 3], 'FontSize', 18)
+        plot(t,nanmean(abs(delta_anti(indx_sign,:))-abs(delta_pro(indx_sign,:))),'Color','k', 'LineWidth', 2);
+        plot(t,h_change*0.5, '*c')
+        set(gca,'TickDir','out','ylim',[0.5 3], 'FontSize', 18, 'ylim', [-5 1])
         xlabel('Time (s)'); ylabel('Change in FR anti-pro')
+
         
         figure; hold on; 
         shadedErrorBar(t, mean_delta_pro, sem_delta_pro, 'lineprops','r');
@@ -630,13 +643,14 @@ switch plotType
         figure; hold on;
         errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok','MarkerSize', 4)
         plot(rate_pro(indx_sign),rate_anti(indx_sign), '.c','MarkerSize', 18);
-        plot([0 150],[0 150]);
+        plot([0 150],[0 150]); 
         set(gca, 'TickDir', 'out', 'FontSize', 18);
         title('Instruction'); xlabel('Prosaccade'); ylabel('Antisaccade');
         annotation('textbox',...
             [0.659928571428571 0.152380952380952 0.227571428571429 0.116666666666667],...
             'String',{'n= ' num2str(size(indx_sign,2)),'sign diff = ' num2str(sum(indx_sign))},...
-            'FitBoxToText','on');
+            'FitBoxToText','on'); axis square;
+        
         
         %% sacc
         for i = 1:length(nunits)
@@ -669,7 +683,8 @@ switch plotType
         for cellNum = 1:length(units)
         indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
         end
-        indx_area = find(indx_area); 
+        indx_area = find(indx_area);
+        nunits = 1:length(indx_area);
         
         t = units(1).pro.neural.instr.ts_pst_win;
         for i = 1:length(units)
@@ -700,8 +715,15 @@ switch plotType
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
         for cellNum = 1:length(units)
         indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end 
+        indx_area = find(indx_area);
+        nunits = 1:length(indx_area);
+        
+        % indx signif neurons
+        for i = 1:length(nunits)
+            indx_sign_sacc(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
         end
-        indx_area = find(indx_area); 
+        n_sacc = sum(indx_sign_sacc);
         
         t = units(1).pro.neural.sacc.ts_pst_win;
         for i = 1:length(units(indx_area))
@@ -713,13 +735,14 @@ switch plotType
         % with baseline subtracted
         for i = 1:length(units(indx_area))
             peak_pro_diff(i) = units(indx_area(i)).pro.neural.sacc.peak_resp-units(i).pro.neural.base.rate_mu;
-            peak_anti_diff(i) = units(indx_area(i)).anti.neural.sacc.peak_resp-units(i).anti.neural.base.rate_mu;
+            peak_anti_diff(i) = units(indx_area(i)).anti.neural.sacc.peak_resp-units(i).anti.neural.base.rate_mu;  
         end
         
         
         % plot (baseline subtracted) 
         figure; hold on; 
         plot(peak_pro_diff,peak_anti_diff, '.k', 'MarkerSize', 16);
+        plot(peak_pro_diff(indx_sign_sacc), peak_anti_diff(indx_sign_sacc), '.c', 'MarkerSize', 16); 
         %set(gca,'XScale','Log','YScale','Log' ,'FontSize', 18, 'TickDir', 'out');axis ([1e0 1e2 1e0 1e2]);
         set(gca,'FontSize', 18, 'TickDir', 'out');
         plot([-150 100],[-150 100]); 
@@ -974,6 +997,7 @@ z_sign_sacc = stat_sacc(indx_sign_sacc,:);
 figure; hold on;
 plot(t_sacc,smooth(nanmean(abs(z_sign_sacc)),3),'LineWidth', 2,'Color','k'); % smoothed
 set(gca, 'xlim',[-0.2 0.3], 'TickDir', 'out', 'FontSize', 18);
+hline(1.96,'-k')
 title(['Abs Z stat Sacc => ' recArea ' n= ' num2str(n_sacc)]);
 xlabel('time(s)'); ylabel('Z-stat')
 
@@ -997,7 +1021,7 @@ title(['Abs Z stat Sacc => ' recArea ' n= ' num2str(n_sacc)]);
 xlabel('time(s)'); ylabel('Z-stat')
 
 %% Same as above but take mean of Z-stat only on sacc window (0-0.2s)
-sacc_win = t_sacc>-0.0100 & t_sacc<0.21;
+sacc_win = t_sacc>-0.100 & t_sacc<0.21;
 t_sacc_win = t_sacc(sacc_win); 
 z_sign_sacc_win = z_sign_sacc(:,sacc_win); 
 
@@ -1009,7 +1033,7 @@ figure; hold on;
 plot(z_win_mu,'.k', 'MarkerSize', 18)
 set(gca, 'TickDir', 'out', 'FontSize', 18); hline(1.96)
 xlabel('cell'); ylabel('Z-stat')
-title(['Z stat sacc window(0-0.2s) recarea => ' recArea])
+title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
 
         
     case 'window_pb_dist'
