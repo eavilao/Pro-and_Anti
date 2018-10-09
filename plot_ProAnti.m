@@ -1040,18 +1040,18 @@ title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
         % instr
         % gather
         stat_instr = units(cellNum).stats.instr.pval.spk_count_bigWin;
-       
+        t_instr = units(cellNum).pro.neural.instr.ts_spkCount_win(:,1)';
         % plot
         figure; subplot(2,1,1);
-        plot(stat_instr, '.k','MarkerSize', 15);
+        plot(t_instr,stat_instr, '.k','MarkerSize', 15);
         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-        set(gca, 'ylim',[-0.05 0.05], 'TickDir', 'out', 'FontSize', 18)
+        set(gca, 'xlim',[-0.05 0.350] 'ylim',[-0.05 0.05], 'TickDir', 'out', 'FontSize', 18)
         title ('Binomial pb dist - Instruction')
         xlabel('')
         % sacc
         %gather
         stat_sacc = units(cellNum).stats.sacc.pval.spk_count_bigWin;
-        t = units(1).pro.neural.sacc.ts_spkCount_win(:,1)';
+        t_sacc = units(cellNum).pro.neural.sacc.ts_spkCount_win(:,1)';
         % plot
         subplot(2,1,2)
         plot(stat_sacc, '.k','MarkerSize', 15);
