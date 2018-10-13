@@ -303,6 +303,8 @@ for cellNum = 1:length(units)
 
     
     %% probability of spk in pro and anti  - bigger window (5 bins = 50 ms)
+    % spike probability density for 50 ms
+    
     win_size = prs.win_size;
     % instr pro
     for trialNum = 1:length(correctProTrials)
