@@ -28,7 +28,7 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'firingVSvel': firing rate vs sacc peak vel
 % 'firingVSdur': firing rate vs sacc duration
 % 'binomial_pb_dist': Binomial probability distribution across time aligned to instr and sacc. >1.96 is significant. 
-% 'window_pb_dist': spk probability distribution for a 50 ms window across time
+% 'FR_50_ms_bin_stat': spike probability density for 50 ms
 
 %%
 %%
@@ -1036,29 +1036,57 @@ xlabel('cell'); ylabel('Z-stat')
 title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
 
         
-    case 'window_pb_dist'
+    case 'FR_50_ms_bin_stat'
         % instr
-        % gather
-        stat_instr = units(cellNum).stats.instr.pval.spk_count_bigWin;
-        t_instr = units(cellNum).pro.neural.instr.ts_spkCount_win(:,1)';
-        % plot
-        figure; subplot(2,1,1);
-        plot(t_instr,stat_instr, '.k','MarkerSize', 15);
-        hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-        set(gca, 'xlim',[-0.05 0.350] 'ylim',[-0.05 0.05], 'TickDir', 'out', 'FontSize', 18)
+        for cellNum = 1:length(units)
+        indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        
+        for i=1:length(indx_area)
+            % gather
+            stat_instr= units(indx_area(i)).stats.instr.pval.spk_count_bigWin;
+            t_instr = units(indx_area(i)).pro.neural.instr.ts_spkCount_win(:,1)';
+            signif_instr(i,:) = stat_instr<=0.05; 
+        end
+        
+        signif_instr = sum(signif_instr);
+        %plot
+        figure; hold on;
+        plot(t_instr, smooth(signif_instr,5),'Linewidth',2);
+        set(gca, 'xlim',[-0.05 0.5], 'TickDir', 'out', 'FontSize', 18);  vline(0);
         title ('Binomial pb dist - Instruction')
-        xlabel('')
+        xlabel('Time (s)'); ylabel('P <0.05 counts')
+        
+        figure; hold on;
+        bar(t_instr,signif_instr);
+        set(gca, 'xlim',[-0.05 0.5], 'TickDir', 'out', 'FontSize', 18);  vline(0);
+        title ('Binomial pb dist P val - Instruction')
+        xlabel('Time (s)'); ylabel('P <0.05 counts')
+        
         % sacc
         %gather
-        stat_sacc = units(cellNum).stats.sacc.pval.spk_count_bigWin;
-        t_sacc = units(cellNum).pro.neural.sacc.ts_spkCount_win(:,1)';
-        % plot
-        subplot(2,1,2)
-        plot(stat_sacc, '.k','MarkerSize', 15);
-        hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-        set(gca, 'ylim',[-0.05 0.05], 'TickDir', 'out', 'FontSize', 18)
-        title ('window pb dist - Saccade')
-        xlabel('time')
+        for i=1:length(indx_area)
+            % gather
+            stat_sacc= units(indx_area(i)).stats.sacc.pval.spk_count_bigWin;
+            t_sacc = units(indx_area(i)).pro.neural.sacc.ts_spkCount_win(:,1)';
+            signif_sacc(i,:) = stat_sacc<=0.05;
+        end
+        
+        signif_sacc = sum(signif_sacc);
+        %plot
+        figure; hold on;
+        plot(t_sacc, smooth(signif_sacc,5),'Linewidth',2);
+        set(gca, 'xlim',[-0.150 0.250], 'TickDir', 'out', 'FontSize', 18);  vline(0);
+        title ('FR 50 ms bins - Sacc')
+        xlabel('Time (s)'); ylabel('P <0.05 counts')
+        
+        figure; hold on;
+        bar(t_sacc,signif_sacc);
+        set(gca, 'xlim',[-0.05 0.250], 'TickDir', 'out', 'FontSize', 18);  vline(0);
+        title ('FR 50 ms bins - Sacc')
+        xlabel('Time (s)'); ylabel('P <0.05 counts')
+        z=1;
         
     case 'rosePlots'
         
