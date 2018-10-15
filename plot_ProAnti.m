@@ -28,7 +28,7 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'firingVSvel': firing rate vs sacc peak vel
 % 'firingVSdur': firing rate vs sacc duration
 % 'binomial_pb_dist': Binomial probability distribution across time aligned to instr and sacc. >1.96 is significant. 
-% 'FR_50_ms_bin_stat': spike probability density for 50 ms
+% 'spk_pb_stat': spike probability density for 50 ms
 
 %%
 %%
@@ -380,14 +380,14 @@ switch plotType
         shadedErrorBar(t,r_pro,sem_pro,'lineprops','r');
         shadedErrorBar(t,r_anti,sem_anti,'lineprops','g');
         plot(t,mean_base,'--k','LineWidth', 0.3);
-        set (gca, 'xlim',([-0.1 0.2]), 'TickDir', 'out', 'FontSize',18); % analysis window size
+        set (gca, 'xlim',([-0.1 0.3]), 'TickDir', 'out', 'FontSize',18); % analysis window size
         xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
         vline(0, 'k-');
         box off
         title(['Aligned to instruction => ' recArea ' unit= ' num2str(indx_area(i))])
         annotation('textbox',...
             [0.159928571428571 0.154761904761905 0.150785714285714 0.104761904761905],...
-            'String',['Pro VS Anti = ' num2str(proVSanti_sacc)],...
+            'String',['Pro VS Anti = ' num2str(proVSanti_instr)],...
             'FitBoxToText','on');
         waitforbuttonpress; close all;
         end
@@ -443,7 +443,7 @@ switch plotType
         
         % all
         figure; hold on; 
-        plot(t, abs(delta_pro(indx_sign,:)))
+        plot(t, abs(delta_pro(indx_sign,:)));
         set(gca,'TickDir', 'out', 'FontSize', 18)
         xlabel('Time (s) aligned to saccade onset'); ylabel('Change in FR (Hz)')
         title(['All sign cells - prosaccade ' num2str(sum(indx_sign))]);
@@ -649,7 +649,8 @@ switch plotType
         annotation('textbox',...
             [0.659928571428571 0.152380952380952 0.227571428571429 0.116666666666667],...
             'String',{'n= ' num2str(size(indx_sign,2)),'sign diff = ' num2str(sum(indx_sign))},...
-            'FitBoxToText','on'); axis square;
+            'FitBoxToText','on'); 
+        axis square;
         
         
         %% sacc
@@ -675,6 +676,7 @@ switch plotType
             [0.659928571428571 0.152380952380952 0.227571428571429 0.116666666666667],...
             'String',{'n= ' num2str(size(indx_sign,2)),'sign diff = ' num2str(sum(indx_sign))},...
             'FitBoxToText','on');
+        axis square;
         
         case 'peak_resp_instr'
         % gather
@@ -1036,7 +1038,7 @@ xlabel('cell'); ylabel('Z-stat')
 title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
 
         
-    case 'FR_50_ms_bin_stat'
+    case 'spk_pb_stat'
         % instr
         for cellNum = 1:length(units)
         indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
@@ -1055,13 +1057,13 @@ title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
         figure; hold on;
         plot(t_instr, smooth(signif_instr,5),'Linewidth',2);
         set(gca, 'xlim',[-0.05 0.5], 'TickDir', 'out', 'FontSize', 18);  vline(0);
-        title ('Binomial pb dist - Instruction')
+        title ('spk pb stat - Instruction')
         xlabel('Time (s)'); ylabel('P <0.05 counts')
         
         figure; hold on;
         bar(t_instr,signif_instr);
         set(gca, 'xlim',[-0.05 0.5], 'TickDir', 'out', 'FontSize', 18);  vline(0);
-        title ('Binomial pb dist P val - Instruction')
+        title ('spk pb stat - Instruction')
         xlabel('Time (s)'); ylabel('P <0.05 counts')
         
         % sacc
@@ -1078,13 +1080,13 @@ title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
         figure; hold on;
         plot(t_sacc, smooth(signif_sacc,5),'Linewidth',2);
         set(gca, 'xlim',[-0.150 0.250], 'TickDir', 'out', 'FontSize', 18);  vline(0);
-        title ('FR 50 ms bins - Sacc')
+        title ('spk pb stat - Sacc')
         xlabel('Time (s)'); ylabel('P <0.05 counts')
         
         figure; hold on;
         bar(t_sacc,signif_sacc);
         set(gca, 'xlim',[-0.05 0.250], 'TickDir', 'out', 'FontSize', 18);  vline(0);
-        title ('FR 50 ms bins - Sacc')
+        title ('spk pb stat - Sacc')
         xlabel('Time (s)'); ylabel('P <0.05 counts')
         z=1;
         
