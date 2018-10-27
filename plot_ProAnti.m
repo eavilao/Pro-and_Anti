@@ -16,7 +16,8 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'raster_instr': instruction aligned raster plot for the chosen cell
 % 'psth': psth for the chosen cell, aligned to saccade and instruction
 % 'pplsth_sacc_all': psth aligned to saccade onset for all cells. Press any key to plot next cell
-% 'psth_instr_all':psth aligned to instruction onset for all cells. Press any key to plot next cell
+% 'psth_instr_all':psth aligned to instruction onset for all cells. Press
+% any key to plot next cell 
 % 'delta_rate': plots time-course of change in firing rate (firing rate-baseline) for all cells and then plots max change in a scatter plot for significant cells. 
 % 'colormap_sacc': plot time-course of normalized firing rate for all cells
 % 'waterfall_sacc': waterfall plot of time-course of normalized firing rate for all cells
@@ -195,7 +196,7 @@ switch plotType
                 end
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([-0.1 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
+            set (gca, 'xlim', ([-0.1 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
             title(['Pro (aligned to instruction) SS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
         else
             for j=1:length(indx)
@@ -204,7 +205,7 @@ switch plotType
                 end
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([-0.1 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
+            set (gca, 'xlim', ([-0.1 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
             title(['Pro (aligned to instruction) CS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
             
         end
@@ -223,7 +224,7 @@ switch plotType
                 end
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([-0.1 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
+            set (gca, 'xlim', ([-0.1 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
             title(['Anti (aligned to instruction) SS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
         else
             for j=1:length(indx)
@@ -232,7 +233,7 @@ switch plotType
                 end
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([-0.1 0.5]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
+            set (gca, 'xlim', ([-0.1 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
             title(['Anti (aligned to saccade) CS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
             
         end
@@ -679,30 +680,44 @@ switch plotType
         axis square;
         
         case 'peak_resp_instr'
-        % gather
-         % gather
+            % gather
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
         for cellNum = 1:length(units)
         indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
-        end
+        end 
         indx_area = find(indx_area);
         nunits = 1:length(indx_area);
         
-        t = units(1).pro.neural.instr.ts_pst_win;
-        for i = 1:length(units)
-            peak_pro(i) = units(i).pro.neural.instr.peak_resp;
-            peak_anti(i) = units(i).anti.neural.instr.peak_resp;
-            peak_time_pro(i) = units(i).pro.neural.instr.peak_resp_time;
-            peak_time_anti(i) = units(i).anti.neural.instr.peak_resp_time;
+        % indx signif neurons
+        for i = 1:length(nunits)
+            indx_sign_instr(i) = logical(units(indx_area(i)).stats.instr.flags.proVsAnti_instr);
         end
-
-        % plot 
+        n_instr = sum(indx_sign_instr);
+        
+        t = units(1).pro.neural.instr.ts_pst_win;
+        for i = 1:length(units(indx_area))
+            peak_pro(i) = units(indx_area(i)).pro.neural.instr.peak_resp;
+            peak_anti(i) = units(indx_area(i)).anti.neural.instr.peak_resp;
+            peak_time_pro(i) = units(indx_area(i)).pro.neural.instr.peak_resp_time;
+            peak_time_anti(i) = units(indx_area(i)).anti.neural.instr.peak_resp_time;
+        end
+        % with baseline subtracted
+        for i = 1:length(units(indx_area))
+            peak_pro_diff(i) = units(indx_area(i)).pro.neural.instr.peak_resp-units(i).pro.neural.base.rate_mu;
+            peak_anti_diff(i) = units(indx_area(i)).anti.neural.instr.peak_resp-units(i).anti.neural.base.rate_mu;  
+        end
+        
+        
+        % plot (baseline subtracted) 
         figure; hold on; 
-        plot(peak_pro,peak_anti, '.k', 'MarkerSize', 16);
-        set(gca, 'xlim',[0 160], 'ylim',[0 160],'FontSize', 18, 'TickDir', 'out');
-        plot([0 160],[0 160]); 
-        title('Instr peak resp'); xlabel('Prosaccade'); ylabel('Antisaccade');
-        box off;
+        plot(peak_pro_diff,peak_anti_diff, '.k', 'MarkerSize', 16);
+        plot(peak_pro_diff(indx_sign_instr), peak_anti_diff(indx_sign_instr), '.c', 'MarkerSize', 16); 
+        %set(gca,'XScale','Log','YScale','Log' ,'FontSize', 18, 'TickDir', 'out');axis ([1e0 1e2 1e0 1e2]);
+        set(gca,'FontSize', 18, 'TickDir', 'out');
+        plot([-60 10],[-60 120]); 
+        title('Instr peak resp (baseline subtracted)'); xlabel('Prosaccade'); ylabel('Antisaccade');
+        box off; axis square
+        [h,p] = ttest(peak_pro_diff,peak_anti_diff)
         % plot peak time resp
         h_pro = hist(peak_time_pro,t);
         h_anti = hist(peak_time_anti,t);
@@ -710,7 +725,7 @@ switch plotType
         plot(t,h_pro, 'r', 'LineWidth', 2);
         plot(t,h_anti, 'g', 'LineWidth', 2);
         set(gca, 'TickDir', 'out'); box off;
-        title('Peak resp time instr'); xlabel('Time (s)'); ylabel('Neuron nr')
+        title('Peak resp time'); xlabel('Time (s)'); ylabel('Neuron nr')
         
     case 'peak_resp_sacc'
         % gather
@@ -878,43 +893,44 @@ switch plotType
         % gather
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
         for cellNum = 1:length(units)
-        indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
         end
-        indx_area = find(indx_area); 
+        indx_area = find(indx_area);
         
-         for i=1:length(indx_area)
+        %% Uncomment to plot per neuron
+        for i=1:length(indx_area)
+%             
+            stat_instr(i,:) = units(indx_area(i)).stats.instr.pval.pbDist_testStat;
+            t_instr = units(indx_area(i)).pro.neural.instr.ts_pst;
+            position_stat_sign_instr(i,:) = abs(stat_instr(i,:))>=1.96;
+%             
+            % plot instr
+            figure; subplot(2,1,1);
+            plot(t_instr, stat_instr(i,:), 'k','MarkerSize', 15);
+            hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
+            set(gca, 'xlim',[-0.1 0.3],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
+            title ('Binomial pb dist - Instruction')
+            xlabel('time (s)')
+%             
+%             % sacc
+%             %gather
+            t_sacc = units(indx_area(i)).pro.neural.sacc.ts_pst;
+            stat_sacc(i,:) = units(indx_area(i)).stats.sacc.pval.pbDist_testStat;
+            position_stat_sign_sacc(i,:) = abs(stat_sacc(i,:))>=1.96;
+%             % plot
+            subplot(2,1,2)
+            plot(t_sacc, stat_sacc(i,:), 'k','MarkerSize', 15);
+            hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
+            set(gca, 'xlim',[-0.1 0.2],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
+            title (['Binomial pb dist - Saccade cell: ' num2str(indx_area(i))])
+            xlabel('time')
+            fname = 'Binomial_pb_dist';
+            print(fname,'-append', '-dpsc2')
+            waitforbuttonpress; close all;
+%             
+        end
         
-             stat_instr(i,:) = units(indx_area(i)).stats.instr.pval.pbDist_testStat;
-             t_instr = units(indx_area(i)).pro.neural.instr.ts_pst;
-             position_stat_sign_instr(i,:) = abs(stat_instr(i,:))>=1.96;
-             
-             %         % plot instr
-             %         figure; subplot(2,1,1);
-             %         plot(t, stat_instr, 'k','MarkerSize', 15);
-             %         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-             %         set(gca, 'xlim',[-0.1 0.3],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
-             %         title ('Binomial pb dist - Instruction')
-             %         xlabel('time (s)')
-             
-             % sacc
-             %gather
-             t_sacc = units(indx_area(i)).pro.neural.sacc.ts_pst;
-             stat_sacc(i,:) = units(indx_area(i)).stats.sacc.pval.pbDist_testStat;
-             position_stat_sign_sacc(i,:) = abs(stat_sacc(i,:))>=1.96;
-             % plot
-             %         subplot(2,1,2)
-             %         plot(t, stat_sacc, 'k','MarkerSize', 15);
-             %         hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-             %         set(gca, 'xlim',[-0.1 0.2],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
-%         title (['Binomial pb dist - Saccade cell: ' num2str(indx_area(i))])
-%         xlabel('time')
-%         fname = 'Binomial_pb_dist';
-%         print(fname,'-append', '-dpsc2')
-%             waitforbuttonpress; close all;
-         
-         end
-        
-      %% Disused %% Take the absolute value of the Z-statistic and average across neurons - average for each time point and plot it as a function of time
+        %% Disused %% Take the absolute value of the Z-statistic and average across neurons - average for each time point and plot it as a function of time
         % This will reveal how well an average neuron can discriminate between the two conditions.
         
 %         sacc_Z_stat = mean(abs(stat_sacc)); 
@@ -971,7 +987,7 @@ xlabel('time(s)'); ylabel('Z-stat')
 
 % histogram of z stat instr
 figure; hold on; 
-histogram(z_sign_instr); 
+histogram(z_sign_instr,50); 
 vline([-1.96 1.96])
 title ('Z stat instruction signif neurons')
 
@@ -1141,6 +1157,24 @@ title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
        xlabel('Firing frequency(hz)')
        ylabel('Firing frequency(hz)')
        
+    case 'bi_resp'
         
+        for cellNum = 1:length(units)
+        indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
         
+        for i=1:length(indx_area)
+            % gather
+            indx_sign_sacc(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
+            indx_sign_instr(i) = logical(units(indx_area(i)).stats.instr.flags.proVsAnti_instr);
+        end
+        
+        signif_sacc = sum(indx_sign_sacc);
+        signif_instr = sum(indx_sign_instr);
+        
+        signif_both = indx_sign_sacc & indx_sign_instr;
+        num_both = sum(signif_both) 
+        
+
 end
