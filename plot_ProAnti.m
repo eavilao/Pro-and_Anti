@@ -1199,20 +1199,20 @@ title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
         plot(cv_pro(indx_sign_sacc), cv_anti(indx_sign_sacc), '.c', 'MarkerSize', 18);
         xlim([0 0.6]); ylim([0 0.6]); plot([0:0.1:1],[0:0.1:1])
         set (gca, 'TickDir', 'out','FontSize', 18); box off; 
-        title('CV all cells'); xlabel('CV Pro');ylabel('CV Anti');
-        
+        xlabel('CV Pro');ylabel('CV Anti');
+        title(recArea)
        
         cv_pro_mu = mean(cv_pro(indx_sign_sacc)); cv_pro_sig = std(cv_pro(indx_sign_sacc))/sqrt(sum(indx_sign_sacc));
         cv_anti_mu = mean(cv_anti(indx_sign_sacc)); cv_anti_sig = std(cv_anti(indx_sign_sacc))/sqrt(sum(indx_sign_sacc));
         cv_all = [cv_pro_mu cv_anti_mu]; cv_std_all = [cv_pro_sig cv_anti_sig];
         
-        figure; hold on;
+        axes('Position',[.7 .2 .2 .2]); hold on;
         bar(cv_all); errorbar(cv_all,cv_std_all); 
-        plot(1,cv_pro(indx_sign_sacc),'.k', 'MarkerSize',18); plot(2,cv_anti(indx_sign_sacc),'.k', 'MarkerSize',18);
-        set (gca, 'TickDir', 'out','FontSize', 18); box off;
-         title('CV signif cells')
+        set (gca, 'TickDir', 'out','FontSize', 12, 'xlim',[0.5 2.5], 'xTick', [], 'xTickLabel', [], 'ylim', [0 0.4]); box off;
+        plot(1,cv_pro(indx_sign_sacc),'.k', 'MarkerSize',14); plot(2,cv_anti(indx_sign_sacc),'.k', 'MarkerSize',14);
+        title('CV signif cells')
         
-        [h,p] = ttest(cv_pro(indx_sign_sacc),cv_anti(indx_sign_sacc)); 
+        [h,p] = ttest(cv_pro(indx_sign_sacc),cv_anti(indx_sign_sacc)) 
         
         
     case 'cv2'
@@ -1229,11 +1229,24 @@ title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
             indx_sign_sacc(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
         end
         
-        figure; hold on; 
-        histogram(cv2_pro(indx_sign_sacc),20);
-        histogram(cv2_anti(indx_sign_sacc),20);
-        
         figure; hold on;
-        plot(cv2_pro(indx_sign_sacc), cv2_anti(indx_sign_sacc), '.k', 'MarkerSize', 18); hold on;
+        plot(cv2_pro, cv2_anti, '.k', 'MarkerSize', 18);
+        plot(cv2_pro(indx_sign_sacc), cv2_anti(indx_sign_sacc), '.c', 'MarkerSize', 18);
+        xlim([0.3 0.6]); ylim([0.3 0.6]); plot([0:0.1:1],[0:0.1:1])
+        set (gca, 'TickDir', 'out','FontSize', 18, 'xTick', [0.3 0.4 0.5 0.6], 'yTick', [0.3 0.4 0.5 0.6]); box off; 
+        xlabel('CV2 Pro');ylabel('CV2 Anti');
+        title(recArea)
+        
+        cv2_pro_mu = mean(cv2_pro(indx_sign_sacc)); cv2_pro_sig = std(cv2_pro(indx_sign_sacc))/sqrt(sum(indx_sign_sacc));
+        cv2_anti_mu = mean(cv2_anti(indx_sign_sacc)); cv2_anti_sig = std(cv2_anti(indx_sign_sacc))/sqrt(sum(indx_sign_sacc));
+        cv2_all = [cv2_pro_mu cv2_anti_mu]; cv2_std_all = [cv2_pro_sig cv2_anti_sig];
+        
+        axes('Position',[.7 .2 .2 .2]); hold on;
+        bar(cv2_all); errorbar(cv2_all,cv2_std_all); 
+        set (gca, 'TickDir', 'out','FontSize', 12, 'xlim',[0.5 2.5], 'xTick', [1, 2], 'xTickLabel', ['Pro' ,'Anti'], 'ylim', [0 0.7]); box off;
+        plot(1,cv2_pro(indx_sign_sacc),'.k', 'MarkerSize',14); plot(2,cv2_anti(indx_sign_sacc),'.k', 'MarkerSize',14);
+        title('CV2 signif cells')
+        
+        [h,p] = ttest(cv2_pro(indx_sign_sacc),cv2_anti(indx_sign_sacc)) 
 
 end
