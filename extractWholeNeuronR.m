@@ -370,7 +370,7 @@ antiRT = vertcat(eyeKin(1,:).antiRT)*1000;
 % stats per cell
 for cellNum = 1:length(units)
     %pro
-    units(cellNum).pro.stats.eye.amp.mu = nanmean(eyeKin(cellNum).proAmp); units(cellNum).pro.stats.eye.amp.sig = nanstd(eyeKin(cellNum).proAmp);
+    units(cellNum).pro.stats.eye.amp.mu = nanmean(eyeKin(cellNum).proAmp); units(cellNum).pro.stats.eye.amp. = nanstd(eyeKin(cellNum).proAmp);
     units(cellNum).pro.stats.eye.dur.mu = nanmean(eyeKin(cellNum).proDur); units(cellNum).pro.stats.eye.dur.sig = nanstd(eyeKin(cellNum).proDur);
     units(cellNum).pro.stats.eye.pv.mu = nanmean(eyeKin(cellNum).proPV); units(cellNum).pro.stats.eye.pv.sig = nanstd(eyeKin(cellNum).proPV);
     units(cellNum).pro.stats.eye.rt.mu = nanmean(eyeKin(cellNum).proRT); units(cellNum).pro.stats.eye.rt.sig = nanstd(eyeKin(cellNum).proRT);
@@ -407,6 +407,7 @@ for cellNum = 1:length(units)
     units(cellNum).pro.neural.instr.rate_pst_win = units(cellNum).pro.neural.instr.rate_pst(instr_win);
     units(cellNum).pro.neural.instr.rate_mu = mean(instr_spks_pro);
     units(cellNum).pro.neural.instr.rate_sig = std(instr_spks_pro)/sqrt(ntrls_pro);
+    units(cellNum).pro.neural.instr.rate_std = std(instr_spks_pro);
  
     [units(cellNum).pro.neural.instr.peak_resp, indx_max] = max(units(cellNum).pro.neural.instr.rate_pst_win);
     units(cellNum).pro.neural.instr.peak_resp_time = t_instr(indx_max);
@@ -415,6 +416,7 @@ for cellNum = 1:length(units)
     units(cellNum).pro.neural.sacc.rate_pst_win = units(cellNum).pro.neural.sacc.rate_pst(sacc_win);
     units(cellNum).pro.neural.sacc.rate_mu = mean(sacc_spks_pro);
     units(cellNum).pro.neural.sacc.rate_sig = std(sacc_spks_pro)/sqrt(ntrls_pro);
+    units(cellNum).pro.neural.sacc.rate_std = std(sacc_spks_pro);
     
     [units(cellNum).pro.neural.sacc.peak_resp, indx_max] = max(units(cellNum).pro.neural.sacc.rate_pst_win);
     units(cellNum).pro.neural.sacc.peak_resp_time = t_sacc(indx_max);
@@ -423,6 +425,7 @@ for cellNum = 1:length(units)
     units(cellNum).pro.neural.base.rate_pst_win = units(cellNum).pro.neural.sacc.rate_pst(base_win);
     units(cellNum).pro.neural.base.rate_mu = mean(base_spks_pro);
     units(cellNum).pro.neural.base.rate_sig = std(base_spks_pro)/sqrt(ntrls_pro);
+    units(cellNum).pro.neural.base.rate_std = std(base_spks_pro);
     
     %get spks anti
     instr_spks_anti = units(cellNum).anti.neural.instr.rate_pst(instr_win);
@@ -434,6 +437,7 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.instr.rate_pst_win = units(cellNum).anti.neural.instr.rate_pst(instr_win);
     units(cellNum).anti.neural.instr.rate_mu = mean(instr_spks_anti);
     units(cellNum).anti.neural.instr.rate_sig = std(instr_spks_anti)/sqrt(ntrls_anti);
+    units(cellNum).anti.neural.instr.rate_std = std(instr_spks_anti);
     
     [units(cellNum).anti.neural.instr.peak_resp, indx_max] = max(units(cellNum).anti.neural.instr.rate_pst_win);
     units(cellNum).anti.neural.instr.peak_resp_time = t_instr(indx_max);
@@ -442,6 +446,7 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.sacc.rate_pst_win = units(cellNum).anti.neural.sacc.rate_pst(sacc_win);
     units(cellNum).anti.neural.sacc.rate_mu = mean(sacc_spks_anti);
     units(cellNum).anti.neural.sacc.rate_sig = std(sacc_spks_anti)/sqrt(ntrls_anti);
+    units(cellNum).anti.neural.sacc.rate_std = std(sacc_spks_anti);
     
     [units(cellNum).anti.neural.sacc.peak_resp, indx_max] = max(units(cellNum).anti.neural.sacc.rate_pst_win);
     units(cellNum).anti.neural.sacc.peak_resp_time = t_sacc(indx_max);
@@ -450,6 +455,7 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.base.rate_pst_win = units(cellNum).anti.neural.sacc.rate_pst(base_win);
     units(cellNum).anti.neural.base.rate_mu = mean(base_spks_anti);
     units(cellNum).anti.neural.base.rate_sig = std(base_spks_anti)/sqrt(ntrls_anti);
+    units(cellNum).anti.neural.base.rate_std = std(base_spks_anti);
     
     %% compare windows against baseline activity for pro and anti - nspk
     % pro
@@ -595,8 +601,10 @@ for cellNum = 1:length(units)
 end
 
 %% coefficient of variation and CV2
-% CV = mean_isi/std_isi
+% CV_isi = mean_isi/std_isi
 % CV2 =  2x|ISIn+1-ISIn|/(ISIn+1 + ISIn) Holt et al. 199
+
+% CV= std dev/mean
 
 
 for cellNum = 1:length(units)
@@ -614,7 +622,7 @@ for cellNum = 1:length(units)
         end
         
     end
-    units(cellNum).pro.meanCV =  mean([units(cellNum).pro.neural.trial.cv_isi]);
+    units(cellNum).pro.meanCV_isi =  mean([units(cellNum).pro.neural.trial.cv_isi]);
     
     %anti
     for trialNum = 1:length(correctAntiTrials)
@@ -629,7 +637,7 @@ for cellNum = 1:length(units)
         
     end
     
-    units(cellNum).anti.meanCV =  mean([units(cellNum).anti.neural.trial.cv_isi]);
+    units(cellNum).anti.meanCV_isi =  mean([units(cellNum).anti.neural.trial.cv_isi]);
     
 end
 end

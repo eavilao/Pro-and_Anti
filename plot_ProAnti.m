@@ -1176,5 +1176,64 @@ title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
         signif_both = indx_sign_sacc & indx_sign_instr;
         num_both = sum(signif_both) 
         
+        
+    case 'cv'
+       
+        for cellNum = 1:length(units)
+        indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        
+        for i=1:length(indx_area)
+            % gather
+            cv_pro(i)= units(i).pro.neural.sacc.rate_std/units(i).pro.neural.sacc.rate_mu;
+            cv_anti(i) = units(i).anti.neural.sacc.rate_std/units(i).anti.neural.sacc.rate_mu;
+            indx_sign_sacc(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
+        end
+        
+        %         histogram(cv_pro(indx_sign_sacc),20); hold on;
+        %         histogram(cv_anti(indx_sign_sacc),20);
+        
+        figure; hold on;
+        plot(cv_pro, cv_anti, '.k', 'MarkerSize', 18);
+        plot(cv_pro(indx_sign_sacc), cv_anti(indx_sign_sacc), '.c', 'MarkerSize', 18);
+        xlim([0 0.6]); ylim([0 0.6]); plot([0:0.1:1],[0:0.1:1])
+        set (gca, 'TickDir', 'out','FontSize', 18); box off; 
+        title('CV all cells'); xlabel('CV Pro');ylabel('CV Anti');
+        
+       
+        cv_pro_mu = mean(cv_pro(indx_sign_sacc)); cv_pro_sig = std(cv_pro(indx_sign_sacc))/sqrt(sum(indx_sign_sacc));
+        cv_anti_mu = mean(cv_anti(indx_sign_sacc)); cv_anti_sig = std(cv_anti(indx_sign_sacc))/sqrt(sum(indx_sign_sacc));
+        cv_all = [cv_pro_mu cv_anti_mu]; cv_std_all = [cv_pro_sig cv_anti_sig];
+        
+        figure; hold on;
+        bar(cv_all); errorbar(cv_all,cv_std_all); 
+        plot(1,cv_pro(indx_sign_sacc),'.k', 'MarkerSize',18); plot(2,cv_anti(indx_sign_sacc),'.k', 'MarkerSize',18);
+        set (gca, 'TickDir', 'out','FontSize', 18); box off;
+         title('CV signif cells')
+        
+        [h,p] = ttest(cv_pro(indx_sign_sacc),cv_anti(indx_sign_sacc)); 
+        
+        
+    case 'cv2'
+        
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        
+        for i=1:length(indx_area)
+            % gather
+            cv2_pro(i)= mean([units(i).pro.neural.trial.cv2]);
+            cv2_anti(i) = mean([units(i).anti.neural.trial.cv2]);
+            indx_sign_sacc(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
+        end
+        
+        figure; hold on; 
+        histogram(cv2_pro(indx_sign_sacc),20);
+        histogram(cv2_anti(indx_sign_sacc),20);
+        
+        figure; hold on;
+        plot(cv2_pro(indx_sign_sacc), cv2_anti(indx_sign_sacc), '.k', 'MarkerSize', 18); hold on;
 
 end
