@@ -370,7 +370,7 @@ antiRT = vertcat(eyeKin(1,:).antiRT)*1000;
 % stats per cell
 for cellNum = 1:length(units)
     %pro
-    units(cellNum).pro.stats.eye.amp.mu = nanmean(eyeKin(cellNum).proAmp); units(cellNum).pro.stats.eye.amp. = nanstd(eyeKin(cellNum).proAmp);
+    units(cellNum).pro.stats.eye.amp.mu = nanmean(eyeKin(cellNum).proAmp); units(cellNum).pro.stats.eye.amp.sig = nanstd(eyeKin(cellNum).proAmp);
     units(cellNum).pro.stats.eye.dur.mu = nanmean(eyeKin(cellNum).proDur); units(cellNum).pro.stats.eye.dur.sig = nanstd(eyeKin(cellNum).proDur);
     units(cellNum).pro.stats.eye.pv.mu = nanmean(eyeKin(cellNum).proPV); units(cellNum).pro.stats.eye.pv.sig = nanstd(eyeKin(cellNum).proPV);
     units(cellNum).pro.stats.eye.rt.mu = nanmean(eyeKin(cellNum).proRT); units(cellNum).pro.stats.eye.rt.sig = nanstd(eyeKin(cellNum).proRT);

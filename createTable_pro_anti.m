@@ -14,10 +14,10 @@ total_vermis = length(indx_vermis); %%%%%%%%%%%%% to table
 for i=1:length(indx_vermis)
 indx_sign_sacc(i)= units(indx_vermis(i)).stats.sacc.flags.proVsAnti_sacc; 
 indx_sign_instr(i)= units(indx_vermis(i)).stats.instr.flags.proVsAnti_instr; 
-indx_sign_sacc_base_pro(i)= units(indx_vermis(i)).stats.pro.flags.saccVSbase; 
-indx_sign_instr_base_pro(i)= units(indx_vermis(i)).stats.pro.flags.instrVSbase;
-indx_sign_sacc_base_anti(i)= units(indx_vermis(i)).stats.anti.flags.saccVSbase; 
-indx_sign_instr_base_anti(i)= units(indx_vermis(i)).stats.anti.flags.instrVSbase;
+indx_sign_sacc_base_pro(i)= units(indx_vermis(i)).stats.pro.flags.saccVSbase_nspk; 
+indx_sign_instr_base_pro(i)= units(indx_vermis(i)).stats.pro.flags.instrVSbase_nspk;
+indx_sign_sacc_base_anti(i)= units(indx_vermis(i)).stats.anti.flags.saccVSbase_nspk; 
+indx_sign_instr_base_anti(i)= units(indx_vermis(i)).stats.anti.flags.instrVSbase_nspk;
 end 
 vermis_diff_pro_anti_sacc = sum(indx_sign_sacc); %%%%%%%%%%%%% to table
 proportion_vermis_sacc = vermis_diff_pro_anti_sacc/length(indx_vermis); %%%%%%%%%%%%% to table
@@ -38,10 +38,10 @@ total_lateral = length(indx_lateral); %%%%%%%%%%%%% to table
 for i=1:length(indx_lateral)
 indx_sign_sacc(i)= units(indx_lateral(i)).stats.sacc.flags.proVsAnti_sacc; 
 indx_sign_instr(i)= units(indx_lateral(i)).stats.instr.flags.proVsAnti_instr; 
-indx_sign_sacc_base_pro(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase; 
-indx_sign_instr_base_pro(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase;
-indx_sign_sacc_base_anti(i)= units(indx_lateral(i)).stats.anti.flags.instrVSbase; 
-indx_sign_instr_base_anti(i)= units(indx_lateral(i)).stats.anti.flags.instrVSbase;
+indx_sign_sacc_base_pro(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase_nspk; 
+indx_sign_instr_base_pro(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase_nspk;
+indx_sign_sacc_base_anti(i)= units(indx_lateral(i)).stats.anti.flags.instrVSbase_nspk; 
+indx_sign_instr_base_anti(i)= units(indx_lateral(i)).stats.anti.flags.instrVSbase_nspk;
 end 
 
 lateral_diff_pro_anti_sacc = sum(indx_sign_sacc); %%%%%%%%%%%%% to table
