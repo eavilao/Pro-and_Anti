@@ -405,7 +405,9 @@ switch plotType
         t = units(1).pro.neural.sacc.ts_pst_win;
         for cells = 1:length(indx_area)
             max_delta_pro(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate));
+             max_delta_pro_base(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate_base));
             delta_pro(cells,:)=units(indx_area(cells)).pro.neural.sacc.delta_rate;
+            delta_pro_base(cells,:)=units(indx_area(cells)).pro.neural.sacc.delta_rate_base;
         end
         % plot(t, mean(abs(delta_pro)'));
         % plot for pro all cells 
@@ -414,11 +416,13 @@ switch plotType
         % gather anti
         for cells = 1:length(indx_area)
             max_delta_anti(cells) = max(abs(units(indx_area(cells)).anti.neural.sacc.delta_rate));
+            max_delta_anti_base(cells) = max(abs(units(indx_area(cells)).anti.neural.sacc.delta_rate_base));
             delta_anti(cells,:)=units(indx_area(cells)).anti.neural.sacc.delta_rate;
+            delta_anti_base(cells,:)=units(indx_area(cells)).anti.neural.sacc.delta_rate_base;
         end
          %plot(t, delta_anti'); 
         
-        %plot change in FR from baseline for all cells
+        %plot change in FR from mean for all cells
         figure; hold on;
         %pro
         plot(t, mean(abs(delta_pro)', 2),'r', 'LineWidth',2); 
@@ -430,6 +434,19 @@ switch plotType
         xlabel('time from saccade onset') ;ylabel('Change in firing (spks/s)')
         title([recArea ' (all cells)'])
         
+        mean_delta_pro = mean(abs(delta_pro_base)); 
+        sem_delta_pro = std(abs(delta_pro_base))/sqrt(sum(length(indx_area)));
+        mean_delta_anti = mean(abs(delta_anti_base)); 
+        sem_delta_anti = std(abs(delta_anti_base),0,1)/sqrt(sum(length(indx_area)));
+        
+        %plot change in FR from baseline for all cells
+        figure; hold on;
+        shadedErrorBar(t, mean_delta_pro, sem_delta_pro, 'lineprops','r');
+        shadedErrorBar(t, mean_delta_anti, sem_delta_anti, 'lineprops','g');
+        set(gca,'TickDir', 'out', 'FontSize', 18,'ylim',[0 30], 'ytick', [0 10 20 30]); box off
+        xlabel('time from saccade onset') ;ylabel('Change in firing from base (spks/s)')
+        title([recArea ' (all cells)'])
+        
         % get significantly different cells
         for i = 1:length(indx_area)
             indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
@@ -437,33 +454,34 @@ switch plotType
         nunits = size(abs(delta_pro(indx_sign,:)),2); 
         
         % plot change in FR for significantly different cells
-        mean_delta_pro = mean(abs(delta_pro(indx_sign,:)),1); 
-        sem_delta_pro = std(abs(delta_pro(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
-        mean_delta_anti = mean(abs(delta_anti(indx_sign,:)),1); 
-        sem_delta_anti = std(abs(delta_anti(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
+        mean_delta_pro = mean(abs(delta_pro_base(indx_sign,:)),1); 
+        sem_delta_pro = std(abs(delta_pro_base(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
+        mean_delta_anti = mean(abs(delta_anti_base(indx_sign,:)),1); 
+        sem_delta_anti = std(abs(delta_anti_base(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
         
         % all
         figure; hold on; 
-        plot(t, abs(delta_pro(indx_sign,:)));
+        plot(t, abs(delta_pro_base(indx_sign,:)));
         set(gca,'TickDir', 'out', 'FontSize', 18)
         xlabel('Time (s) aligned to saccade onset'); ylabel('Change in FR (Hz)')
         title(['All sign cells - prosaccade ' num2str(sum(indx_sign))]);
         
         figure; hold on;
-        plot(t, abs(delta_anti(indx_sign,:)))
+        plot(t, abs(delta_anti_base(indx_sign,:)))
         set(gca,'TickDir', 'out', 'FontSize', 18)
         xlabel('Time (s) aligned to saccade onset'); ylabel('Change in FR (Hz)')
         title(['All sign cells - antisaccade ' num2str(sum(indx_sign))]);
         
         %stat over time
-        [h_change,p_change] = ttest(abs(delta_anti(indx_sign,:)), abs(delta_pro(indx_sign,:)))
+        [h_change,p_change] = ttest(abs(delta_anti(indx_sign,:)), abs(delta_pro(indx_sign,:))); 
         
         % diff anti-pro change in FR
         figure; hold on; 
-        plot(t,nanmean(abs(delta_anti(indx_sign,:))-abs(delta_pro(indx_sign,:))),'Color','k', 'LineWidth', 2);
+        plot(t,nanmean(abs(delta_anti_base(indx_sign,:))-abs(delta_pro_base(indx_sign,:))),'Color','k', 'LineWidth', 2);
         plot(t,h_change*0.5, '*c')
-        set(gca,'TickDir','out','ylim',[0.5 3], 'FontSize', 18, 'ylim', [-5 1])
+        set(gca,'TickDir','out','ylim',[-4 4], 'ytick',[-4 0 4], 'FontSize', 18)
         xlabel('Time (s)'); ylabel('Change in FR anti-pro')
+        title('Signif diff cells')
 
         
         figure; hold on; 
@@ -473,7 +491,7 @@ switch plotType
         xlabel('Time (s)'); ylabel('Change in firing rate (Hz)')
         title('Only sign diff cells')
         
-        % plot scatter for significantly diff cells
+        % plot scatter for significantly diff cells from mean
         figure; hold on;
         plot(max_delta_pro,max_delta_anti, '.k','MarkerSize', 18);
         plot(max_delta_pro(indx_sign),max_delta_anti(indx_sign), '.c','MarkerSize', 18);
@@ -483,6 +501,17 @@ switch plotType
         title(['Max change in firing rate >> ' recArea])
         axis square
         [h,p] = ttest(max_delta_pro,max_delta_anti)
+        
+          % plot scatter for significantly diff cells from baseline
+        figure; hold on;
+        plot(max_delta_pro_base,max_delta_anti_base, '.k','MarkerSize', 18);
+        plot(max_delta_pro_base(indx_sign),max_delta_anti_base(indx_sign), '.c','MarkerSize', 18);
+        set(gca,'XScale','Log','YScale','Log' ,'FontSize', 18, 'TickDir', 'out');axis ([1e0 1e2 1e0 1e2]);
+        plot([1e0 1e2],[1e0 1e2]); 
+        xlabel('Max change pro'); ylabel('Max change anti'); 
+        title(['Max change in firing rate from base >> ' recArea])
+        axis square
+        [h,p] = ttest(max_delta_pro_base,max_delta_anti_base)
     
     case 'colormap_sacc'
         for cellNum = 1:length(units)
