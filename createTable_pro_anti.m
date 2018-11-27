@@ -29,6 +29,7 @@ vermis_diff_sacc_base_anti = sum(indx_sign_sacc_base_anti); %%%%%%%%%%%%% to tab
 vermis_diff_instr_base_anti = sum(indx_sign_instr_base_anti); %%%%%%%%%%%%% to table
 
 %% lateral
+clear indx_area
 for cellNum = 1:length(units)
     indx_area(cellNum) = strcmp(units(cellNum).area, 'lateral');
 end
@@ -36,22 +37,22 @@ indx_lateral = find(indx_area);
 total_lateral = length(indx_lateral); %%%%%%%%%%%%% to table
 
 for i=1:length(indx_lateral)
-indx_sign_sacc(i)= units(indx_lateral(i)).stats.sacc.flags.proVsAnti_sacc; 
-indx_sign_instr(i)= units(indx_lateral(i)).stats.instr.flags.proVsAnti_instr; 
-indx_sign_sacc_base_pro(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase_nspk; 
-indx_sign_instr_base_pro(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase_nspk;
-indx_sign_sacc_base_anti(i)= units(indx_lateral(i)).stats.anti.flags.instrVSbase_nspk; 
-indx_sign_instr_base_anti(i)= units(indx_lateral(i)).stats.anti.flags.instrVSbase_nspk;
+indx_sign_sacc_lat(i)= units(indx_lateral(i)).stats.sacc.flags.proVsAnti_sacc; 
+indx_sign_instr_lat(i)= units(indx_lateral(i)).stats.instr.flags.proVsAnti_instr; 
+indx_sign_sacc_base_pro_lat(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase_nspk; 
+indx_sign_instr_base_pro_lat(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase_nspk;
+indx_sign_sacc_base_anti_lat(i)= units(indx_lateral(i)).stats.anti.flags.instrVSbase_nspk; 
+indx_sign_instr_base_anti_lat(i)= units(indx_lateral(i)).stats.anti.flags.instrVSbase_nspk;
 end 
 
-lateral_diff_pro_anti_sacc = sum(indx_sign_sacc); %%%%%%%%%%%%% to table
+lateral_diff_pro_anti_sacc = sum(indx_sign_sacc_lat); %%%%%%%%%%%%% to table
 proportion_lateral_sacc = lateral_diff_pro_anti_sacc/length(indx_lateral); %%%%%%%%%%%%% to table
-lateral_diff_pro_anti_instr = sum(indx_sign_instr); %%%%%%%%%%%%% to table
+lateral_diff_pro_anti_instr = sum(indx_sign_instr_lat); %%%%%%%%%%%%% to table
 proportion_lateral_instr = lateral_diff_pro_anti_instr/length(indx_lateral); %%%%%%%%%%%%% to table
-lateral_diff_sacc_base_pro = sum(indx_sign_sacc_base_pro); %%%%%%%%%%%%% to table
-lateral_diff_instr_base_pro = sum(indx_sign_instr_base_pro); %%%%%%%%%%%%% to table
-lateral_diff_sacc_base_anti = sum(indx_sign_sacc_base_anti); %%%%%%%%%%%%% to table
-lateral_diff_instr_base_anti = sum(indx_sign_instr_base_anti); %%%%%%%%%%%%% to table
+lateral_diff_sacc_base_pro = sum(indx_sign_sacc_base_pro_lat); %%%%%%%%%%%%% to table
+lateral_diff_instr_base_pro = sum(indx_sign_instr_base_pro_lat); %%%%%%%%%%%%% to table
+lateral_diff_sacc_base_anti = sum(indx_sign_sacc_base_anti_lat); %%%%%%%%%%%%% to table
+lateral_diff_instr_base_anti = sum(indx_sign_instr_base_anti_lat); %%%%%%%%%%%%% to table
 
 % print table
 disp('>>> VERMIS <<<')

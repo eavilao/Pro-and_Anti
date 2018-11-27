@@ -634,13 +634,17 @@ switch plotType
             rate_anti(i) = units(indx_area(i)).anti.neural.instr.rate_mu;
             sig_pro(i) = units(indx_area(i)).pro.neural.instr.rate_sig;
             sig_anti(i) = units(indx_area(i)).anti.neural.instr.rate_sig;
+            rate_base_pro(i) = units(indx_area(i)).pro.neural.base.rate_mu; 
+            sig_base_pro(i) = units(indx_area(i)).pro.neural.base.rate_sig;
+            rate_base_anti(i) = units(indx_area(i)).anti.neural.base.rate_mu; 
+            sig_base_anti(i) = units(indx_area(i)).anti.neural.base.rate_sig;
         end
         % get significantly diff
         for i = 1:length(nunits)
             indx_sign(i) = logical(units(indx_area(i)).stats.instr.flags.proVsAnti_instr);
         end
         
-        % plot
+        %% plot instruction
         figure; hold on;
         errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok','MarkerSize', 4)
         plot(rate_pro(indx_sign),rate_anti(indx_sign), '.c','MarkerSize', 18);
@@ -653,7 +657,6 @@ switch plotType
             'FitBoxToText','on'); 
         axis square;
         
-        
         %% sacc
         for i = 1:length(nunits)
             rate_pro(i) = units(indx_area(i)).pro.neural.sacc.rate_mu; 
@@ -662,6 +665,7 @@ switch plotType
             sig_anti(i) = units(indx_area(i)).anti.neural.sacc.rate_sig;
         end
         % get significantly diff
+        clear indx_sign
         for i = 1:length(nunits)
             indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
         end
@@ -678,6 +682,44 @@ switch plotType
             'String',{'n= ' num2str(size(indx_sign,2)),'sign diff = ' num2str(sum(indx_sign))},...
             'FitBoxToText','on');
         axis square;
+        
+        %% Plot base vs pro and anti
+        % pro
+        clear indx_sign
+        for i = 1:length(nunits)
+            indx_sign(i) = logical(units(indx_area(i)).stats.pro.flags.saccVSbase_nspk);
+        end
+        
+        figure; hold on;
+        errorbar(rate_base_pro,rate_pro,sig_base_pro,sig_base_pro,sig_pro,sig_pro, 'ok', 'MarkerSize', 4)
+        plot(rate_base_pro(indx_sign),rate_pro(indx_sign), '.k','MarkerSize', 5);
+        plot([0 180],[0 180]);
+        set(gca, 'TickDir', 'out', 'FontSize', 18);
+        title('SaccadeVSBase'); xlabel('Baseline'); ylabel('Prosaccade');
+        annotation('textbox',...
+            [0.659928571428571 0.152380952380952 0.227571428571429 0.116666666666667],...
+            'String',{'n= ' num2str(size(indx_sign,2)),'sign diff = ' num2str(sum(indx_sign))},...
+            'FitBoxToText','on');
+        axis square;
+        
+        %anti
+        clear indx_sign
+        for i = 1:length(nunits)
+            indx_sign(i) = logical(units(indx_area(i)).stats.anti.flags.saccVSbase_nspk);
+        end
+        
+        figure; hold on;
+        errorbar(rate_base_anti,rate_anti,sig_base_anti,sig_base_anti,sig_anti,sig_anti, 'ok', 'MarkerSize', 4)
+        plot(rate_base_anti(indx_sign),rate_anti(indx_sign), '.k','MarkerSize', 18);
+        plot([0 180],[0 180]);
+        set(gca, 'TickDir', 'out', 'FontSize', 18);
+        title('SaccadeVSBase'); xlabel('Baseline'); ylabel('Antisaccade');
+        annotation('textbox',...
+            [0.659928571428571 0.152380952380952 0.227571428571429 0.116666666666667],...
+            'String',{'n= ' num2str(size(indx_sign,2)),'sign diff = ' num2str(sum(indx_sign))},...
+            'FitBoxToText','on');
+        axis square;
+        
         
         case 'peak_resp_instr'
             % gather
