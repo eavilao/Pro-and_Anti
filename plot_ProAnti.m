@@ -494,27 +494,35 @@ switch plotType
         %pro
         t = units(1).pro.neural.sacc.ts_pst; clear r;
         for j=1:length(nunits)
+             r_pro(j,:)= units(indx_area(j)).pro.neural.sacc.rate_pst;
+             r_anti(j,:)= units(indx_area(j)).anti.neural.sacc.rate_pst;
             r(j,:) = units(indx_area(j)).pro.neural.sacc.norm_rate_pst(1,:);
         end
         
         [r,t] = smooth_colormap(r,t);
         
-%         % sort 
-%         t_sacc = t>-0.2 & t<=0.255;
-%         for i=1:length(r(:,1))
-%             this_r = r(i,:);
-%             this_r_sacc = this_r(t_sacc);
-%             [~,max_r(i)]= max(this_r_sacc);
-%         end
+        
+        
+        %         % sort
+        %                 t_sacc = t>-0.2 & t<=0.255;
+        %                 for i=1:length(r(:,1))
+        %                     this_r = r(i,:);
+        %                     this_r_sacc = this_r(t_sacc);
+        %                     [~,max_r(i)]= max(this_r_sacc)
+        %                    if max_r(i) == 1
+        %                    max_r(i) = max_r(i)+i*0.01
+        %                    end
+        %                 end
 
         
         % plot colormap
         B = goodcolormap('bwr');
         figure; set(gcf,'Position',[100 200 300 300]);
-        %hold on; colormap(B');
-        hold on; colormap(bluewhitered);
-        %imagesc(t,1:nunits,r,[0,1]);
+        % hold on; colormap(B');
+        % hold on; colormap(bluewhitered);
+        hold on; colormap(bone(4));
         imagesc(t,1:nunits,r,[0,1]);
+        %imagesc(t,1:nunits,r_sorted,[0,1]);
         set(gca,'xlim',[-0.2 0.255],'ylim',[1 nunits(end)],...
             'YTickLabel',[],'TickDir','Out','Fontsize',16);
         xlabel('Time (s)'); ylabel('Neuron');
@@ -532,7 +540,8 @@ switch plotType
         B = goodcolormap('bwr');
         figure; set(gcf,'Position',[100 200 300 300]);
         %hold on; colormap(B');
-        hold on; colormap(bluewhitered);
+        %hold on; colormap(bluewhitered);
+        hold on; colormap(bone(4));
         imagesc(t,1:nunits,r,[0,1]);
         set(gca,'xlim',[-0.2 0.255],'ylim',[1 nunits(end)],...
             'YTickLabel',[],'TickDir','Out','Fontsize',16);
@@ -807,7 +816,7 @@ switch plotType
         plot([-150 100],[-150 100]); 
         title('Sacc peak resp (baseline subtracted)'); xlabel('Prosaccade'); ylabel('Antisaccade');
         box off; axis square
-        [h,p] = ttest(peak_pro_diff,peak_anti_diff)
+        [h,p] = ttest(abs(peak_pro_diff),abs(peak_anti_diff))
         % plot peak time resp
         h_pro = hist(peak_time_pro,t);
         h_anti = hist(peak_time_anti,t);
