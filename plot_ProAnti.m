@@ -397,21 +397,23 @@ switch plotType
         % Plot change in FR from baseline
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
         for cellNum = 1:length(units)
-        indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
         end
-        indx_area = find(indx_area); 
+        indx_area = find(indx_area);
         
         % gather pro
         t = units(1).pro.neural.sacc.ts_pst_win;
         for cells = 1:length(indx_area)
             max_delta_pro(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate));
-             max_delta_pro_base(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate_base));
+            max_delta_pro_base(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate_base));
             delta_pro(cells,:)=units(indx_area(cells)).pro.neural.sacc.delta_rate;
             delta_pro_base(cells,:)=units(indx_area(cells)).pro.neural.sacc.delta_rate_base;
+            r_pro(cells,:) = units(indx_area(cells)).pro.neural.sacc.rate_pst_win; 
+            sig_pro(cells,:) = std(units(indx_area(cells)).pro.neural.sacc.rate_pst_win)/sqrt(sum(indx_area)); 
         end
         % plot(t, mean(abs(delta_pro)'));
-        % plot for pro all cells 
-       
+        % plot for pro all cells
+        
         
         % gather anti
         for cells = 1:length(indx_area)
@@ -419,48 +421,79 @@ switch plotType
             max_delta_anti_base(cells) = max(abs(units(indx_area(cells)).anti.neural.sacc.delta_rate_base));
             delta_anti(cells,:)=units(indx_area(cells)).anti.neural.sacc.delta_rate;
             delta_anti_base(cells,:)=units(indx_area(cells)).anti.neural.sacc.delta_rate_base;
+            r_anti(cells,:) = units(indx_area(cells)).anti.neural.sacc.rate_pst_win;
+            sig_anti(cells,:) = std(units(indx_area(cells)).anti.neural.sacc.rate_pst_win)/sqrt(sum(indx_area)); 
         end
-         %plot(t, delta_anti'); 
+        %plot(t, delta_anti');
+        
+        % quick plot of psth of mean of all cells
+        figure; hold on;
+        plot(t,mean(r_pro));
+        plot(t,mean(r_anti));
+        shadedErrorBar(t, mean(r_pro), repmat(mean(sig_pro),[size(mean(r_pro)) 1]), 'lineprops','r');
+        shadedErrorBar(t, mean(r_anti),repmat(mean(sig_anti),[size(mean(r_anti)) 1]), 'lineprops','g');
+        set(gca, 'ylim', [60 70], 'ytick', [60 70],'TickDir', 'out', 'FontSize', 18);
+        ylabel ('Firing rate (spk/s)'); xlabel('Time (s)')
         
         %plot change in FR from mean for all cells
         figure; hold on;
         %pro
-        plot(t, mean(abs(delta_pro)', 2),'r', 'LineWidth',2); 
+        plot(t, mean(abs(delta_pro)', 2),'r', 'LineWidth',2);
         set(gca,'TickDir', 'out', 'FontSize', 18)
         % anti
-         plot(t, mean(abs(delta_anti)', 2),'g', 'LineWidth',2); 
+        plot(t, mean(abs(delta_anti)', 2),'g', 'LineWidth',2);
         set(gca,'TickDir', 'out', 'FontSize', 18)
         box off
         xlabel('time from saccade onset') ;ylabel('Change in firing (spks/s)')
         title([recArea ' (all cells)'])
         
-        mean_delta_pro = mean(abs(delta_pro_base)); 
-        sem_delta_pro = std(abs(delta_pro_base))/sqrt(sum(length(indx_area)));
-        mean_delta_anti = mean(abs(delta_anti_base)); 
-        sem_delta_anti = std(abs(delta_anti_base),0,1)/sqrt(sum(length(indx_area)));
+        %         % abs vals
+        %         mean_delta_pro = mean(abs(delta_pro_base));
+        %         sem_delta_pro = std(abs(delta_pro_base))/sqrt(sum(length(indx_area)));
+        %         mean_delta_anti = mean(abs(delta_anti_base));
+        %         sem_delta_anti = std(abs(delta_anti_base),0,1)/sqrt(sum(length(indx_area)));
+        
+        mean_delta_pro = mean(delta_pro_base);
+        sem_delta_pro = std(delta_pro_base)/sqrt(sum(length(indx_area)));
+        mean_delta_anti = mean(delta_anti_base);
+        sem_delta_anti = std(delta_anti_base,0,1)/sqrt(sum(length(indx_area)));
         
         %plot change in FR from baseline for all cells
         figure; hold on;
         shadedErrorBar(t, mean_delta_pro, sem_delta_pro, 'lineprops','r');
         shadedErrorBar(t, mean_delta_anti, sem_delta_anti, 'lineprops','g');
-        set(gca,'TickDir', 'out', 'FontSize', 18,'ylim',[0 30], 'ytick', [0 10 20 30]); box off
-        xlabel('time from saccade onset') ;ylabel('Change in firing from base (spks/s)')
+        set(gca,'TickDir', 'out', 'FontSize', 18,'ylim',[-2 5], 'ytick', [0 5]); box off
+        xlabel('Time (s)') ;ylabel('Change in firing from base (spks/s)')
         title([recArea ' (all cells)'])
         
         % get significantly different cells
         for i = 1:length(indx_area)
             indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
         end
-        nunits = size(abs(delta_pro(indx_sign,:)),2); 
+        nunits = size(abs(delta_pro(indx_sign,:)),2);
+        
+        figure; hold on;
+        plot(t,mean(r_pro(indx_sign)));
+        plot(t,mean(r_anti(indx_sign)));
+        shadedErrorBar(t, mean(r_pro(indx_sign,:)), repmat(mean(sig_pro(indx_sign,:)),[size(mean(r_pro(indx_sign,:))) 1]), 'lineprops','r');
+        shadedErrorBar(t, mean(r_anti(indx_sign,:)),repmat(mean(sig_anti(indx_sign,:)),[size(mean(r_anti(indx_sign,:))) 1]), 'lineprops','g');
+        set(gca, 'ylim', [60 70], 'ytick', [60 70],'TickDir', 'out', 'FontSize', 18);
+        ylabel ('Firing rate (spk/s)'); xlabel('Time (s)')
         
         % plot change in FR for significantly different cells
-        mean_delta_pro = mean(abs(delta_pro_base(indx_sign,:)),1); 
-        sem_delta_pro = std(abs(delta_pro_base(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
-        mean_delta_anti = mean(abs(delta_anti_base(indx_sign,:)),1); 
-        sem_delta_anti = std(abs(delta_anti_base(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
+        % Abs vals
+        %         mean_delta_pro = mean(abs(delta_pro_base(indx_sign,:)),1);
+        %         sem_delta_pro = std(abs(delta_pro_base(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
+        %         mean_delta_anti = mean(abs(delta_anti_base(indx_sign,:)),1);
+        %         sem_delta_anti = std(abs(delta_anti_base(indx_sign,:)),0,1)/sqrt(sum(indx_sign));
+        
+        mean_delta_pro = mean(delta_pro_base(indx_sign,:),1);
+        sem_delta_pro = std(delta_pro_base(indx_sign,:),0,1)/sqrt(sum(indx_sign));
+        mean_delta_anti = mean(delta_anti_base(indx_sign,:),1);
+        sem_delta_anti = std(delta_anti_base(indx_sign,:),0,1)/sqrt(sum(indx_sign));
         
         % all
-        figure; hold on; 
+        figure; hold on;
         plot(t, abs(delta_pro_base(indx_sign,:)));
         set(gca,'TickDir', 'out', 'FontSize', 18)
         xlabel('Time (s) aligned to saccade onset'); ylabel('Change in FR (Hz)')
@@ -479,15 +512,15 @@ switch plotType
         figure; hold on; 
         plot(t,nanmean(abs(delta_anti_base(indx_sign,:))-abs(delta_pro_base(indx_sign,:))),'Color','k', 'LineWidth', 2);
         plot(t,h_change*0.5, '*c')
-        set(gca,'TickDir','out','ylim',[-4 4], 'ytick',[-4 0 4], 'FontSize', 18)
-        xlabel('Time (s)'); ylabel('Change in FR anti-pro')
+        set(gca,'TickDir','out','ylim',[0 10], 'ytick',[0 10], 'FontSize', 18)
+        xlabel('Time (s)'); ylabel('Abs change in FR anti-pro')
         title('Signif diff cells')
 
         
         figure; hold on; 
         shadedErrorBar(t, mean_delta_pro, sem_delta_pro, 'lineprops','r');
         shadedErrorBar(t, mean_delta_anti, sem_delta_anti, 'lineprops','g');
-        set(gca,'TickDir', 'out', 'FontSize', 18)
+        set(gca,'TickDir', 'out', 'FontSize', 18,'ytick',[-6 0 10]);
         xlabel('Time (s)'); ylabel('Change in firing rate (Hz)')
         title('Only sign diff cells')
         
@@ -589,7 +622,6 @@ switch plotType
         indx_area = find(indx_area);
         nunits = 1:length(indx_area);
         
-        keyboard
         %pro
         t = units(1).pro.neural.sacc.ts_pst; clear r;
         for j=1:length(units)
@@ -917,24 +949,45 @@ switch plotType
         end
         
         % mean pro
-        block1_pro_mu = nanmean(block1_pro); block1_pro_sig = nanstd(block1_pro);
-        block2_pro_mu = nanmean(block2_pro); block2_pro_sig = nanstd(block2_pro);
-        block3_pro_mu = nanmean(block3_pro); block1_pro_sig = nanstd(block3_pro);
+%         block1_pro_mu = nanmean(block1_pro); block1_pro_sig = nanstd(block1_pro);
+%         block2_pro_mu = nanmean(block2_pro); block2_pro_sig = nanstd(block2_pro);
+%         block3_pro_mu = nanmean(block3_pro); block1_pro_sig = nanstd(block3_pro);
+%         
+%         % mean anti
+%         block1_anti_mu = nanmean(block1_anti); block1_anti_sig = nanstd(block1_anti);
+%         block2_anti_mu = nanmean(block2_anti); block2_anti_sig = nanstd(block2_anti);
+%         block3_anti_mu = nanmean(block3_anti); block1_anti_sig = nanstd(block3_anti);
+%         
+%         %gather
+%         pro_blocks = [block1_pro_mu block2_pro_mu block3_pro_mu ; block1_pro_sig block2_pro_sig block1_pro_sig];
+%         anti_blocks = [block1_anti_mu block2_anti_mu block3_anti_mu ; block1_anti_sig block2_anti_sig block1_anti_sig];
+%         
+%         % plot means
+%         figure; hold on; box off
+%         errorbar(pro_blocks(1,:),pro_blocks(2,:), 'Color', 'r','LineWidth', 2);
+%         errorbar(anti_blocks(1,:),anti_blocks(2,:), 'Color', 'g','LineWidth', 2);
+%         set(gca, 'TickDir', 'out', 'xlim',[0.5 3.5]);
         
-        % mean anti
-        block1_anti_mu = nanmean(block1_anti); block1_anti_sig = nanstd(block1_anti);
-        block2_anti_mu = nanmean(block2_anti); block2_anti_sig = nanstd(block2_anti);
-        block3_anti_mu = nanmean(block3_anti); block1_anti_sig = nanstd(block3_anti);
+        % plot rho for all cells 
+        fprintf(['        >>> loading ' recArea ' cells <<< \n']);
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        nunits = 1:length(indx_area);
         
-        %gather
-        pro_blocks = [block1_pro_mu block2_pro_mu block3_pro_mu ; block1_pro_sig block2_pro_sig block1_pro_sig];
-        anti_blocks = [block1_anti_mu block2_anti_mu block3_anti_mu ; block1_anti_sig block2_anti_sig block1_anti_sig];
+        for i = 1:length(units(indx_area))
+            amp_pro_all{i,:} = [units(indx_area(i)).pro.behav.trial.saccAmplitude];
+            amp_anti_all{i,:} = [units(indx_area(i)).anti.behav.trial.saccAmplitude];
+            
+            spk_pro_all{i,:} = [units(indx_area(i)).pro.neural.sacc.nspk];
+            spk_anti_all{i,:} = [units(indx_area(i)).anti.neural.sacc.nspk];
+            
+            [rho_pro_all(i,:),pval_pro_all(i,:)] = corr(amp_pro_all{i,:}',spk_pro_all{i,:});
+            [rho_anti_all(i,:),pval_anti_all(i,:)] = corr(amp_anti_all{i,:}',spk_anti_all{i,:});
+        end
         
-        % plot means
-        figure; hold on; box off
-        errorbar(pro_blocks(1,:),pro_blocks(2,:), 'Color', 'r','LineWidth', 2);
-        errorbar(anti_blocks(1,:),anti_blocks(2,:), 'Color', 'g','LineWidth', 2);
-        set(gca, 'TickDir', 'out', 'xlim',[0.5 3.5]);
+        z=1; 
         
     case 'firingVSvel'
         pv_pro = [units(cellNum).pro.behav.trial.saccPeakVel];
@@ -951,6 +1004,27 @@ switch plotType
         set(gca, 'TickDir', 'out', 'FontSize', 18)
         lsline(gca)
         
+         % plot rho for all cells 
+        fprintf(['        >>> loading ' recArea ' cells <<< \n']);
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        nunits = 1:length(indx_area);
+        
+        for i = 1:length(units(indx_area))
+            vel_pro_all{i,:} = [units(indx_area(i)).pro.behav.trial.saccPeakVel];
+            vel_anti_all{i,:} = [units(indx_area(i)).anti.behav.trial.saccPeakVel];
+            
+            spk_pro_all{i,:} = [units(indx_area(i)).pro.neural.sacc.nspk];
+            spk_anti_all{i,:} = [units(indx_area(i)).anti.neural.sacc.nspk];
+            
+            [rho_pro_all(i,:),pval_pro_all(i,:)] = corr(vel_pro_all{i,:}',spk_pro_all{i,:});
+            [rho_anti_all(i,:),pval_anti_all(i,:)] = corr(vel_anti_all{i,:}',spk_anti_all{i,:});
+        end
+        
+        z=1; 
+        
     case 'firingVSdur'
         dur_pro = [units(cellNum).pro.behav.trial.saccDuration];
         dur_anti = [units(cellNum).anti.behav.trial.saccDuration];
@@ -965,6 +1039,28 @@ switch plotType
         xlabel('Duration (ms)'); ylabel('Firing rate (spk/s)');
         set(gca, 'TickDir', 'out', 'FontSize', 18)
         lsline(gca)
+        
+        % plot rho for all cells 
+        fprintf(['        >>> loading ' recArea ' cells <<< \n']);
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        nunits = 1:length(indx_area);
+        
+        for i = 1:length(units(indx_area))
+            dur_pro_all{i,:} = [units(indx_area(i)).pro.behav.trial.saccDuration];
+            dur_anti_all{i,:} = [units(indx_area(i)).anti.behav.trial.saccDuration];
+            
+            spk_pro_all{i,:} = [units(indx_area(i)).pro.neural.sacc.nspk];
+            spk_anti_all{i,:} = [units(indx_area(i)).anti.neural.sacc.nspk];
+            
+            [rho_pro_all(i,:),pval_pro_all(i,:)] = corr(dur_pro_all{i,:}',spk_pro_all{i,:});
+            [rho_anti_all(i,:),pval_anti_all(i,:)] = corr(dur_anti_all{i,:}',spk_anti_all{i,:});
+        end
+        
+        z=1; 
+        
         
     case 'binomial_pb_dist'
         % statistical test to compare if pro == anti - aligned to instr/sacc using spk count
