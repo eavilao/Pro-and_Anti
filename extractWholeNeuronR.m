@@ -488,12 +488,36 @@ for cellNum = 1:length(units)
     units(cellNum).pro.neural.sacc.delta_rate = units(cellNum).pro.neural.sacc.rate_pst_win - units(cellNum).pro.neural.sacc.rate_mu;
     
     units(cellNum).pro.neural.sacc.delta_rate_base = units(cellNum).pro.neural.sacc.rate_pst_win - units(cellNum).pro.neural.base.rate_mu;
+    units(cellNum).pro.neural.instr.delta_rate_base = units(cellNum).pro.neural.instr.rate_pst_win - units(cellNum).pro.neural.base.rate_mu;
     
     % anti
     units(cellNum).anti.neural.instr.delta_rate = units(cellNum).anti.neural.instr.rate_pst_win - units(cellNum).anti.neural.instr.rate_mu;
     units(cellNum).anti.neural.sacc.delta_rate = units(cellNum).anti.neural.sacc.rate_pst_win - units(cellNum).anti.neural.sacc.rate_mu;
     
     units(cellNum).anti.neural.sacc.delta_rate_base = units(cellNum).anti.neural.sacc.rate_pst_win - units(cellNum).anti.neural.base.rate_mu;
+    units(cellNum).anti.neural.instr.delta_rate_base = units(cellNum).anti.neural.instr.rate_pst_win - units(cellNum).anti.neural.base.rate_mu;
+    
+    %% compute DDI and change index
+    units(cellNum).pro.instr.change_indx = (units(cellNum).pro.neural.instr.rate_mu  - units(cellNum).anti.neural.instr.rate_mu)/(units(cellNum).pro.neural.instr.rate_mu  + units(cellNum).anti.neural.instr.rate_mu)
+    units(cellNum).stats.sacc.change_indx = (units(cellNum).pro.neural.sacc.rate_mu  - units(cellNum).anti.neural.sacc.rate_mu)/(units(cellNum).pro.neural.sacc.rate_mu  + units(cellNum).anti.neural.sacc.rate_mu)
+
+    %% compute DDI
+    % pro instr
+    trialNum_pro = size(units(cellNum).pro.neural.sacc.nspk,1);
+    SSE_pro_instr = sum((units(cellNum).pro.neural.instr.nspk-mean(units(cellNum).pro.neural.instr.nspk)).^2);
+    units(cellNum).stats.pro.instr.DDI = (max(units(cellNum).pro.neural.sacc.nspk)-min(units(cellNum).pro.neural.sacc.nspk))/((max(units(cellNum).pro.neural.sacc.nspk)-min(units(cellNum).pro.neural.sacc.nspk))+2*sqrt(SSE_pro_instr/(trialNum_pro-2)));
+    % pro sacc
+    SSE_pro = sum((units(cellNum).pro.neural.sacc.nspk-mean(units(cellNum).pro.neural.sacc.nspk)).^2);
+    units(cellNum).stats.pro.sacc.DDI = (max(units(cellNum).pro.neural.sacc.nspk)-min(units(cellNum).pro.neural.sacc.nspk))/((max(units(cellNum).pro.neural.sacc.nspk)-min(units(cellNum).pro.neural.sacc.nspk))+2*sqrt(SSE_pro/(trialNum_pro-2)));
+    
+    % anti
+    trialNum_anti = size(units(cellNum).anti.neural.sacc.nspk,1);
+    SSE_anti_instr = sum((units(cellNum).anti.neural.instr.nspk-mean(units(cellNum).anti.neural.instr.nspk)).^2);
+    units(cellNum).stats.anti.instr.DDI = (max(units(cellNum).anti.neural.sacc.nspk)-min(units(cellNum).anti.neural.sacc.nspk))/((max(units(cellNum).anti.neural.sacc.nspk)-min(units(cellNum).anti.neural.sacc.nspk))+2*sqrt(SSE_anti_instr/(trialNum_anti-2)));
+    % pro sacc
+    SSE_anti = sum((units(cellNum).anti.neural.sacc.nspk-mean(units(cellNum).anti.neural.sacc.nspk)).^2);
+    units(cellNum).stats.anti.sacc.DDI = (max(units(cellNum).anti.neural.sacc.nspk)-min(units(cellNum).anti.neural.sacc.nspk))/((max(units(cellNum).anti.neural.sacc.nspk)-min(units(cellNum).anti.neural.sacc.nspk))+2*sqrt(SSE_anti/(trialNum_anti-2)));
+    
     
     %% noramlized FR - z-scored aligned to sacc
     % aligned to trial onset

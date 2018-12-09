@@ -408,6 +408,7 @@ switch plotType
             max_delta_pro_base(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate_base));
             delta_pro(cells,:)=units(indx_area(cells)).pro.neural.sacc.delta_rate;
             delta_pro_base(cells,:)=units(indx_area(cells)).pro.neural.sacc.delta_rate_base;
+            delta_pro_base_instr(cells,:)=units(indx_area(cells)).pro.neural.instr.delta_rate_base;
             r_pro(cells,:) = units(indx_area(cells)).pro.neural.sacc.rate_pst_win; 
             sig_pro(cells,:) = std(units(indx_area(cells)).pro.neural.sacc.rate_pst_win)/sqrt(sum(indx_area)); 
         end
@@ -421,6 +422,7 @@ switch plotType
             max_delta_anti_base(cells) = max(abs(units(indx_area(cells)).anti.neural.sacc.delta_rate_base));
             delta_anti(cells,:)=units(indx_area(cells)).anti.neural.sacc.delta_rate;
             delta_anti_base(cells,:)=units(indx_area(cells)).anti.neural.sacc.delta_rate_base;
+            delta_anti_base_instr(cells,:)=units(indx_area(cells)).anti.neural.instr.delta_rate_base;
             r_anti(cells,:) = units(indx_area(cells)).anti.neural.sacc.rate_pst_win;
             sig_anti(cells,:) = std(units(indx_area(cells)).anti.neural.sacc.rate_pst_win)/sqrt(sum(indx_area)); 
         end
@@ -453,17 +455,31 @@ switch plotType
         %         mean_delta_anti = mean(abs(delta_anti_base));
         %         sem_delta_anti = std(abs(delta_anti_base),0,1)/sqrt(sum(length(indx_area)));
         
-        mean_delta_pro = mean(delta_pro_base);
+        % sacc
+        mean_delta_pro = mean(abs(delta_pro_base));
         sem_delta_pro = std(delta_pro_base)/sqrt(sum(length(indx_area)));
-        mean_delta_anti = mean(delta_anti_base);
+        mean_delta_anti = mean(abs(delta_anti_base));
         sem_delta_anti = std(delta_anti_base,0,1)/sqrt(sum(length(indx_area)));
+        %instr
+        mean_delta_pro_instr = mean(delta_pro_base_instr);
+        sem_delta_pro_instr = std(delta_pro_base_instr)/sqrt(sum(length(indx_area)));
+        mean_delta_anti_instr = mean(delta_anti_base_instr);
+        sem_delta_anti_instr = std(delta_anti_base_instr,0,1)/sqrt(sum(length(indx_area)));
         
-        %plot change in FR from baseline for all cells
+        %plot change in FR from baseline for all cells sacc
         figure; hold on;
         shadedErrorBar(t, mean_delta_pro, sem_delta_pro, 'lineprops','r');
         shadedErrorBar(t, mean_delta_anti, sem_delta_anti, 'lineprops','g');
         set(gca,'TickDir', 'out', 'FontSize', 18,'ylim',[-2 5], 'ytick', [0 5]); box off
         xlabel('Time (s)') ;ylabel('Change in firing from base (spks/s)')
+        title([recArea ' (all cells)'])
+        
+        %plot change in FR from baseline for all cells instr
+        figure; hold on;
+        shadedErrorBar(t, mean_delta_pro_instr, sem_delta_pro_instr, 'lineprops','r');
+        shadedErrorBar(t, mean_delta_anti_instr, sem_delta_anti_instr, 'lineprops','g');
+        set(gca,'TickDir', 'out', 'FontSize', 18,'ylim',[-2 5], 'ytick', [0 5]); box off
+        xlabel('Time (s)') ;ylabel('Change in firing from base (Instr) (spks/s)')
         title([recArea ' (all cells)'])
         
         % get significantly different cells
