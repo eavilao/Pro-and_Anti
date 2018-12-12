@@ -19,6 +19,8 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'psth_instr_all':psth aligned to instruction onset for all cells. Press
 % any key to plot next cell 
 % 'delta_rate': plots time-course of change in firing rate (firing rate-baseline) for all cells and then plots max change in a scatter plot for significant cells. 
+% 'DDI'
+% 'indx_change'
 % 'colormap_sacc': plot time-course of normalized firing rate for all cells
 % 'waterfall_sacc': waterfall plot of time-course of normalized firing rate for all cells
 % 'scatter_pro_anti': scatter plot of nspk of pro vs anti for a cell
@@ -403,6 +405,7 @@ switch plotType
         
         % gather pro
         t = units(1).pro.neural.sacc.ts_pst_win;
+        t_instr = units(1).pro.neural.instr.ts_pst_win;
         for cells = 1:length(indx_area)
             max_delta_pro(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate));
             max_delta_pro_base(cells) = max(abs(units(indx_area(cells)).pro.neural.sacc.delta_rate_base));
@@ -424,9 +427,18 @@ switch plotType
             delta_anti_base(cells,:)=units(indx_area(cells)).anti.neural.sacc.delta_rate_base;
             delta_anti_base_instr(cells,:)=units(indx_area(cells)).anti.neural.instr.delta_rate_base;
             r_anti(cells,:) = units(indx_area(cells)).anti.neural.sacc.rate_pst_win;
-            sig_anti(cells,:) = std(units(indx_area(cells)).anti.neural.sacc.rate_pst_win)/sqrt(sum(indx_area)); 
+            sig_anti(cells,:) = std(units(indx_area(cells)).anti.neural.sacc.rate_pst_win)/sqrt(sum(indx_area));
+            instr_pro_base(cells,:) = units(indx_area(cells)).pro.neural.instr.delta_rate_base; 
+            instr_anti_base(cells,:) = units(indx_area(cells)).anti.neural.instr.delta_rate_base; 
         end
         %plot(t, delta_anti');
+        
+         % get significantly different cells
+        for i = 1:length(indx_area)
+            indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
+            indx_instr(i) = logical(units(indx_area(i)).stats.instr.flags.proVsAnti_instr);
+        end
+        nunits = size(abs(delta_pro(indx_sign,:)),2);
         
         % quick plot of psth of mean of all cells
         figure; hold on;
@@ -461,10 +473,10 @@ switch plotType
         mean_delta_anti = mean(abs(delta_anti_base));
         sem_delta_anti = std(delta_anti_base,0,1)/sqrt(sum(length(indx_area)));
         %instr
-        mean_delta_pro_instr = mean(delta_pro_base_instr);
-        sem_delta_pro_instr = std(delta_pro_base_instr)/sqrt(sum(length(indx_area)));
-        mean_delta_anti_instr = mean(delta_anti_base_instr);
-        sem_delta_anti_instr = std(delta_anti_base_instr,0,1)/sqrt(sum(length(indx_area)));
+        mean_delta_pro_instr = mean(delta_pro_base_instr(indx_instr,:),1);
+        sem_delta_pro_instr = std(delta_pro_base_instr(indx_instr,:))/sqrt(sum(indx_instr));
+        mean_delta_anti_instr = mean(delta_anti_base_instr(indx_instr,:),1);
+        sem_delta_anti_instr = std(delta_anti_base_instr(indx_instr,:))/sqrt(sum(indx_instr));
         
         %plot change in FR from baseline for all cells sacc
         figure; hold on;
@@ -476,17 +488,16 @@ switch plotType
         
         %plot change in FR from baseline for all cells instr
         figure; hold on;
-        shadedErrorBar(t, mean_delta_pro_instr, sem_delta_pro_instr, 'lineprops','r');
-        shadedErrorBar(t, mean_delta_anti_instr, sem_delta_anti_instr, 'lineprops','g');
-        set(gca,'TickDir', 'out', 'FontSize', 18,'ylim',[-2 5], 'ytick', [0 5]); box off
+        shadedErrorBar(t_instr, mean_delta_pro_instr, sem_delta_pro_instr, 'lineprops','r');
+        shadedErrorBar(t_instr, mean_delta_anti_instr, sem_delta_anti_instr, 'lineprops','g');
+        set(gca,'TickDir', 'out', 'FontSize', 18,'ylim',[-5 20], 'ytick', [0 5]); box off
         xlabel('Time (s)') ;ylabel('Change in firing from base (Instr) (spks/s)')
         title([recArea ' (all cells)'])
         
-        % get significantly different cells
-        for i = 1:length(indx_area)
-            indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
-        end
-        nunits = size(abs(delta_pro(indx_sign,:)),2);
+        
+        %plot change in FR from baseline for signif cells instr
+
+        
         
         figure; hold on;
         plot(t,mean(r_pro(indx_sign)));
@@ -522,14 +533,23 @@ switch plotType
         title(['All sign cells - antisaccade ' num2str(sum(indx_sign))]);
         
         %stat over time
-        [h_change,p_change] = ttest(abs(delta_anti(indx_sign,:)), abs(delta_pro(indx_sign,:))); 
+        [h_change,p_change] = ttest(abs(delta_anti(indx_sign,:)), abs(delta_pro(indx_sign,:)));
+        [h_instr,p_instr] = ttest(abs(instr_anti_base(indx_sign,:)), abs(instr_pro_base(indx_sign,:))); 
         
-        % diff anti-pro change in FR
+        % diff anti-pro change in FR sacc
         figure; hold on; 
         plot(t,nanmean(abs(delta_anti_base(indx_sign,:))-abs(delta_pro_base(indx_sign,:))),'Color','k', 'LineWidth', 2);
         plot(t,h_change*0.5, '*c')
         set(gca,'TickDir','out','ylim',[0 10], 'ytick',[0 10], 'FontSize', 18)
         xlabel('Time (s)'); ylabel('Abs change in FR anti-pro')
+        title('Signif diff cells')
+        
+         % diff anti-pro change in FR instr
+        figure; hold on; 
+        plot(t,nanmean(abs(instr_anti_base(indx_sign,:))-abs(instr_anti_base(indx_sign,:))),'Color','k', 'LineWidth', 2);
+        plot(t,h_instr*0.5, '*c')
+        set(gca,'TickDir','out','ylim',[0 1], 'ytick',[0 1], 'FontSize', 18)
+        xlabel('Time (s)'); ylabel('Abs change in FR anti-pro instr')
         title('Signif diff cells')
 
         
@@ -561,6 +581,122 @@ switch plotType
         title(['Max change in firing rate from base >> ' recArea])
         axis square
         [h,p] = ttest(max_delta_pro_base,max_delta_anti_base)
+        
+    case 'DDI_sacc'
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        nunits = 1:length(indx_area);
+        
+        % extract
+         for j=1:length(nunits)
+            ddi_pro(j,:) = units(indx_area(j)).stats.pro.sacc.DDI; 
+            ddi_anti(j,:) = units(indx_area(j)).stats.anti.sacc.DDI; 
+         end
+         [y_pro,bin_pro] = hist(ddi_pro,15);
+         [y_anti,bin_anti] = hist(ddi_anti,15);
+         
+         % pro
+        figure; hold on;
+        plot(bin_pro,y_pro, 'r','LineWidth',2);
+        ha1 = area(bin_pro,y_pro,'FaceColor',[1 0 0],'Linewidth',2);
+        set(ha1,'FaceAlpha',0.5,'EdgeColor','none'); box off;
+        set(gca,'xlim', [0 1],'yTick',[0 5],'xTick',[0 0.5 1], 'TickDir', 'out','FontSize', 18);
+        xlabel('DDI'); ylabel('Nr of neurons');vline(mean(ddi_pro));
+        
+        % anti
+        figure; hold on; 
+        plot(bin_anti,y_anti, 'g','LineWidth',2);
+        ha1 = area(bin_anti,y_anti,'FaceColor',[0 1 0],'Linewidth',2);
+        set(ha1,'FaceAlpha',0.5,'EdgeColor','none'); box off;
+        set(gca,'xlim', [0 1],'yTick',[0 5],'xTick',[0 0.5 1], 'TickDir', 'out','FontSize', 18);
+        xlabel('DDI'); ylabel('Nr of neurons');vline(mean(ddi_anti));
+        
+        % scatter
+        figure; hold on; 
+        plot(ddi_pro,ddi_anti,'.k','MarkerSize', 30);
+        plot([0:1],[0:1],'k');
+        set (gca,'xlim', [0.5 1],'ylim',[0.5 1],'xTick', [0 0.5 1], 'yTick', [0 0.5 1], 'TickDir', 'out','FontSize', 18);
+        axis square; box off;
+        xlabel('Pro'); ylabel('Anti'); title('DDI')
+        [h,p] = ttest(ddi_pro,ddi_anti)
+        
+        % diagonal
+        figure; hold on;
+        histogram(ddi_pro-ddi_anti,25)
+        set(gca,'ylim', [0 12],'xlim',[-0.707 0.707] ,'TickDir', 'out','ytick', [0 12],'Fontsize', 18); xlabel('diagonal', 'Fontsize', 18); % 1/sqrt(2) 0.702 
+        vline(0)
+        
+    case 'DDI_instr'
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        nunits = 1:length(indx_area);
+        
+        % extract
+        for j=1:length(nunits)
+            ddi_pro(j,:) = units(indx_area(j)).stats.pro.instr.DDI;
+            ddi_anti(j,:) = units(indx_area(j)).stats.anti.instr.DDI;
+        end
+        [y_pro,bin_pro] = hist(ddi_pro,15);
+        [y_anti,bin_anti] = hist(ddi_anti,15);
+        
+        % pro sacc
+        figure; hold on;
+        plot(bin_pro,y_pro, 'r','LineWidth',2);
+        ha1 = area(bin_pro,y_pro,'FaceColor',[1 0 0],'Linewidth',2);
+        set(ha1,'FaceAlpha',0.5,'EdgeColor','none'); box off;
+        set(gca,'xlim', [0 1],'yTick',[0 5],'xTick',[0 0.5 1], 'TickDir', 'out','FontSize', 18);
+        xlabel('DDI'); ylabel('Nr of neurons');vline(mean(ddi_pro));
+        
+        % anti sacc
+        figure; hold on;
+        plot(bin_anti,y_anti, 'g','LineWidth',2);
+        ha1 = area(bin_anti,y_anti,'FaceColor',[0 1 0],'Linewidth',2);
+        set(ha1,'FaceAlpha',0.5,'EdgeColor','none'); box off;
+        set(gca,'xlim', [0 1],'yTick',[0 5],'xTick',[0 0.5 1], 'TickDir', 'out','FontSize', 18);
+        xlabel('DDI'); ylabel('Nr of neurons');vline(mean(ddi_anti));
+        
+        % scatter
+        figure; hold on; 
+        plot(ddi_pro,ddi_anti,'.k','MarkerSize', 30);
+        plot([0:1],[0:1],'k');
+        set (gca,'xlim', [0.5 1],'ylim',[0.5 1],'xTick', [0 0.5 1], 'yTick', [0 0.5 1], 'TickDir', 'out','FontSize', 18);
+        axis square; box off;
+        xlabel('Pro'); ylabel('Anti'); title('DDI')
+        [h,p] = ttest(ddi_pro,ddi_anti)
+        
+        % diagonal
+        figure; hold on;
+        histogram(ddi_pro-ddi_anti,25)
+        set(gca,'ylim', [0 12],'xlim',[-0.707 0.707] ,'TickDir', 'out','ytick', [0 12],'Fontsize', 18); xlabel('diagonal', 'Fontsize', 18); % 1/sqrt(2) 0.702 
+        vline(0)
+        
+        
+    case 'indx_change'
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        nunits = 1:length(indx_area);
+        
+        % extract
+        for j=1:length(nunits)
+            change_instr(j,:) = units(indx_area(j)).stats.instr.change_indx;
+            change_sacc(j,:) = units(indx_area(j)).stats.sacc.change_indx;
+        end
+        
+        %plot
+        figure; hold on;
+        histogram(change_instr,50); 
+        set(gca,'ylim', [0 20],'xlim',[-0.2 0.2] ,'TickDir', 'out','ytick', [0 25],'Fontsize', 18);
+        
+        figure; hold on;
+        histogram(change_sacc, 25)
+        set(gca,'ylim', [0 20],'xlim',[-0.25 0.25] ,'TickDir', 'out','ytick', [0 25],'Fontsize', 18);
+        
     
     case 'colormap_sacc'
         for cellNum = 1:length(units)

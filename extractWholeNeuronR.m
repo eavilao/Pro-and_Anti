@@ -497,8 +497,8 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.sacc.delta_rate_base = units(cellNum).anti.neural.sacc.rate_pst_win - units(cellNum).anti.neural.base.rate_mu;
     units(cellNum).anti.neural.instr.delta_rate_base = units(cellNum).anti.neural.instr.rate_pst_win - units(cellNum).anti.neural.base.rate_mu;
     
-    %% compute DDI and change index
-    units(cellNum).pro.instr.change_indx = (units(cellNum).pro.neural.instr.rate_mu  - units(cellNum).anti.neural.instr.rate_mu)/(units(cellNum).pro.neural.instr.rate_mu  + units(cellNum).anti.neural.instr.rate_mu)
+    %% compute change index
+    units(cellNum).stats.instr.change_indx = (units(cellNum).pro.neural.instr.rate_mu  - units(cellNum).anti.neural.instr.rate_mu)/(units(cellNum).pro.neural.instr.rate_mu  + units(cellNum).anti.neural.instr.rate_mu)
     units(cellNum).stats.sacc.change_indx = (units(cellNum).pro.neural.sacc.rate_mu  - units(cellNum).anti.neural.sacc.rate_mu)/(units(cellNum).pro.neural.sacc.rate_mu  + units(cellNum).anti.neural.sacc.rate_mu)
 
     %% compute DDI
