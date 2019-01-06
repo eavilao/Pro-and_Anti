@@ -498,8 +498,8 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.instr.delta_rate_base = units(cellNum).anti.neural.instr.rate_pst_win - units(cellNum).anti.neural.base.rate_mu;
     
     %% compute change index
-    units(cellNum).stats.instr.change_indx = (units(cellNum).pro.neural.instr.rate_mu  - units(cellNum).anti.neural.instr.rate_mu)/(units(cellNum).pro.neural.instr.rate_mu  + units(cellNum).anti.neural.instr.rate_mu)
-    units(cellNum).stats.sacc.change_indx = (units(cellNum).pro.neural.sacc.rate_mu  - units(cellNum).anti.neural.sacc.rate_mu)/(units(cellNum).pro.neural.sacc.rate_mu  + units(cellNum).anti.neural.sacc.rate_mu)
+    units(cellNum).stats.instr.change_indx = (units(cellNum).pro.neural.instr.rate_mu  - units(cellNum).anti.neural.instr.rate_mu)/(units(cellNum).pro.neural.instr.rate_mu  + units(cellNum).anti.neural.instr.rate_mu);
+    units(cellNum).stats.sacc.change_indx = (units(cellNum).pro.neural.sacc.rate_mu  - units(cellNum).anti.neural.sacc.rate_mu)/(units(cellNum).pro.neural.sacc.rate_mu  + units(cellNum).anti.neural.sacc.rate_mu);
 
     %% compute DDI
     % pro instr
@@ -584,47 +584,47 @@ for cellNum = 1:length(units)
     % detect saccade related using sliding window (5 bins) 200 ms before
     % sacc onset to 200 ms after sacc onset and store time at > or < than 2*std
  
-    indx_win = prs.slide_win_size; win_size_prev = prs.slide_win_size_prev;
-    t = units(cellNum).pro.neural.sacc.ts_pst;
-    indx_beg = find(t>-0.2,1); indx_end = find(t>0.2,1);
-    
-    % pro
-    rate_pst = units(cellNum).pro.neural.sacc.rate_pst;
-    exc_pro=0; sup_pro=0;exc_anti=0; sup_anti=0;
-    
-    for indx = indx_beg:indx_end
-        r_mu = mean(rate_pst(round(indx-win_size/2):round(indx+win_size/2)));
-        r_thresh1 = mean(rate_pst(indx-win_size_prev:indx))+...
-            2*std(rate_pst(indx-win_size_prev:indx));
-        r_thresh2 = mean(rate_pst(indx-win_size_prev:indx))-...
-            2*std(rate_pst(indx-win_size_prev:indx));
-        if (r_thresh1>1 && r_mu>r_thresh1), exc_pro=exc_pro+1;else exc_pro=0;end
-        if (r_thresh2>1 && r_mu<r_thresh2), sup_pro=sup_pro+1;else sup_pro=0;end
-        if exc_pro==3, events.rise.t_on = t(indx); events.rise.type_on = 'exc';
-            break;
-        elseif sup_pro==3, units(cellNum).pro.events.rise.t_on = t(indx); units(cellNum).pro.events.rise.type_on = 'sup';
-            break;
-        end
-    end
-    
-    % anti
-    rate_pst = units(cellNum).anti.neural.sacc.rate_pst;
-    exc_anti=0; sup_anti=0;
-    
-    for indx = indx_beg:indx_end
-        r_mu = mean(rate_pst(round(indx-win_size/2):round(indx+win_size/2)));
-        r_thresh1 = mean(rate_pst(indx-win_size_prev:indx))+...
-            2*std(rate_pst(indx-win_size_prev:indx));
-        r_thresh2 = mean(rate_pst(indx-win_size_prev:indx))-...
-            2*std(rate_pst(indx-win_size_prev:indx));
-        if (r_thresh1>1 && r_mu>r_thresh1), exc_anti=exc_anti+1;else exc_anti=0;end
-        if (r_thresh2>1 && r_mu<r_thresh2), sup_anti=sup_anti+1;else sup_anti=0;end
-        if exc_anti==3, events.rise.t_on = t(indx); events.rise.type_on = 'exc';
-            break;
-        elseif sup_anti==3, units(cellNum).pro.events.rise.t_on = t(indx); units(cellNum).pro.events.rise.type_on = 'sup';
-            break;
-        end
-    end
+%     indx_win = prs.slide_win_size; win_size_prev = prs.slide_win_size_prev;
+%     t = units(cellNum).pro.neural.sacc.ts_pst;
+%     indx_beg = find(t>-0.2,1); indx_end = find(t>0.2,1);
+%     
+%     % pro
+%     rate_pst = units(cellNum).pro.neural.sacc.rate_pst;
+%     exc_pro=0; sup_pro=0;exc_anti=0; sup_anti=0;
+%     
+%     for indx = indx_beg:indx_end
+%         r_mu = mean(rate_pst(round(indx-win_size/2):round(indx+win_size/2)));
+%         r_thresh1 = mean(rate_pst(indx-win_size_prev:indx))+...
+%             2*std(rate_pst(indx-win_size_prev:indx));
+%         r_thresh2 = mean(rate_pst(indx-win_size_prev:indx))-...
+%             2*std(rate_pst(indx-win_size_prev:indx));
+%         if (r_thresh1>1 && r_mu>r_thresh1), exc_pro=exc_pro+1;else exc_pro=0;end
+%         if (r_thresh2>1 && r_mu<r_thresh2), sup_pro=sup_pro+1;else sup_pro=0;end
+%         if exc_pro==3, events.rise.t_on = t(indx); events.rise.type_on = 'exc';
+%             break;
+%         elseif sup_pro==3, units(cellNum).pro.events.rise.t_on = t(indx); units(cellNum).pro.events.rise.type_on = 'sup';
+%             break;
+%         end
+%     end
+%     
+%     % anti
+%     rate_pst = units(cellNum).anti.neural.sacc.rate_pst;
+%     exc_anti=0; sup_anti=0;
+%     
+%     for indx = indx_beg:indx_end
+%         r_mu = mean(rate_pst(round(indx-win_size/2):round(indx+win_size/2)));
+%         r_thresh1 = mean(rate_pst(indx-win_size_prev:indx))+...
+%             2*std(rate_pst(indx-win_size_prev:indx));
+%         r_thresh2 = mean(rate_pst(indx-win_size_prev:indx))-...
+%             2*std(rate_pst(indx-win_size_prev:indx));
+%         if (r_thresh1>1 && r_mu>r_thresh1), exc_anti=exc_anti+1;else exc_anti=0;end
+%         if (r_thresh2>1 && r_mu<r_thresh2), sup_anti=sup_anti+1;else sup_anti=0;end
+%         if exc_anti==3, events.rise.t_on = t(indx); events.rise.type_on = 'exc';
+%             break;
+%         elseif sup_anti==3, units(cellNum).pro.events.rise.t_on = t(indx); units(cellNum).pro.events.rise.type_on = 'sup';
+%             break;
+%         end
+%     end
     
 end
 
