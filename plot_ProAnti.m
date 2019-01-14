@@ -496,9 +496,6 @@ switch plotType
         
         
         %plot change in FR from baseline for signif cells instr
-        
-        
-        
         figure; hold on;
         plot(t,mean(r_pro(indx_sign)));
         plot(t,mean(r_anti(indx_sign)));
@@ -527,7 +524,7 @@ switch plotType
         title(['All sign cells - prosaccade ' num2str(sum(indx_sign))]);
         
         figure; hold on;
-        plot(t, abs(delta_anti_base(indx_sign,:)))
+        plot(t, abs(delta_anti_base(indx_sign,:)));
         set(gca,'TickDir', 'out', 'FontSize', 18)
         xlabel('Time (s) aligned to saccade onset'); ylabel('Change in FR (Hz)')
         title(['All sign cells - antisaccade ' num2str(sum(indx_sign))]);
@@ -540,14 +537,14 @@ switch plotType
         figure; hold on;
         plot(t,nanmean(abs(delta_anti_base(indx_sign,:))-abs(delta_pro_base(indx_sign,:))),'Color','k', 'LineWidth', 2);
         plot(t,h_change*0.5, '*c')
-        set(gca,'TickDir','out','ylim',[0 10], 'ytick',[0 10], 'FontSize', 18)
+        set(gca,'TickDir','out','ylim',[0 5], 'ytick',[0 5], 'FontSize', 18)
         xlabel('Time (s)'); ylabel('Abs change in FR anti-pro')
         title('Signif diff cells')
         
         % diff anti-pro change in FR instr
         figure; hold on;
-        plot(t,nanmean(abs(instr_anti_base(indx_sign,:))-abs(instr_anti_base(indx_sign,:))),'Color','k', 'LineWidth', 2);
-        plot(t,h_instr*0.5, '*c')
+        plot(t_instr,nanmean(abs(instr_anti_base(indx_sign,:))-abs(instr_pro_base(indx_sign,:))),'Color','k', 'LineWidth', 2);
+        plot(t_instr,h_instr*0.5, '*c')
         set(gca,'TickDir','out','ylim',[0 1], 'ytick',[0 1], 'FontSize', 18)
         xlabel('Time (s)'); ylabel('Abs change in FR anti-pro instr')
         title('Signif diff cells')
@@ -561,15 +558,15 @@ switch plotType
         title('Only sign diff cells')
         
         % plot scatter for significantly diff cells from mean
-        figure; hold on;
-        plot(max_delta_pro,max_delta_anti, '.k','MarkerSize', 18);
-        plot(max_delta_pro(indx_sign),max_delta_anti(indx_sign), '.c','MarkerSize', 18);
-        set(gca,'XScale','Log','YScale','Log' ,'FontSize', 18, 'TickDir', 'out');axis ([1e0 1e2 1e0 1e2]);
-        plot([1e0 1e2],[1e0 1e2]);
-        xlabel('Max change pro'); ylabel('Max change anti');
-        title(['Max change in firing rate >> ' recArea])
-        axis square
-        [h,p] = ttest(max_delta_pro,max_delta_anti)
+%         figure; hold on;
+%         plot(max_delta_pro,max_delta_anti, '.k','MarkerSize', 18);
+%         plot(max_delta_pro(indx_sign),max_delta_anti(indx_sign), '.c','MarkerSize', 18);
+%         set(gca,'XScale','Log','YScale','Log' ,'FontSize', 18, 'TickDir', 'out');axis ([1e0 1e2 1e0 1e2]);
+%         plot([1e0 1e2],[1e0 1e2]);
+%         xlabel('Max change pro'); ylabel('Max change anti');
+%         title(['Max change in firing rate >> ' recArea])
+%         axis square
+%         [h,p] = ttest(max_delta_pro,max_delta_anti)
         
         % plot scatter for significantly diff cells from baseline
         figure; hold on;
