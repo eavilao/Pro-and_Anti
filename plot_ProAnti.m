@@ -537,7 +537,7 @@ switch plotType
         figure; hold on;
         plot(t,nanmean(abs(delta_anti_base(indx_sign,:))-abs(delta_pro_base(indx_sign,:))),'Color','k', 'LineWidth', 2);
         plot(t,h_change*0.5, '*c')
-        set(gca,'TickDir','out','ylim',[0 5], 'ytick',[0 5], 'FontSize', 18)
+        set(gca,'TickDir','out','ylim',[-2 5], 'ytick',[0 5], 'FontSize', 18)
         xlabel('Time (s)'); ylabel('Abs change in FR anti-pro')
         title('Signif diff cells')
         
@@ -773,7 +773,7 @@ switch plotType
         
         %pro
         t = units(1).pro.neural.sacc.ts_pst; clear r;
-        for j=1:length(units)
+        for j=1:length(indx_area)
             r(j,:) = units(indx_area(j)).pro.neural.sacc.norm_rate_pst(1,:);
             indx_neg=find(r(j,:)<0);
             r(j,indx_neg) = 0;
@@ -791,7 +791,7 @@ switch plotType
         
         %anti
         t = units(1).anti.neural.sacc.ts_pst; clear r;
-        for j=1:length(nunits)
+        for j=1:length(indx_area)
             r(j,:) = units(indx_area(j)).anti.neural.sacc.norm_rate_pst(1,:);
             indx_neg=find(r(j,:)<0);
             r(j,indx_neg) = 0;
