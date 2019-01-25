@@ -7,7 +7,7 @@ prs.min_trial = 10; % min amount of trials to have to extract a cell
 prs.baseline_win = [-0.3 -0.1];  % before saccade onset
 prs.instruction_win = [0.05 0.350];  % aligned to trial onset
 % prs.saccade_win = [-0.101 0.201];   % aligned to saccade << default
-prs.saccade_win = [-0.150 0.150]; %[0.1 0.201];   %[-0.050 0.150];
+prs.saccade_win = [-0.151 0.151]; %[0.1 0.201];   %[-0.050 0.150];
 
 
 % extract spk timing

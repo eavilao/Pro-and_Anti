@@ -1097,9 +1097,104 @@ switch plotType
             title(['Cell ' num2str(indx(j)) ' sig ' num2str(indx_signif(j))]);
         end
         
+    case 'sorted_colormap_sacc'
+        % get area
+        for cellNum = 1:length(units)
+            indx(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx = find(indx);
+        nunits_area = 1:length(indx);
         
+        t = units(1).pro.neural.sacc.ts_pst_win; % time
+        for j=1:length(indx)
+            r_pro(j,:) = units(indx(j)).pro.neural.sacc.rate_pst_win; % psth
+            r_anti(j,:) = units(indx(j)).anti.neural.sacc.rate_pst_win; % psth
+        end
+        % pro
+        [maxRates,pos_max] = max(r_pro, [], 2);  
+        [~,indx_max] = sort(pos_max);
+        r_pro_norm = r_pro./repmat(maxRates,[1 size(r_pro,2)]); 
+        r_pro_sorted = r_pro_norm(indx_max,:); 
+        B = goodcolormap('wr');
         
+        % colormap sorted
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flipud(B'));
+        imagesc(t,1:size(r_pro_sorted,1),r_pro_sorted, [0 1]);
+        set(gca,'xlim',[-0.15 0.151], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Sorted Pro ' recArea])
+        % colormap unsorted
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flipud(B'));
+        imagesc(t,1:size(r_pro_norm,1),r_pro_norm, [0 1]);
+        set(gca,'xlim',[-0.15 0.151],'YTickLabel', [],'TickDir', 'out', 'FontSize', 18); box off;
+        vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Pro ' recArea])
+        
+        % anti
+        [maxRates_anti,pos_max_anti] = max(r_anti, [], 2);  
+        [~,indx_max_anti] = sort(pos_max_anti);
+        r_anti_norm = r_anti./repmat(maxRates_anti,[1 size(r_anti,2)]); 
+        r_anti_sorted = r_anti_norm(indx_max_anti,:); 
+        B = goodcolormap('wr');
+        % colormap sorted
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flipud(B'));
+        imagesc(t,1:size(r_anti_sorted,1),r_anti_sorted, [0 1]);
+        set(gca,'xlim',[-0.15 0.151], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc sorted Anti ' recArea])
+        % colormap unsorted
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flipud(B'));
+        imagesc(t,1:size(r_anti_norm,1),r_anti_norm, [0 1]);
+        set(gca,'xlim',[-0.15 0.151],'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Anti ' recArea])
+        
+    case 'sorted_colormap_instr'
+        % get area
+        for cellNum = 1:length(units)
+            indx(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx = find(indx);
+        nunits_area = 1:length(indx);
+        
+        t = units(1).pro.neural.instr.ts_pst_win; % time
+        for j=1:length(indx)
+            r_pro(j,:) = units(indx(j)).pro.neural.instr.rate_pst_win; % psth
+            r_anti(j,:) = units(indx(j)).anti.neural.instr.rate_pst_win; % psth
+        end
+        % pro
+        [maxRates,pos_max] = max(r_pro, [], 2);  
+        [~,indx_max] = sort(pos_max);
+        r_pro_norm = r_pro./repmat(maxRates,[1 size(r_pro,2)]); 
+        r_pro_sorted = r_pro_norm(indx_max,:); 
+        B = goodcolormap('wr');
+        
+        % colormap sorted
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flipud(B'));
+        imagesc(t,1:size(r_pro_sorted,1),r_pro_sorted, [0 1]);
+        set(gca,'xlim',[0.05 0.350], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        ylabel('Neuron'); box off; title(['Instr Sorted Pro ' recArea])
+        % colormap unsorted
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flipud(B'));
+        imagesc(t,1:size(r_pro_norm,1),r_pro_norm, [0 1]);
+        set(gca,'xlim',[0.05 0.350],'YTickLabel', [],'TickDir', 'out', 'FontSize', 18); box off;
+        ylabel('Neuron'); box off; title(['Instr Pro ' recArea])
+        
+        % anti
+        [maxRates_anti,pos_max_anti] = max(r_anti, [], 2);  
+        [~,indx_max_anti] = sort(pos_max_anti);
+        r_anti_norm = r_anti./repmat(maxRates_anti,[1 size(r_anti,2)]); 
+        r_anti_sorted = r_anti_norm(indx_max_anti,:); 
+        B = goodcolormap('wr');
+        % colormap sorted
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flipud(B'));
+        imagesc(t,1:size(r_anti_sorted,1),r_anti_sorted, [0 1]);
+        set(gca,'xlim',[0.05 0.350], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        vline(0, '--k'); ylabel('Neuron'); box off; title(['Instr sorted Anti ' recArea])
+        % colormap unsorted
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flipud(B'));
+        imagesc(t,1:size(r_anti_norm,1),r_anti_norm, [0 1]);
+        set(gca,'xlim',[0.05 0.350],'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        vline(0, '--k'); ylabel('Neuron'); box off; title(['Instr Anti ' recArea])
+
+
 end
-        
+
         
 end
