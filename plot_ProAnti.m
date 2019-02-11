@@ -1574,4 +1574,133 @@ switch plotType
         
         [h,p] = ttest(cv2_pro(indx_sign_sacc),cv2_anti(indx_sign_sacc))
         
+    case 'eye_move'
+      % LOAD FILE SENT BY NICO  
+        
+        t = units(cellNum).pro.timepointsEye/1000; % time
+        
+        % extract eye trace around saccade onset
+        % pro
+        c = 1;
+        for i = 1:length(units(cellNum).pro.behav.trial)
+            sacc_onset = units(cellNum).pro.behav.trial(i).saccadeOnset;
+            align_sacc = t - sacc_onset; t_sacc = align_sacc(align_sacc >= -0.150 & align_sacc <= 0.150);
+            x = units(cellNum).pro.behav.trial(i).eyePositionX; y = units(cellNum).pro.behav.trial(i).eyePositionY;
+            if ~isnan(x)
+                heye(c,:) = x(align_sacc >= -0.150 & align_sacc <= 0.150);
+                veye(c,:) = y(align_sacc >= -0.150 & align_sacc <= 0.150);
+                c = c+1;
+            end
+        end
+        
+        figure; hold on;
+        plot(t_sacc,heye','b', 'LineWidth', 2);
+        plot(t_sacc,veye','c', 'LineWidth', 2);
+        set(gca, 'yTick',[], 'TickDir', 'out', 'FontSize',18);
+        title(['Eye trace pro cell ' num2str(cellNum)])
+        
+        % anti
+        c = 1;
+        for i = 1:length(units(cellNum).anti.behav.trial)
+            sacc_onset = units(cellNum).anti.behav.trial(i).saccadeOnset;
+            align_sacc = t - sacc_onset; t_sacc = align_sacc(align_sacc >= -0.150 & align_sacc <= 0.150);
+            x = units(cellNum).anti.behav.trial(i).eyePositionX; y = units(cellNum).anti.behav.trial(i).eyePositionY;
+            if ~isnan(x)
+                heye(c,:) = x(align_sacc >= -0.150 & align_sacc <= 0.150);
+                veye(c,:) = y(align_sacc >= -0.150 & align_sacc <= 0.150);
+                c = c+1;
+            end
+        end
+        
+        figure; hold on;
+        plot(t_sacc,heye','b', 'LineWidth', 2);
+        plot(t_sacc,veye','c', 'LineWidth', 2);
+        set(gca, 'yTick',[], 'TickDir', 'out', 'FontSize',18);
+        title(['Eye trace anti cell ' num2str(cellNum)])
+        
+    case 'peak_vel_distr'
+        % get peak vel
+        for i = 1:length(units(cellNum).pro.behav.trial), peak_pro(i,:) = units(cellNum).pro.behav.trial(i).saccPeakVel; end
+        for i = 1:length(units(cellNum).anti.behav.trial), peak_anti(i,:) = units(cellNum).anti.behav.trial(i).saccPeakVel; end
+        
+        histogram(peak_pro,30); hold on
+        histogram(peak_anti,30);
+        
+    case 'rate_sorted_vel'
+        
+        for i = 1:length(units(cellNum).pro.behav.trial), peak_pro(i,:) = units(cellNum).pro.behav.trial(i).saccPeakVel; end
+        for i = 1:length(units(cellNum).anti.behav.trial), peak_anti(i,:) = units(cellNum).anti.behav.trial(i).saccPeakVel; end
+        for j=1:length(units(cellNum).pro.behav.trial)
+            r_pro(j,:) = units(indx(j)).pro.neural.sacc.rate_pst_win; % psth
+            
+        end
+         r_anti(j,:) = units(indx(j)).anti.neural.sacc.rate_pst_win; % psth
+         
+    case 'mod_ratio'
+        % gather indx vermis and lateral
+        for cellNum = 1:length(units)
+            indx_area_vermis(cellNum) = strcmp(units(cellNum).area, 'vermis');
+            indx_area_lat(cellNum) = strcmp(units(cellNum).area, 'lateral');
+        end
+        indx_area_vermis = find(indx_area_vermis); unit_vermis = units(indx_area_vermis); 
+        indx_area_lat = find(indx_area_lat); unit_lat = units(indx_area_lat); 
+        
+        % for all neurons
+        for i = 1:length(unit_vermis)
+        mod_r_vermis(i) = unit_vermis(i).stats.mod_ratio; 
+        end
+        
+        for i = 1:length(unit_lat)
+        mod_r_lat(i) = unit_lat(i).stats.mod_ratio;
+        end
+        mod_r_lat(12)=[]; %outlier. Check what's going on
+        median_vermis = median(mod_r_vermis); median_lat = median(mod_r_lat);
+        % plot
+        figure; hold on; 
+        cdfplot(mod_r_vermis);
+        cdfplot(mod_r_lat);
+        vline(1, '-k');
+        set(gca, 'XGrid', 'off', 'YGrid', 'off', 'TickDir', 'out', 'FontSize', 20); title('Modulation ratio OMV vs Lateral')
+        
+        
+        % for significantly different
+        
+        for i = 1:length(indx_area_vermis)
+            indx_sign_vermis(i) = logical(units(indx_area_vermis(i)).stats.sacc.flags.proVsAnti_sacc);
+        end
+        unit_vermis_sign = unit_vermis(indx_sign_vermis);
+        
+        for i = 1:length(indx_area_lat)
+            indx_sign_lat(i) = logical(units(indx_area_lat(i)).stats.sacc.flags.proVsAnti_sacc);
+        end
+        unit_lat_sign = unit_lat(indx_sign_lat);
+        
+        for i = 1:length(unit_vermis_sign)
+        mod_r_vermis_sign(i) = unit_vermis_sign(i).stats.mod_ratio; 
+        end
+        
+        for i = 1:length(unit_lat_sign)
+        mod_r_lat_sign(i) = unit_lat_sign(i).stats.mod_ratio;
+        end
+        mod_r_lat_sign(7)=[];
+        
+        figure; hold on; 
+        cdfplot(mod_r_vermis_sign);
+        cdfplot(mod_r_lat_sign);
+        vline(1);
+        set(gca, 'XGrid', 'off', 'YGrid', 'off', 'TickDir', 'out', 'FontSize', 20); title('Modulation ratio OMV vs Lateral signif')
+        
+        
+        
+end
+        
+        
+
+
+
+
+
+
+
+        
 end

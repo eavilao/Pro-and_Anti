@@ -1105,7 +1105,6 @@ switch plotType
         indx = find(indx);
         nunits_area = 1:length(indx);
         
-        t = units(1).pro.neural.sacc.ts_pst_win; % time
         for j=1:length(indx)
             r_pro(j,:) = units(indx(j)).pro.neural.sacc.rate_pst_win; % psth
             r_anti(j,:) = units(indx(j)).anti.neural.sacc.rate_pst_win; % psth
@@ -1192,9 +1191,36 @@ switch plotType
         imagesc(t,1:size(r_anti_norm,1),r_anti_norm, [0 1]);
         set(gca,'xlim',[0.05 0.350],'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
         vline(0, '--k'); ylabel('Neuron'); box off; title(['Instr Anti ' recArea])
-
-
+        
+    case 'sorted_colormap_sacc_vel'
+        for cellNum = 1:length(units)
+            indx(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx = find(indx);
+        nunits_area = 1:length(indx);
+        
+        for i = 1:length(indx)
+            indx_signif(i) = logical(units(indx(i)).stats.sacc.flags.proVsAnti_sacc);
+        end
+        
+        for j=1:length(indx)
+            r_pro(j,:) = units(indx(j)).pro.neural.sacc.rate_pst_win; % psth
+            r_anti(j,:) = units(indx(j)).anti.neural.sacc.rate_pst_win; % psth
+            for i = 1:length(units(indx(j)).pro.behav.trial)
+            vel_pro(j,:) 
+            vel_anti(j,:)
+        end
+        % get max sacc vel
+        [maxRates,pos_max] = max(r_pro, [], 2);  
+        [~,indx_max] = sort(pos_max);
+        r_pro_norm = r_pro./repmat(maxRates,[1 size(r_pro,2)]); 
+        r_pro_sorted = r_pro_norm(indx_max,:); 
+        B = goodcolormap('wr');
+       
+        
+        
+        
 end
 
-        
+
 end

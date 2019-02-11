@@ -54,6 +54,21 @@ for cellNum = 1:length(cell_indx);
             units(cellNum).trial.behav(trialNum).reward = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).relativeRewardTime;
             units(cellNum).trial.behav(trialNum).conditionCode = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).conditionCode;
             units(cellNum).trial.behav(trialNum).correctResponse = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).correctResponse;
+            units(cellNum).trial.behav(trialNum).eyePos_x = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).eyePositionX; 
+            units(cellNum).trial.behav(trialNum).eyePos_y = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).eyePositionY; 
+            units(cellNum).trial.behav(trialNum).eyeVel_x = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).eyeVelocityX; 
+            units(cellNum).trial.behav(trialNum).eyeVel_y = wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).eyeVelocityY;
+            units(cellNum).trial.behav(trialNum).eye_ts = [-3999:1:4000]/1000;
+            units(cellNum).trial.behav(trialNum).eye_ts_sacc = units(cellNum).trial.behav(trialNum).eye_ts(units(cellNum).trial.behav(trialNum).eye_ts >= prs.eye_win_sacc(1) & ...
+                units(cellNum).trial.behav(trialNum).eye_ts <= prs.eye_win_sacc(2));
+            units(cellNum).trial.behav(trialNum).eyePos_x_sacc = units(cellNum).trial.behav(trialNum).eyePos_x(units(cellNum).trial.behav(trialNum).eye_ts >= prs.eye_win_sacc(1) & ...
+                units(cellNum).trial.behav(trialNum).eye_ts <= prs.eye_win_sacc(2));
+            units(cellNum).trial.behav(trialNum).eyePos_y_sacc = units(cellNum).trial.behav(trialNum).eyePos_y(units(cellNum).trial.behav(trialNum).eye_ts >= prs.eye_win_sacc(1) & ...
+                units(cellNum).trial.behav(trialNum).eye_ts <= prs.eye_win_sacc(2));
+            units(cellNum).trial.behav(trialNum).eyeVel_x_sacc = units(cellNum).trial.behav(trialNum).eyeVel_x(units(cellNum).trial.behav(trialNum).eye_ts >= prs.eye_win_sacc(1) & ...
+                units(cellNum).trial.behav(trialNum).eye_ts <= prs.eye_win_sacc(2));
+            units(cellNum).trial.behav(trialNum).eyeVel_y_sacc = units(cellNum).trial.behav(trialNum).eyeVel_y(units(cellNum).trial.behav(trialNum).eye_ts >= prs.eye_win_sacc(1) & ...
+                units(cellNum).trial.behav(trialNum).eye_ts <= prs.eye_win_sacc(2));
 
             %neural data
             spks =  wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).alignedSpikes{1}; % contains spike times for SS aligned to trial onset
@@ -62,6 +77,7 @@ for cellNum = 1:length(cell_indx);
                 indx_trial_spks = spks>prs.tspk(1) & spks < units(cellNum).trial.behav(trialNum).reward+prs.tspk(2); % just pick 100 ms before trial starts to reward +200 ms
                 units(cellNum).trial.neural(trialNum).tspk_SS = spks(indx_trial_spks);
                 units(cellNum).trial.neural(trialNum).tspk_SS_align_sacc =  units(cellNum).trial.neural(trialNum).tspk_SS-units(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for CS aligned to sacc onset
+                units(cellNum).trial.neural(trialNum).ts_eye_sacc = units(cellNum).trial.behav(trialNum).eye_ts-units(cellNum).trial.behav(trialNum).saccadeOnset;
             elseif run_error_trials
                  
                 indx_trial_spks = spks>prs.tspk(1) & spks < units(cellNum).trial.behav(trialNum).goCueTime+0.5+prs.tspk(2); % just pick 100 ms before trial starts to reward +200 ms
@@ -139,7 +155,12 @@ for cellNum = 1:length(units)
         units(cellNum).pro.behav.trial(trialNum).reactionTime = units(cellNum).trial.behav(correctProTrials(trialNum)).reactionTime;
         units(cellNum).pro.behav.trial(trialNum).reward = units(cellNum).trial.behav(correctProTrials(trialNum)).reward;
         units(cellNum).pro.behav.trial(trialNum).conditionCode = units(cellNum).trial.behav(correctProTrials(trialNum)).conditionCode;
-
+        units(cellNum).pro.behav.trial(trialNum).eye_ts_sacc = units(cellNum).trial.behav(correctProTrials(trialNum)).eye_ts_sacc;
+        units(cellNum).pro.behav.trial(trialNum).eyePos_x_sacc = units(cellNum).trial.behav(correctProTrials(trialNum)).eyePos_x_sacc; 
+        units(cellNum).pro.behav.trial(trialNum).eyePos_y_sacc = units(cellNum).trial.behav(correctProTrials(trialNum)).eyePos_y_sacc; 
+        units(cellNum).pro.behav.trial(trialNum).eyeVel_x_sacc = units(cellNum).trial.behav(correctProTrials(trialNum)).eyeVel_x_sacc; 
+        units(cellNum).pro.behav.trial(trialNum).eyeVel_y_sacc = units(cellNum).trial.behav(correctProTrials(trialNum)).eyeVel_y_sacc; 
+        
     end
    
     
@@ -161,7 +182,7 @@ for cellNum = 1:length(units)
     units(cellNum).pro.neural.sacc.rate_pst = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst,prs.binwidth,prs.tsmooth);
 
     [units(cellNum).pro.neural.sacc.rate_pst,units(cellNum).pro.neural.sacc.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to saccade onset
-     units(cellNum).pro.neural.sacc.rate_pst = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst,prs.binwidth,prs.tsmooth);
+    units(cellNum).pro.neural.sacc.rate_pst = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst,prs.binwidth,prs.tsmooth);
     analyse_sacc_align=0;
     
     % Anti trials
@@ -176,7 +197,11 @@ for cellNum = 1:length(units)
         units(cellNum).anti.behav.trial(trialNum).reactionTime = units(cellNum).trial.behav(correctAntiTrials(trialNum)).reactionTime;
         units(cellNum).anti.behav.trial(trialNum).reward = units(cellNum).trial.behav(correctAntiTrials(trialNum)).reward;
         units(cellNum).anti.behav.trial(trialNum).conditionCode = units(cellNum).trial.behav(correctAntiTrials(trialNum)).conditionCode;
-
+        units(cellNum).anti.behav.trial(trialNum).eye_ts_sacc = units(cellNum).trial.behav(correctAntiTrials(trialNum)).eye_ts_sacc;
+        units(cellNum).anti.behav.trial(trialNum).eyePos_x_sacc = units(cellNum).trial.behav(correctAntiTrials(trialNum)).eyePos_x_sacc;
+        units(cellNum).anti.behav.trial(trialNum).eyePos_y_sacc = units(cellNum).trial.behav(correctAntiTrials(trialNum)).eyePos_y_sacc;
+        units(cellNum).anti.behav.trial(trialNum).eyeVel_x_sacc = units(cellNum).trial.behav(correctAntiTrials(trialNum)).eyeVel_x_sacc;
+        units(cellNum).anti.behav.trial(trialNum).eyeVel_y_sacc = units(cellNum).trial.behav(correctAntiTrials(trialNum)).eyeVel_y_sacc;
     end
     %neural
     units(cellNum).anti.neural.trial = units(cellNum).trial.neural(units(cellNum).anti.indx_correctAntiTrials);
@@ -668,6 +693,13 @@ for cellNum = 1:length(units)
     units(cellNum).anti.meanCV_isi =  mean([units(cellNum).anti.neural.trial.cv_isi]);
     
 end
+
+%% Modulation ratio
+for cellNum = 1:length(units)
+    units(cellNum).stats.mod_ratio = units(cellNum).pro.neural.sacc.rate_pst_win / units(cellNum).anti.neural.sacc.rate_pst_win;
+end 
+
+
 end
 
 
