@@ -430,10 +430,13 @@ for cellNum = 1:length(units)
     base_win = units(cellNum).pro.neural.sacc.ts_pst > prs.baseline_win(1) & units(cellNum).pro.neural.sacc.ts_pst <= prs.baseline_win(2);
     t_instr= units(cellNum).pro.neural.instr.ts_pst(instr_win); %time
     t_sacc = units(cellNum).pro.neural.sacc.ts_pst(sacc_win);
+    sacc_on = units(cellNum).pro.neural.sacc.ts_pst > 0 & units(cellNum).pro.neural.sacc.ts_pst <= prs.saccade_win(2);
+    
     %get spks pro
     instr_spks_pro = units(cellNum).pro.neural.instr.rate_pst(instr_win);
     sacc_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(sacc_win);
     base_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(base_win);
+    sacc_on_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(sacc_on);
     
     %pst, mean and sem
     %instr
@@ -461,10 +464,19 @@ for cellNum = 1:length(units)
     units(cellNum).pro.neural.base.rate_sig = std(base_spks_pro)/sqrt(ntrls_pro);
     units(cellNum).pro.neural.base.rate_std = std(base_spks_pro);
     
+    % sacc after 0 > or < than baseline
+    if mean(sacc_on_spks_pro) > units(cellNum).pro.neural.base.rate_mu
+    units(cellNum).pro.neural.exc = 1; units(cellNum).pro.neural.sup = 0; 
+    else
+         units(cellNum).pro.neural.exc = 0; units(cellNum).pro.neural.sup = 1; 
+    end
+    
     %get spks anti
     instr_spks_anti = units(cellNum).anti.neural.instr.rate_pst(instr_win);
     sacc_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(sacc_win);
     base_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(base_win);
+    sacc_on_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(sacc_on);
+    
     %pst, mean and sem
     %instr
     units(cellNum).anti.neural.instr.ts_pst_win = units(cellNum).anti.neural.instr.ts_pst(instr_win);
@@ -476,6 +488,7 @@ for cellNum = 1:length(units)
     [units(cellNum).anti.neural.instr.peak_resp, indx_max] = max(units(cellNum).anti.neural.instr.rate_pst_win);
     units(cellNum).anti.neural.instr.peak_resp_time = t_instr(indx_max);
     
+    % sacc
     units(cellNum).anti.neural.sacc.ts_pst_win = units(cellNum).anti.neural.sacc.ts_pst(sacc_win);
     units(cellNum).anti.neural.sacc.rate_pst_win = units(cellNum).anti.neural.sacc.rate_pst(sacc_win);
     units(cellNum).anti.neural.sacc.rate_mu = mean(sacc_spks_anti);
@@ -485,11 +498,19 @@ for cellNum = 1:length(units)
     [units(cellNum).anti.neural.sacc.peak_resp, indx_max] = max(units(cellNum).anti.neural.sacc.rate_pst_win);
     units(cellNum).anti.neural.sacc.peak_resp_time = t_sacc(indx_max);
     
+    % base
     units(cellNum).anti.neural.base.ts_pst_win = units(cellNum).anti.neural.sacc.ts_pst(base_win);
     units(cellNum).anti.neural.base.rate_pst_win = units(cellNum).anti.neural.sacc.rate_pst(base_win);
     units(cellNum).anti.neural.base.rate_mu = mean(base_spks_anti);
     units(cellNum).anti.neural.base.rate_sig = std(base_spks_anti)/sqrt(ntrls_anti);
     units(cellNum).anti.neural.base.rate_std = std(base_spks_anti);
+    
+     % sacc after 0 > or < than baseline
+    if mean(sacc_on_spks_anti) > units(cellNum).anti.neural.base.rate_mu
+    units(cellNum).anti.neural.exc = 1; units(cellNum).anti.neural.sup = 0; 
+    else
+         units(cellNum).anti.neural.exc = 0; units(cellNum).anti.neural.sup = 1; 
+    end
     
     %% compare windows against baseline activity for pro and anti - nspk
     % pro
@@ -621,6 +642,51 @@ for cellNum = 1:length(units)
             units(cellNum).anti.neural.sacc.spkCount_win(:,win_num));
     end
     
+     %% Sliding window to test if neuron is exc or supp after saccade onset
+    % detect saccade related using sliding window (5 bins) 200 ms before
+    % sacc onset to 200 ms after sacc onset and store time at > or < than 2*std
+    
+%         indx_win = prs.slide_win_size; win_size_prev = prs.slide_win_size_prev;
+%         t = units(cellNum).pro.neural.sacc.ts_pst;
+%         indx_beg = find(t>0,1); indx_end = find(t>0.150,1);
+%     %
+%     %     % pro
+%         rate_pst = units(cellNum).pro.neural.sacc.rate_pst;
+%         exc_pro=0; sup_pro=0;exc_anti=0; sup_anti=0;
+%     
+%         for indx = indx_beg:indx_end
+%             r_mu = mean(rate_pst(round(indx-win_size/2):round(indx+win_size/2)));
+%             r_thresh1 = mean(rate_pst(indx-win_size_prev:indx))+...
+%                 2*std(rate_pst(indx-win_size_prev:indx));
+%             r_thresh2 = mean(rate_pst(indx-win_size_prev:indx))-...
+%                 2*std(rate_pst(indx-win_size_prev:indx));
+%             if (r_thresh1>1 && r_mu>r_thresh1), exc_pro=exc_pro+1;else exc_pro=0;end
+%             if (r_thresh2>1 && r_mu<r_thresh2), sup_pro=sup_pro+1;else sup_pro=0;end
+%             if exc_pro==3, events.rise.t_on = t(indx); units(cellNum).pro.events.rise.type_on = 'exc';
+%                 break;
+%             elseif sup_pro==3, units(cellNum).pro.events.rise.t_on = t(indx); units(cellNum).pro.events.rise.type_on = 'sup';
+%                 break;
+%             end
+%         end
+    %
+    %     % anti
+    %     rate_pst = units(cellNum).anti.neural.sacc.rate_pst;
+    %     exc_anti=0; sup_anti=0;
+    %
+    %     for indx = indx_beg:indx_end
+    %         r_mu = mean(rate_pst(round(indx-win_size/2):round(indx+win_size/2)));
+    %         r_thresh1 = mean(rate_pst(indx-win_size_prev:indx))+...
+    %             2*std(rate_pst(indx-win_size_prev:indx));
+    %         r_thresh2 = mean(rate_pst(indx-win_size_prev:indx))-...
+    %             2*std(rate_pst(indx-win_size_prev:indx));
+    %         if (r_thresh1>1 && r_mu>r_thresh1), exc_anti=exc_anti+1;else exc_anti=0;end
+    %         if (r_thresh2>1 && r_mu<r_thresh2), sup_anti=sup_anti+1;else sup_anti=0;end
+    %         if exc_anti==3, events.rise.t_on = t(indx); events.rise.type_on = 'exc';
+    %             break;
+    %         elseif sup_anti==3, units(cellNum).pro.events.rise.t_on = t(indx); units(cellNum).pro.events.rise.type_on = 'sup';
+    %             break;
+    %         end
+    %     end
     
     %% Sliding window to test diff pro vs anti
     % detect saccade related using sliding window (5 bins) 200 ms before
