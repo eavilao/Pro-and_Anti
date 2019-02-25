@@ -1104,6 +1104,7 @@ switch plotType
         end
         indx = find(indx);
         nunits_area = 1:length(indx);
+        t = units(1).pro.neural.sacc.ts_pst_win; % time
         
         for j=1:length(indx)
             r_pro(j,:) = units(indx(j)).pro.neural.sacc.rate_pst_win; % psth
@@ -1117,8 +1118,10 @@ switch plotType
         B = goodcolormap('wr');
         
         % colormap sorted
-        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flipud(B'));
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flipud(B')); hold on
         imagesc(t,1:size(r_pro_sorted,1),r_pro_sorted, [0 1]);
+        %scatter(indx_max,1:size(r_pro_sorted,1),5,'k','filled');
+        
         set(gca,'xlim',[-0.15 0.151], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
         vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Sorted Pro ' recArea])
         % colormap unsorted
