@@ -431,12 +431,14 @@ for cellNum = 1:length(units)
     t_instr= units(cellNum).pro.neural.instr.ts_pst(instr_win); %time
     t_sacc = units(cellNum).pro.neural.sacc.ts_pst(sacc_win);
     sacc_on = units(cellNum).pro.neural.sacc.ts_pst > 0 & units(cellNum).pro.neural.sacc.ts_pst <= prs.saccade_win(2);
+    sacc_pre = units(cellNum).pro.neural.sacc.ts_pst > prs.saccade_win(1) & units(cellNum).pro.neural.sacc.ts_pst <= -0.050;
     
     %get spks pro
     instr_spks_pro = units(cellNum).pro.neural.instr.rate_pst(instr_win);
     sacc_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(sacc_win);
     base_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(base_win);
     sacc_on_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(sacc_on);
+    sacc_pre_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(sacc_pre);
     
     %pst, mean and sem
     %instr
@@ -465,7 +467,7 @@ for cellNum = 1:length(units)
     units(cellNum).pro.neural.base.rate_std = std(base_spks_pro);
     
     % sacc after 0 > or < than baseline
-    if mean(sacc_on_spks_pro) > units(cellNum).pro.neural.base.rate_mu
+    if mean(sacc_on_spks_pro) > mean(sacc_pre_spks_pro)
     units(cellNum).pro.neural.exc = 1; units(cellNum).pro.neural.sup = 0; 
     else
          units(cellNum).pro.neural.exc = 0; units(cellNum).pro.neural.sup = 1; 
@@ -476,6 +478,7 @@ for cellNum = 1:length(units)
     sacc_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(sacc_win);
     base_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(base_win);
     sacc_on_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(sacc_on);
+    sacc_pre_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(sacc_pre);
     
     %pst, mean and sem
     %instr
@@ -506,7 +509,7 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.base.rate_std = std(base_spks_anti);
     
      % sacc after 0 > or < than baseline
-    if mean(sacc_on_spks_anti) > units(cellNum).anti.neural.base.rate_mu
+    if mean(sacc_on_spks_anti) > mean(sacc_pre_spks_anti)
     units(cellNum).anti.neural.exc = 1; units(cellNum).anti.neural.sup = 0; 
     else
          units(cellNum).anti.neural.exc = 0; units(cellNum).anti.neural.sup = 1; 
