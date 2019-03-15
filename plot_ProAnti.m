@@ -18,9 +18,10 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'pplsth_sacc_all': psth aligned to saccade onset for all cells. Press any key to plot next cell
 % 'psth_instr_all':psth aligned to instruction onset for all cells. Press any key to plot next cell
 % 'psth_mean': mean psth of two separate populations, exc and sup.  
-% 'delta_rate_mean': plot mean change in firing rate for all and only significant cells 
+% 'delta_rate_mean': plot mean change in firing rate for all and only significant cells
+% 'delta_rate_mean_norm_pro': plot mean change in firing rate for all and only significant cells normalized by prosaccade rate.
 % 'change_anti-pro': absolute change in firing rate 
-% 'delta_rate': plots time-course of change in firing rate (firing rate-baseline) for all cells and then plots max change in a scatter plot for significant cells.
+% 'delta_rate': first instance, contains all plots with time-course of change in firing rate (firing rate-baseline) for all cells and then plots max change in a scatter plot for significant cells.
 % 'DDI': discrimination index as described in Takahashi et al. 2007
 % 'indx_change'
 % 'colormap_sacc': plot time-course of normalized firing rate for all cells
@@ -38,6 +39,8 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'cv2'
 % 'eye move' plot eye traces for all trials for one neuron
 % 'mod_ratio': plot modulation ratio for all neurons and for signif diff neurons
+% 'sorted_colormap_sacc_norm_max': modified colormap with neurons sorted by max fr
+% 'sorted_colormap_instr_norm_max':
 
 %%
 %%
@@ -576,6 +579,115 @@ switch plotType
         %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-20 5], 'ytick', [-20 5],'TickDir', 'out', 'FontSize', 18);
         set(gca, 'xlim',[-0.150 0.151], 'ylim', [-20 30], 'ytick', [-20 0 30],'TickDir', 'out', 'FontSize', 18);
         ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)'); title('sup + signif ks')
+        
+    case 'delta_rate_mean_norm_pro' .   % UNDER CONSTRUCTION
+          % get exc and sup
+        cnt_exc=1; cnt_sup=1;
+        for cellNum = 1:length(units)
+            if strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.exc==1
+                indx_exc(cnt_exc) = cellNum; cnt_exc=cnt_exc+1;
+            elseif strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.sup==1
+                indx_sup(cnt_sup) = cellNum; cnt_sup=cnt_sup+1; 
+            end
+        end
+        
+         % get exc and sup signif
+        cnt_exc=1; cnt_sup=1;
+        for cellNum = 1:length(units)
+            if strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.exc==1 && units(cellNum).stats.sacc.flags.proVsAnti_sacc_ks_nspk==1
+                indx_exc_signif(cnt_exc) = cellNum; cnt_exc=cnt_exc+1;
+            elseif strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.sup==1 && units(cellNum).stats.sacc.flags.proVsAnti_sacc_ks_nspk==1
+                indx_sup_signif(cnt_sup) = cellNum; cnt_sup=cnt_sup+1; 
+            end
+        end
+       
+        % get exc
+        t = units(1).pro.neural.sacc.ts_pst_win;
+        for i = 1:length(indx_exc)
+        r_exc_pro(i,:) = units(indx_exc(i)).pro.neural.sacc.norm.delta_rate; %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        sem_exc_pro(i,:)= std(units(indx_exc(i)).pro.neural.sacc.delta_rate_base)/sqrt(length(indx_exc));
+        r_exc_anti(i,:) = units(indx_exc(i)).anti.neural.sacc.delta_rate_base;
+        sem_exc_anti(i,:)= std(units(indx_exc(i)).anti.neural.sacc.delta_rate_base)/sqrt(length(indx_sup)); 
+        end
+        
+        % get exc signif
+        for i = 1:length(indx_exc_signif)
+        r_exc_pro_signif(i,:) = units(indx_exc_signif(i)).pro.neural.sacc.delta_rate_base; 
+        sem_exc_pro_signif(i,:)= std(units(indx_exc_signif(i)).pro.neural.sacc.delta_rate_base)/sqrt(length(indx_exc_signif));
+        r_exc_anti_signif(i,:) = units(indx_exc_signif(i)).anti.neural.sacc.delta_rate_base;
+        sem_exc_anti_signif(i,:)= std(units(indx_exc_signif(i)).anti.neural.sacc.delta_rate_base)/sqrt(length(indx_sup_signif));
+        end 
+        
+        % get sup
+        for i = 1:length(indx_sup)
+        r_sup_pro(i,:) = units(indx_sup(i)).pro.neural.sacc.delta_rate_base;
+        sem_sup_pro(i,:)= std(units(indx_sup(i)).pro.neural.sacc.delta_rate_base)/sqrt(length(indx_sup));
+        r_sup_anti(i,:) = units(indx_sup(i)).anti.neural.sacc.delta_rate_base;
+        sem_sup_anti(i,:)= std(units(indx_sup(i)).anti.neural.sacc.delta_rate_base)/sqrt(length(indx_sup));
+        end
+        
+         % get sup signif
+        for i = 1:length(indx_sup_signif)
+        r_sup_pro_signif(i,:) = units(indx_sup_signif(i)).pro.neural.sacc.delta_rate_base; 
+        sem_sup_pro_signif(i,:)= std(units(indx_sup_signif(i)).pro.neural.sacc.delta_rate_base)/sqrt(length(indx_sup_signif));
+        r_sup_anti_signif(i,:) = units(indx_sup_signif(i)).anti.neural.sacc.delta_rate_base;
+        sem_sup_anti_signif(i,:)= std(units(indx_sup_signif(i)).anti.neural.sacc.delta_rate_base)/sqrt(length(indx_sup_signif));
+        end 
+
+       % plot exc
+        figure; hold on;
+        plot(t,mean(r_exc_pro));
+        plot(t,mean(r_exc_anti));
+        s_pro = shadedErrorBar(t, mean(r_exc_pro), repmat(mean(sem_exc_pro),[size(mean(r_exc_pro)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_exc_anti),repmat(mean(sem_exc_anti),[size(mean(r_exc_anti)) 1]), 'lineprops','g');
+        set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
+        set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
+        set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1); 
+        %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-4 16], 'ytick', [-4 16],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-10 15], 'ytick', [-10 0 15],'TickDir', 'out', 'FontSize', 18);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)')
+        
+         % plot sup
+        %figure; hold on;
+        plot(t,mean(r_sup_pro));
+        plot(t,mean(r_sup_anti));
+        s_pro = shadedErrorBar(t, mean(r_sup_pro), repmat(mean(sem_sup_pro),[size(mean(r_sup_pro)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_sup_anti),repmat(mean(sem_sup_anti),[size(mean(r_sup_anti)) 1]), 'lineprops','g');
+        set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
+        set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
+        set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
+        %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-10 2], 'ytick', [-10 2],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-10 15], 'ytick', [-10 0 15],'TickDir', 'out', 'FontSize', 18);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)')
+        
+        % plot exc signif
+        figure; hold on;
+        plot(t,mean(r_exc_pro_signif));
+        plot(t,mean(r_exc_anti_signif));
+        s_pro = shadedErrorBar(t, mean(r_exc_pro_signif), repmat(mean(sem_exc_pro_signif),[size(mean(r_exc_pro_signif)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_exc_anti_signif),repmat(mean(sem_exc_anti_signif),[size(mean(r_exc_anti_signif)) 1]), 'lineprops','g');
+        set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
+        set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
+        set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1); 
+        % set(gca, 'xlim',[-0.150 0.151], 'ylim', [-10 30], 'ytick', [-10 30],'TickDir', 'out', 'FontSize', 18);   
+        % set(gca, 'xlim',[-0.150 0.151], 'ylim', [-5 20], 'ytick', [-5 20],'TickDir', 'out', 'FontSize', 18);  
+        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-20 30], 'ytick', [-20 0 30],'TickDir', 'out', 'FontSize', 18);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)'); title('exc + signif ks ts')
+        
+        
+        % plot sup signif
+        %figure; hold on;
+        plot(t,mean(r_sup_pro_signif));
+        plot(t,mean(r_sup_anti_signif));
+        s_pro = shadedErrorBar(t, mean(r_sup_pro_signif), repmat(mean(sem_sup_pro_signif),[size(mean(r_sup_pro_signif)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_sup_anti_signif),repmat(mean(sem_sup_anti_signif),[size(mean(r_sup_anti_signif)) 1]), 'lineprops','g');
+        set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
+        set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
+        set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
+        %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-20 5], 'ytick', [-20 5],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-20 30], 'ytick', [-20 0 30],'TickDir', 'out', 'FontSize', 18);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)'); title('sup + signif ks')
+        
         
         
     case 'change_anti-pro'
@@ -1988,7 +2100,7 @@ switch plotType
         set(gca, 'yTick',[0 0.5 1],'xlim',[0.5 1.5] ,'XGrid', 'off', 'YGrid', 'off', 'TickDir', 'out', 'FontSize', 30); title('Modulation ratio OMV vs Lateral signif');
         axis square;
         
-        case 'sorted_colormap_sacc'
+        case 'sorted_colormap_sacc_norm_max'
         % get area
         for cellNum = 1:length(units)
             indx(cellNum) = strcmp(units(cellNum).area, recArea);
@@ -2063,7 +2175,7 @@ switch plotType
 
 
         
-    case 'sorted_colormap_instr'
+    case 'sorted_colormap_instr_norm_max'
         % get area
         for cellNum = 1:length(units)
             indx(cellNum) = strcmp(units(cellNum).area, recArea);
