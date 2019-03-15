@@ -585,7 +585,7 @@ for cellNum = 1:length(units)
     units(cellNum).stats.anti.sacc.DDI = (max(units(cellNum).anti.neural.sacc.nspk)-min(units(cellNum).anti.neural.sacc.nspk))/((max(units(cellNum).anti.neural.sacc.nspk)-min(units(cellNum).anti.neural.sacc.nspk))+2*sqrt(SSE_anti/(trialNum_anti-2)));
     
     
-    %% noramlized FR - z-scored aligned to sacc
+    %% normalized FR - z-scored aligned to sacc
     % aligned to trial onset
     units(cellNum).pro.neural.sacc.norm_rate_pst = (units(cellNum).pro.neural.instr.rate_pst - mean(units(cellNum).pro.neural.instr.rate_pst))/...
         std(units(cellNum).pro.neural.instr.rate_pst);
@@ -603,6 +603,10 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.sacc.norm_rate_pst = (units(cellNum).anti.neural.sacc.rate_pst - mean(units(cellNum).anti.neural.sacc.rate_pst))/...
         std(units(cellNum).anti.neural.sacc.rate_pst);
     
+    
+    %% normalize anti based on prosaccades (as described by Maarten, March 2019)
+    units(cellNum).anti.neural.sacc.norm_rate_pst_pro = (units(cellNum).anti.neural.instr.rate_pst - mean(units(cellNum).pro.neural.instr.rate_pst))/...
+        std(units(cellNum).pro.neural.instr.rate_pst);
     
     %% statistical test to compare if pro == anti - aligned to instr using spk count
     % H0:pro=anti  versus HA:pro?anti

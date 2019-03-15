@@ -2045,6 +2045,23 @@ switch plotType
 %         imagesc(t,1:size(r_anti_norm,1),r_anti_norm, [0 1]);
 %         set(gca,'xlim',[-0.15 0.151],'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
 %         vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Anti ' recArea])
+
+        %% plot a few neurons for sanity check
+        cell = 134; 
+        t_check = units(cell).pro.neural.sacc.ts_pst;
+        r_check_pro = units(cell).pro.neural.sacc.rate_pst;
+        r_check_anti = units(cell).anti.neural.sacc.rate_pst;
+         
+        figure;
+        plot(t_check,r_check_pro,'color','r'); hold on;
+        plot(t_check,r_check_anti,'color','g');
+        set(gca, 'xlim',([-0.2 0.2]), 'TickDir', 'out', 'FontSize',22); % analysis window size
+        xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
+        vline(0, 'k-');
+        box off
+        
+
+
         
     case 'sorted_colormap_instr'
         % get area
