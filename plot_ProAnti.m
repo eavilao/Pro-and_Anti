@@ -652,7 +652,7 @@ switch plotType
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1); 
         %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-4 16], 'ytick', [-4 16],'TickDir', 'out', 'FontSize', 18);
-        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-1.2 1.2], 'ytick', [-1.2 0 1.2],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-1.5 1.5], 'ytick', [-1.5 0 1.5],'TickDir', 'out', 'FontSize', 18);
         ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)')
         
          % plot sup
@@ -680,7 +680,7 @@ switch plotType
         % set(gca, 'xlim',[-0.150 0.151], 'ylim', [-10 30], 'ytick', [-10 30],'TickDir', 'out', 'FontSize', 18);   
         % set(gca, 'xlim',[-0.150 0.151], 'ylim', [-5 20], 'ytick', [-5 20],'TickDir', 'out', 'FontSize', 18);  
         set(gca, 'xlim',[-0.150 0.151], 'ylim', [-1.5 1.5], 'ytick', [-1.5 0 1.5],'TickDir', 'out', 'FontSize', 18);
-        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)'); title('exc + signif')
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)'); 
         
         
         % plot sup signif
@@ -694,18 +694,31 @@ switch plotType
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
         %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-20 5], 'ytick', [-20 5],'TickDir', 'out', 'FontSize', 18);
         set(gca, 'xlim',[-0.150 0.151], 'ylim', [-1.5 1.5], 'ytick', [-1.5 0 1.5],'TickDir', 'out', 'FontSize', 18);
-        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)'); title('sup + signif')
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)'); title('signif')
         
         
         %% insets with means for smaller windows. 
-        % -0.1 to 0 and -0.150 to 0
-        r_small_win_exc_pro = r_exc_pro(:, t > -0.101 & t < 0.01);
-        r_win_exc_pro = r_exc_pro(:, t > -0.151 & t < 0.01);
+        % pro small_win -0.1 to 0 ::: win -0.150 to 0
+        r_small_win_exc_pro = mean(r_exc_pro(:, t > -0.101 & t < 0.01));
+        r_win_exc_pro = mean(r_exc_pro(:, t > -0.151 & t < 0.01));
+        r_small_win_sup_pro = mean(r_sup_pro(:, t > -0.101 & t < 0.01));
+        r_win_sup_pro = mean(r_sup_pro(:, t > -0.151 & t < 0.01));
         
-        r_small_win_sup_pro = r_sup_pro(:, t > -0.101 & t < 0.01);
-        r_win_sup_pro = r_sup_pro(:, t > -0.151 & t < 0.01);
+         % anti small_win -0.1 to 0 ::: win -0.150 to 0
+        r_small_win_exc_anti = mean(r_exc_anti(:, t > -0.101 & t < 0.01));
+        r_win_exc_anti = mean(r_exc_anti(:, t > -0.151 & t < 0.01));
+        r_small_win_sup_anti = mean(r_sup_anti(:, t > -0.101 & t < 0.01));
+        r_win_sup_anti = mean(r_sup_anti(:, t > -0.151 & t < 0.01));
+
+        figure; hold on;
+        errorbar(1,mean(r_small_win_exc_pro),std(r_small_win_exc_pro),'r','LineWidth',1);
+        errorbar(2,mean(r_small_win_exc_anti),std(r_small_win_exc_anti),'g','LineWidth',1);
+        set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[-0.01 1], 'yTick', [0 0.5 1], 'TickDir', 'out', 'FontSize',18);
         
-        
+        figure; hold on; 
+        errorbar(1,mean(r_win_exc_pro),std(r_win_exc_pro),'r','LineWidth',1);
+        errorbar(2,mean(r_win_exc_anti),std(r_win_exc_anti),'g','LineWidth',1);
+        set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[-0.2 1], 'yTick', [0 0.5 1], 'TickDir', 'out', 'FontSize',18);
         
     case 'change_anti-pro'
         % gather indx
