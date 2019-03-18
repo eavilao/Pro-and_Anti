@@ -1786,12 +1786,50 @@ switch plotType
             z_win_mu(i) = mean(abs(z_sign_sacc_win(i,:))); % mean for every cell in its window
         end
         
-        figure; hold on;
-        plot(z_win_mu,'.k', 'MarkerSize', 18)
-        set(gca, 'TickDir', 'out', 'FontSize', 18); hline(1.96)
-        xlabel('cell'); ylabel('Z-stat')
-        title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
+%         figure; hold on;
+%         plot(z_win_mu,'.k', 'MarkerSize', 18)
+%         set(gca, 'TickDir', 'out', 'FontSize', 18); hline(1.96)
+%         xlabel('cell'); ylabel('Z-stat')
+%         title(['Z stat sacc window(0.1-0.2s) recarea => ' recArea])
         
+        %% exc and sup z stat
+        cnt_exc=1; cnt_sup=1;
+        for cellNum = 1:length(units)
+            if strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.exc==1
+                indx_exc(cnt_exc) = cellNum; cnt_exc=cnt_exc+1;
+            elseif strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.sup==1
+                indx_sup(cnt_sup) = cellNum; cnt_sup=cnt_sup+1; 
+            end
+        end
+        
+        % get signif exc and sup
+        cnt_exc=1; cnt_sup=1;
+        for cellNum = 1:length(units)
+            if strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.exc==1 && units(cellNum).stats.sacc.flags.proVsAnti_sacc_ks_nspk==1
+                indx_exc_signif(cnt_exc) = cellNum; cnt_exc=cnt_exc+1;
+            elseif strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.sup==1 && units(cellNum).stats.sacc.flags.proVsAnti_sacc_ks_nspk==1
+                indx_sup_signif(cnt_sup) = cellNum; cnt_sup=cnt_sup+1; 
+            end
+        end
+        
+        % get indx's
+        % for i = 1:length(indx_exc), z_stat_exc(i,:) = abs(units(indx_exc(i)).stats.sacc.pval.pbDist_testStat); end
+        for  i = 1:length(indx_exc_signif), z_stat_exc_signif(i,:) = abs(units(indx_exc_signif(i)).stats.sacc.pval.pbDist_testStat); end
+        % for i = 1:length(indx_sup), z_stat_sup(i,:) = abs(units(indx_sup(i)).stats.sacc.pval.pbDist_testStat); end 
+        for i = 1:length(indx_sup_signif), z_stat_sup_signif(i,:) = abs(units(indx_sup_signif(i)).stats.sacc.pval.pbDist_testStat); end
+        
+        % plot exc
+        figure; hold on;
+        plot(t_sacc,smooth(nanmean(abs(z_stat_exc_signif)),3),'LineWidth', 2,'Color','m'); % smoothed
+        set(gca, 'xlim',[-0.150 0.151], 'ylim', ([0.6 2.5]), 'TickDir', 'out', 'FontSize', 18);
+        title(['Sacc exc => ' recArea]); box off;
+        xlabel('time(s)'); ylabel('Z-stat'); hline(1.96, '--k');
+        
+        % plot sup
+        plot(t_sacc,smooth(nanmean(abs(z_stat_sup_signif)),3),'LineWidth', 2,'Color','b'); % smoothed
+        set(gca, 'xlim',[-0.150 0.151], 'ylim', ([0.6 2.5]), 'TickDir', 'out', 'FontSize', 18);
+        title(['Exc and sup => ' recArea]); box off;
+        xlabel('time(s)'); ylabel('Z-stat'); hline(1.96, '--k');
         
     case 'spk_pb_stat'
         % instr
@@ -2130,7 +2168,7 @@ switch plotType
         set(gca, 'yTick',[0 0.5 1],'xlim',[0.5 1.5] ,'XGrid', 'off', 'YGrid', 'off', 'TickDir', 'out', 'FontSize', 30); title('Modulation ratio OMV vs Lateral signif');
         axis square;
         
-        case 'sorted_colormap_sacc_norm_max'
+        case 'sorted_colormap_sacc'
         % get area
         for cellNum = 1:length(units)
             indx(cellNum) = strcmp(units(cellNum).area, recArea);
@@ -2157,9 +2195,9 @@ switch plotType
         scatter(t(max_pos_pro),1:size(r_pro_sorted,1),10,'w','filled');
         %plot(t(max_pos),1:size(r_pro_sorted,1),'w', 'LineWidth',2); 
         %scatter(indx_max,1:size(r_pro_sorted,1),5,'k','filled');
-        set(gca,'xlim',[-0.155 0.155], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        set(gca,'xlim',[-0.15 0.15], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
         vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Sorted Pro ' recArea])
-        figure; histogram(t(max_pos_pro),30); set(gca, 'yTick', [0 17],'xTick', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        figure; histogram(t(max_pos_pro),t); set(gca, 'yTick', [0 17],'xTick', [], 'TickDir', 'out', 'FontSize', 18); box off;
         
         % colormap unsorted
 %         figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); %colormap(flipud(B'));
@@ -2176,24 +2214,29 @@ switch plotType
         figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flipud(pink)); %colormap(B'); %colormap(flipud(B'));
         imagesc(t,1:size(r_anti_sorted,1),r_anti_sorted, [0 1]); hold on;
         scatter(t(max_pos_anti),1:size(r_anti_sorted,1),10,'w','filled');
-        %plot(t(max_pos),1:size(r_anti_sorted,1),'w', 'LineWidth',2); 
+        %plot(t(max_pos),1:size(r_anti_sorted,1),'w', 'LineWidth',2);
         %scatter(indx_max,1:size(r_pro_sorted,1),5,'k','filled');
-        set(gca,'xlim',[-0.155 0.155], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        set(gca,'xlim',[-0.15 0.15], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
         vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Sorted anti ' recArea])
-        figure; histogram(t(max_pos_anti),30); set(gca, 'yTick', [0 14],'xTick', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        figure; histogram(t(max_pos_anti),t); set(gca, 'yTick', [0 14], 'TickDir', 'out', 'FontSize', 18); box off;
         
         % colormap unsorted
-%         figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); %colormap(flipud(B'));
-%         imagesc(t,1:size(r_anti_norm,1),r_anti_norm, [0 1]);
-%         set(gca,'xlim',[-0.15 0.151],'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
-%         vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Anti ' recArea])
-
+        %         figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); %colormap(flipud(B'));
+        %         imagesc(t,1:size(r_anti_norm,1),r_anti_norm, [0 1]);
+        %         set(gca,'xlim',[-0.15 0.151],'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        %         vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Anti ' recArea])
+        
+        %% Sanity check
+        % for every cell, ranomize half of the trials and see if they retain their position
+        
+        
+        
         %% plot a few neurons for sanity check
-        cell = 134; 
+        cell = 134;
         t_check = units(cell).pro.neural.sacc.ts_pst;
         r_check_pro = units(cell).pro.neural.sacc.rate_pst;
         r_check_anti = units(cell).anti.neural.sacc.rate_pst;
-         
+        
         figure;
         plot(t_check,r_check_pro,'color','r'); hold on;
         plot(t_check,r_check_anti,'color','g');
@@ -2205,7 +2248,7 @@ switch plotType
 
 
         
-    case 'sorted_colormap_instr_norm_max'
+    case 'sorted_colormap_instr'
         % get area
         for cellNum = 1:length(units)
             indx(cellNum) = strcmp(units(cellNum).area, recArea);
