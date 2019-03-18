@@ -2231,6 +2231,8 @@ switch plotType
         
         
         
+        
+        
         %% plot a few neurons for sanity check
         cell = 134;
         t_check = units(cell).pro.neural.sacc.ts_pst;

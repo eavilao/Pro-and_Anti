@@ -181,13 +181,15 @@ for cellNum = 1:length(units)
     [units(cellNum).pro.neural.sacc.rate_pst,units(cellNum).pro.neural.sacc.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to saccade onset
     units(cellNum).pro.neural.sacc.rate_pst = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst,prs.binwidth,prs.tsmooth);
     
-    %% sanity check -- for every cell, ranomize half of the trials and compute psth
+    %% sanity check -- for every cell, ranomize half of the trials and compute psth (5 times)
+    for j = 1:5;
     numtrials = []; pick_trials = []; 
     numtrials = length(units(cellNum).pro.neural.trial); % number of trials
     pick_trials = sort(randsample(numtrials, round(numtrials/2)));  % pick half of the trials randomly
     
-    [units(cellNum).pro.neural.sacc.rate_pst_rand,~] = Spiketimes2Rate(units(cellNum).pro.neural.trial((pick_trials)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to saccade onset
-    units(cellNum).pro.neural.sacc.rate_pst_rand = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst_rand,prs.binwidth,prs.tsmooth);
+    [units(cellNum).pro.neural.sacc.rate_pst_rand(j,:),~] = Spiketimes2Rate(units(cellNum).pro.neural.trial((pick_trials)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to saccade onset
+    units(cellNum).pro.neural.sacc.rate_pst_rand(j,:) = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst_rand(j,:),prs.binwidth,prs.tsmooth);
+    end
     analyse_sacc_align=0;
     
     % Anti trials
@@ -219,13 +221,13 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.sacc.rate_pst = smooth_pst(units(cellNum).anti.neural.sacc.rate_pst,prs.binwidth,prs.tsmooth);
     
     %% sanity check -- for every cell, pick random half of the trials and compute psth
+    for j = 1:5;
     numtrials = []; pick_trials = []; 
     numtrials = length(units(cellNum).anti.neural.trial); % number of trials
     pick_trials = sort(randsample(numtrials, round(numtrials/2)));  % pick half of the trials randomly
-    
-    [units(cellNum).anti.neural.sacc.rate_pst_rand,~] = Spiketimes2Rate(units(cellNum).anti.neural.trial((pick_trials)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to saccade onset
-    units(cellNum).anti.neural.sacc.rate_pst_rand = smooth_pst(units(cellNum).anti.neural.sacc.rate_pst_rand,prs.binwidth,prs.tsmooth);
-
+    [units(cellNum).anti.neural.sacc.rate_pst_rand(j,:),~] = Spiketimes2Rate(units(cellNum).anti.neural.trial((pick_trials)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to saccade onset
+    units(cellNum).anti.neural.sacc.rate_pst_rand(j,:) = smooth_pst(units(cellNum).anti.neural.sacc.rate_pst_rand(j,:),prs.binwidth,prs.tsmooth);
+    end
     analyse_sacc_align=0;
 end
 
