@@ -30,4 +30,5 @@ nspkCount = nspkCount(2:end-1);
 timepoints = timepoints(2:end-1);
 
 % rate 
-nspk = sum(nspkCount)/timepoints(end)-timepoints(1); 
+nspk = sum(nspkCount)/(timepoints(end)-timepoints(1)); 
+

@@ -5,6 +5,7 @@ prs.min_trial = 10; % min amount of trials to have to extract a cell
  
 % Windows - Make them the same size to make fair comparisons. 
 prs.baseline_win = [-0.3 -0.150];  % before saccade onset
+prs.baseline_instr = [-0.5 0];
 prs.instruction_win = [0.05 0.350];  % aligned to trial onset
 % prs.saccade_win = [-0.101 0.201];   % aligned to saccade << default
 prs.saccade_win = [-0.151 0.151]; %[0.1 0.201];   %[-0.050 0.150];
@@ -12,7 +13,7 @@ prs.eye_win_sacc = [-0.5 0.5];
 
 
 % extract spk timing
-prs.tspk = [-0.1 0.2]; %100 ms before trial starts to reward +200 ms
+prs.tspk = [-2 0.2]; %900 ms before trial starts to reward +200 ms
 
 % Prosaccade condition codes
 prs.proConditions = [1 4 5 8 10 11 14 15];
@@ -20,7 +21,7 @@ prs.antiConditions = [ 2 16 7 6 12 3 13 9 ];
 
  
 prs.binwidth = 0.01;
-prs.timepoints_instr = -0.1:prs.binwidth:1;
+prs.timepoints_instr = -2:prs.binwidth:1;
 prs.timepoints_sacc = -0.8:prs.binwidth:0.3;
 
 % smoothing window for psth
