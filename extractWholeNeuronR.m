@@ -603,19 +603,19 @@ for cellNum = 1:length(units)
     
     %% Compute change in FR from mean and baseline
     % pro
-    units(cellNum).pro.neural.instr.delta_rate = units(cellNum).pro.neural.instr.rate_pst_win - units(cellNum).pro.neural.instr.rate_mu; % mean
+    units(cellNum).pro.neural.instr.delta_rate = units(cellNum).pro.neural.instr.rate_pst_win - units(cellNum).pro.neural.base.rate_instr_mu; % mean
     units(cellNum).pro.neural.sacc.delta_rate = units(cellNum).pro.neural.sacc.rate_pst_win - units(cellNum).pro.neural.sacc.rate_mu; % mean
     
     units(cellNum).pro.neural.sacc.delta_rate_base = units(cellNum).pro.neural.sacc.rate_pst_win - units(cellNum).pro.neural.base.rate_mu;  %baseline
-    units(cellNum).pro.neural.instr.delta_rate_base = units(cellNum).pro.neural.instr.rate_pst_win - units(cellNum).pro.neural.base.rate_mu; % baseline from ITI
+    units(cellNum).pro.neural.instr.delta_rate_base = units(cellNum).pro.neural.instr.rate_pst_win - units(cellNum).pro.neural.base.rate_instr_mu; % baseline from ITI
     
     % anti
-    units(cellNum).anti.neural.instr.delta_rate = units(cellNum).anti.neural.instr.rate_pst_win - units(cellNum).anti.neural.instr.rate_mu; % mean
+    units(cellNum).anti.neural.instr.delta_rate = units(cellNum).anti.neural.instr.rate_pst_win - units(cellNum).anti.neural.base.rate_instr_mu; % mean
     units(cellNum).anti.neural.sacc.delta_rate = units(cellNum).anti.neural.sacc.rate_pst_win - units(cellNum).anti.neural.sacc.rate_mu;
     
     units(cellNum).anti.neural.sacc.delta_rate_base = units(cellNum).anti.neural.sacc.rate_pst_win - units(cellNum).anti.neural.base.rate_mu; % baseline
     
-    units(cellNum).anti.neural.instr.delta_rate_base = units(cellNum).anti.neural.instr.rate_pst_win - units(cellNum).anti.neural.base.rate_mu; % baseline from ITI
+    units(cellNum).anti.neural.instr.delta_rate_base = units(cellNum).anti.neural.instr.rate_pst_win - units(cellNum).anti.neural.base.rate_instr_mu; % baseline from ITI
     
     
     %% compute DDI
