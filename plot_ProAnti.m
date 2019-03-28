@@ -5,6 +5,7 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 %           cellNum - cell you want to plot. If all leave empty = []
 %           plotType - plot you want (e.g. raster, psth, etc.)
 %           recArea - OMV, lateral Cb
+%            -- for eye move -- load file sent by Nico 
 
 % if running population (all neurons), just inpu t [] in cellNum.
 % if running single neuron, on recArea input []. Example: plot_ProAnti(units, 'raster_sacc',1,  [])
@@ -13,6 +14,7 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 
 % 'eyeKin' : plot eye kinematics for all cells and trials
 % 'raster_sacc': saccade aligned raster plot for the chosen cell
+% 'raster_sacc_single': plot raster for a single trial
 % 'raster_instr': instruction aligned raster plot for the chosen cell
 % 'psth': psth for the chosen cell, aligned to saccade and instruction
 % 'pplsth_sacc_all': psth aligned to saccade onset for all cells. Press any key to plot next cell
@@ -37,7 +39,8 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'spk_pb_stat': spike probability density for 50 ms
 % 'cv'
 % 'cv2'
-% 'eye move' plot eye traces for all trials for one neuron
+% 'eye_move' plot eye traces for all trials for one neuron % LOAD FILE SENT BY NICO
+% 'eye_move_single' plot single eye trace for a specific trial in a recording % LOAD FILE SENT BY NICO
 % 'mod_ratio': plot modulation ratio for all neurons and for signif diff neurons
 % 'sorted_colormap_sacc_norm_max': modified colormap with neurons sorted by max fr
 % 'sorted_colormap_instr_norm_max':
@@ -191,36 +194,21 @@ switch plotType
     case 'raster_sacc_single'
         [~,indx] = sort([units(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
         sorted_RT = -[units(cellNum).pro.behav.trial(indx).reactionTime];
-        r_pro= units(cellNum).pro.neural.trial;
+        r= units(cellNum).pro.neural.trial; % pro
+        %r= units(cellNum).anti.neural.trial; % anti
+        
         recArea = units(cellNum).area;
         
-        figure;subplot (2,1,1); hold on;box off
-        
-        if strcmp(units(cellNum).id,'SS') % either SS or CS
-            for j=1%:length(indx)
-                if ~isempty(r_pro(indx(j)).tspk_SS_align_sacc)
-                    %plot(sorted_RT(j),j,'.r');
-                    %plot(r_pro(indx(j)).tspk_SS_align_sacc(1:2:end),j,'.k'); %plot every n spikes
-                    plot(r_pro(indx(j)).tspk_SS_align_sacc,j,'.k');
-                end
+        for j=1:length(indx)
+            figure('Position',[2454 782 350 119]);hold on;
+            for ii = 1:length(r(indx(j)).tspk_SS_align_sacc)
+                line([r(indx(j)).tspk_SS_align_sacc(ii) r(indx(j)).tspk_SS_align_sacc(ii)], [0 1],'Color', 'k', 'LineWidth',2)
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([-0.150 0.151]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            %title(['Pro (aligned to saccade) SS => ' recArea ' cellNum ' num2str(cellNum)]); xlabel('Time (s)');ylabel('Trial Num')
-        else
-            for j= 1:length(indx)
-                if ~isempty(r_pro(indx(j)).tspk_CS_align_sacc)
-                    %plot(sorted_RT(j),j,'.r');
-                    plot(r_pro(indx(j)).tspk_CS_align_sacc,j,'.k');
-                end
-            end
-            vline(0, 'c');
-            set (gca, 'xlim', ([-0.150 0.151]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
-            %title(['Pro (aligned to saccade) CS  => ' recArea ' cellNum ' num2str(cellNum) ]); xlabel('Time (s)');ylabel('Trial Num')
-            
+            set (gca, 'xlim', ([-0.150 0.151]), 'TickDir', 'out', 'FontSize', 22); title(num2str(j));
+            waitforbuttonpress; close all;
         end
-        
-        
+          
     case 'raster_instr'
         % instr aligned
         % pro
@@ -240,7 +228,7 @@ switch plotType
                 end
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([-0.1 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
+            set (gca, 'xlim', ([0 0.35]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
             title(['Pro (aligned to instruction) SS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
         else
             for j=1:length(indx)
@@ -268,7 +256,7 @@ switch plotType
                 end
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([-0.1 0.3]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
+            set (gca, 'xlim', ([0 0.35]), 'ylim',([0 j]), 'TickDir', 'out', 'FontSize', 18);
             title(['Anti (aligned to instruction) SS  => ' recArea]); xlabel('Time (s)');ylabel('Trial Num')
         else
             for j=1:length(indx)
@@ -282,6 +270,7 @@ switch plotType
             
         end
         
+        % print('raster','-depsc2', '-painters', '-cmyk')
         
     case 'psth'
         
@@ -337,6 +326,7 @@ switch plotType
         %gather
         
         t= units(cellNum).pro.neural.sacc.ts_pst;
+        t_instr = units(cellNum).pro.neural.instr.ts_pst;
         r_pro= units(cellNum).pro.neural.instr.rate_pst;
         sem_pro = std(units(cellNum).pro.neural.instr.rate_pst)/sqrt(length(units(cellNum).pro.neural.trial));
         std_pro = std(units(cellNum).pro.neural.instr.rate_pst); std_pro = repmat(std_pro,[1 size(r_pro,2)]);
@@ -358,14 +348,14 @@ switch plotType
         
         % plot w/sem
         subplot(1,2,2);
-        s_pro = shadedErrorBar(t, r_pro,std_pro,'lineprops','r');
-        s_anti = shadedErrorBar(t, r_anti,std_anti,'lineprops','g');
+        s_pro = shadedErrorBar(t_instr, r_pro,std_pro,'lineprops','r');
+        s_anti = shadedErrorBar(t_instr, r_anti,std_anti,'lineprops','g');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
-        set (gca, 'xlim',([-0.1 0.3]), 'TickDir', 'out', 'FontSize',18);
+        set (gca, 'xlim',([0 0.35]), 'xTick', [0 .175 0.350] , 'TickDir', 'out', 'FontSize',22);
         xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
-        vline(0, 'k--');
+        %vline(0, 'k--');
         box off
         title(['Aligned to instruction => ' recArea]);
         annotation('textbox',...
@@ -2124,7 +2114,7 @@ switch plotType
         c = 1;
         for i = 1:length(units(cellNum).pro.behav.trial)
             sacc_onset = units(cellNum).pro.behav.trial(i).saccadeOnset;
-            align_sacc = t - sacc_onset; t_sacc = align_sacc(align_sacc >= -0.150 & align_sacc <= 0.150);
+            align_sacc = t - sacc_onset-0.012; t_sacc = align_sacc(align_sacc >= -0.150 & align_sacc <= 0.150);
             x = units(cellNum).pro.behav.trial(i).eyePositionX; y = units(cellNum).pro.behav.trial(i).eyePositionY;
             if ~isnan(x)
                 heye(c,:) = x(align_sacc >= -0.150 & align_sacc <= 0.150);
@@ -2143,7 +2133,7 @@ switch plotType
         c = 1;
         for i = 1:length(units(cellNum).anti.behav.trial)
             sacc_onset = units(cellNum).anti.behav.trial(i).saccadeOnset;
-            align_sacc = t - sacc_onset; t_sacc = align_sacc(align_sacc >= -0.150 & align_sacc <= 0.150);
+            align_sacc = t - sacc_onset-0.012; t_sacc = align_sacc(align_sacc >= -0.150 & align_sacc <= 0.150);
             x = units(cellNum).anti.behav.trial(i).eyePositionX; y = units(cellNum).anti.behav.trial(i).eyePositionY;
             if ~isnan(x)
                 heye(c,:) = x(align_sacc >= -0.150 & align_sacc <= 0.150);
@@ -2158,6 +2148,58 @@ switch plotType
         set(gca, 'yTick',[], 'TickDir', 'out', 'FontSize',18);
         title(['Eye trace anti cell ' num2str(cellNum)])
         
+        % print('eye_trace','-depsc2', '-painters', '-cmyk')
+        
+        case 'eye_move_single'
+        % LOAD FILE SENT BY NICO
+        
+        t = units(cellNum).pro.timepointsEye/1000; % time
+        
+        % extract eye trace around saccade onset
+        % pro
+        c = 1;
+        for i = 1:length(units(cellNum).pro.behav.trial)
+            sacc_onset = units(cellNum).pro.behav.trial(i).saccadeOnset;
+            align_sacc = t - sacc_onset-0.012; t_sacc = align_sacc(align_sacc >= -0.150 & align_sacc <= 0.150);
+            x = units(cellNum).pro.behav.trial(i).eyePositionX; y = units(cellNum).pro.behav.trial(i).eyePositionY;
+            if ~isnan(x)
+                heye(c,:) = x(align_sacc >= -0.150 & align_sacc <= 0.150);
+                veye(c,:) = y(align_sacc >= -0.150 & align_sacc <= 0.150);
+                c = c+1;
+            end
+        end
+        
+%         for ii = 1:length(heye)
+%         figure; hold on;
+%         plot(t_sacc,smooth(heye(ii,:)',10),'b', 'LineWidth', 2);
+%         plot(t_sacc,smooth(veye(ii,:)',10),'c', 'LineWidth', 2);
+%         set(gca, 'yTick',[], 'TickDir', 'out', 'FontSize',22);
+%         title(num2str(ii)); 
+%         waitforbuttonpress; close all; 
+%         end
+        
+        % anti
+        c = 1;
+        for i = 1:length(units(cellNum).anti.behav.trial)
+            sacc_onset = units(cellNum).anti.behav.trial(i).saccadeOnset;
+            align_sacc = t - sacc_onset-0.012; t_sacc = align_sacc(align_sacc >= -0.150 & align_sacc <= 0.150);
+            x = units(cellNum).anti.behav.trial(i).eyePositionX; y = units(cellNum).anti.behav.trial(i).eyePositionY;
+            if ~isnan(x)
+                heye(c,:) = x(align_sacc >= -0.150 & align_sacc <= 0.150);
+                veye(c,:) = y(align_sacc >= -0.150 & align_sacc <= 0.150);
+                c = c+1;
+            end
+        end
+        
+       for ii = 1:length(heye)
+        figure; hold on;
+        plot(t_sacc,smooth(heye(ii,:)',10),'b', 'LineWidth', 2);
+        plot(t_sacc,smooth(veye(ii,:)',10),'c', 'LineWidth', 2);
+        set(gca, 'yTick',[], 'TickDir', 'out', 'FontSize',22);
+        title([num2str(ii) ' anti']); 
+        waitforbuttonpress; close all; 
+        end
+%         
         % print('eye_trace','-depsc2', '-painters', '-cmyk')
         
     case 'peak_vel_distr'
