@@ -518,6 +518,13 @@ for cellNum = 1:length(units)
          units(cellNum).pro.neural.exc = 0; units(cellNum).pro.neural.sup = 1; 
     end
     
+     % instr > or < than baseline
+    if mean(instr_spks_pro) > mean(base_spks_instr)
+    units(cellNum).pro.neural.exc_instr = 1; units(cellNum).pro.neural.sup_instr = 0; 
+    else
+         units(cellNum).pro.neural.exc_instr = 0; units(cellNum).pro.neural.sup_instr = 1; 
+    end
+    
     %get spks anti
     instr_spks_anti = units(cellNum).anti.neural.instr.rate_pst(instr_win);
     sacc_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(sacc_win);
@@ -566,6 +573,13 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.exc = 1; units(cellNum).anti.neural.sup = 0; 
     else
          units(cellNum).anti.neural.exc = 0; units(cellNum).anti.neural.sup = 1; 
+    end
+    
+    % instr > or < than baseline
+    if mean(instr_spks_anti) > mean(base_spks_instr)
+    units(cellNum).anti.neural.exc_instr = 1; units(cellNum).anti.neural.sup_instr = 0; 
+    else
+         units(cellNum).anti.neural.exc_instr = 0; units(cellNum).anti.neural.sup_instr = 1; 
     end
     
     %% compare windows against baseline activity for pro and anti - nspk
