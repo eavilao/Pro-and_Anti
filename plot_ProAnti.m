@@ -446,56 +446,56 @@ switch plotType
     case 'psth_mean_instr'
         cnt_exc=1; cnt_sup=1;
         for cellNum = 1:length(units)
-            if strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.exc==1
+            if strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.exc_instr==1
                 indx_exc(cnt_exc) = cellNum; cnt_exc=cnt_exc+1;
-            elseif strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.sup==1
+            elseif strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.sup_instr==1
                 indx_sup(cnt_sup) = cellNum; cnt_sup=cnt_sup+1;
             end
         end
         
         % get exc
-        t = units(1).pro.neural.sacc.ts_pst_win;
+        t = units(1).pro.neural.instr.ts_pst_win;
         for i = 1:length(indx_exc)
-            r_exc_pro(i,:) = units(indx_exc(i)).pro.neural.sacc.rate_pst_win;
-            std_exc_pro(i) = std(units(indx_exc(i)).pro.neural.sacc.rate_pst_win);
-            sem_exc_pro(i,:)= std(units(indx_exc(i)).pro.neural.sacc.rate_pst_win)/sqrt(length(indx_exc));
-            r_exc_anti(i,:) = units(indx_exc(i)).anti.neural.sacc.rate_pst_win;
-            std_exc_anti(i,:) = std(units(indx_exc(i)).anti.neural.sacc.rate_pst_win); 
-            sem_exc_anti(i,:)= std(units(indx_exc(i)).anti.neural.sacc.rate_pst_win)/sqrt(length(indx_sup));
+            r_exc_pro(i,:) = units(indx_exc(i)).pro.neural.instr.rate_pst_win;
+            std_exc_pro(i) = std(units(indx_exc(i)).pro.neural.instr.rate_pst_win);
+            sem_exc_pro(i,:)= std(units(indx_exc(i)).pro.neural.instr.rate_pst_win)/sqrt(length(indx_exc));
+            r_exc_anti(i,:) = units(indx_exc(i)).anti.neural.instr.rate_pst_win;
+            std_exc_anti(i,:) = std(units(indx_exc(i)).anti.neural.instr.rate_pst_win); 
+            sem_exc_anti(i,:)= std(units(indx_exc(i)).anti.neural.instr.rate_pst_win)/sqrt(length(indx_sup));
         end
         
         % get supp
         for i = 1:length(indx_sup)
-            r_sup_pro(i,:) = units(indx_sup(i)).pro.neural.sacc.rate_pst_win;
-            std_sup_pro(i,:) = std(units(indx_sup(i)).pro.neural.sacc.rate_pst_win);
-            sem_sup_pro(i,:)= std(units(indx_sup(i)).pro.neural.sacc.rate_pst_win)/sqrt(length(indx_sup));
-            r_sup_anti(i,:) = units(indx_sup(i)).anti.neural.sacc.rate_pst_win;
-            std_sup_anti(i,:) = std(units(indx_sup(i)).anti.neural.sacc.rate_pst_win);
-            sem_sup_anti(i,:)= std(units(indx_sup(i)).anti.neural.sacc.rate_pst_win)/sqrt(length(indx_sup));
+            r_sup_pro(i,:) = units(indx_sup(i)).pro.neural.instr.rate_pst_win;
+            std_sup_pro(i,:) = std(units(indx_sup(i)).pro.neural.instr.rate_pst_win);
+            sem_sup_pro(i,:)= std(units(indx_sup(i)).pro.neural.instr.rate_pst_win)/sqrt(length(indx_sup));
+            r_sup_anti(i,:) = units(indx_sup(i)).anti.neural.instr.rate_pst_win;
+            std_sup_anti(i,:) = std(units(indx_sup(i)).anti.neural.instr.rate_pst_win);
+            sem_sup_anti(i,:)= std(units(indx_sup(i)).anti.neural.instr.rate_pst_win)/sqrt(length(indx_sup));
         end
         
         % plot exc
         figure; hold on;
         plot(t,mean(r_exc_pro));
         plot(t,mean(r_exc_anti));
-        s_pro = shadedErrorBar(t, mean(r_exc_pro), repmat(mean(std_exc_pro),[size(mean(r_exc_pro)) 1]), 'lineprops','r');
-        s_anti = shadedErrorBar(t, mean(r_exc_anti),repmat(mean(std_exc_anti),[size(mean(r_exc_anti)) 1]), 'lineprops','g');
+        s_pro = shadedErrorBar(t, mean(r_exc_pro), repmat(mean(sem_exc_pro),[size(mean(r_exc_pro)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_exc_anti),repmat(mean(sem_exc_anti),[size(mean(r_exc_anti)) 1]), 'lineprops','g');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
-        set(gca, 'xlim',[-0.150 0.151], 'ylim', [50 85], 'ytick', [50 85],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[0.06 0.350], 'ylim', [68 78], 'ytick', [68 78],'TickDir', 'out', 'FontSize', 18);
         ylabel ('Firing rate (spk/s)'); xlabel('Time (s)')
         
         % plot sup
         figure; hold on;
         plot(t,mean(r_sup_pro));
         plot(t,mean(r_sup_anti));
-        s_pro = shadedErrorBar(t, mean(r_sup_pro), repmat(mean(std_sup_pro),[size(mean(r_sup_pro)) 1]), 'lineprops','r');
-        s_anti = shadedErrorBar(t, mean(r_sup_anti),repmat(mean(std_sup_anti),[size(mean(r_sup_anti)) 1]), 'lineprops','g');
+        s_pro = shadedErrorBar(t, mean(r_sup_pro), repmat(mean(sem_sup_pro),[size(mean(r_sup_pro)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_sup_anti),repmat(mean(sem_sup_anti),[size(mean(r_sup_anti)) 1]), 'lineprops','g');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
-        set(gca, 'xlim',[-0.150 0.151], 'ylim', [45 70], 'ytick', [45 70],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[0.06 0.350], 'ylim', [50 60], 'ytick', [50 60],'TickDir', 'out', 'FontSize', 18);
         ylabel ('Firing rate (spk/s)'); xlabel('Time (s)')
         
         case 'psth_mean'
@@ -817,6 +817,8 @@ switch plotType
         r_small_win_sup_anti = mean(r_sup_anti_signif(:, t > -0.01 & t < 0.1));
         r_win_sup_anti = mean(r_sup_anti_signif(:, t > -0.01 & t < 0.150));
         
+        %%% take grand mean
+        
         figure; hold on;
         errorbar(1,mean(r_small_win_exc_pro),std(r_small_win_exc_pro),'r','LineWidth',1, 'Marker', 'o');
         errorbar(2,mean(r_small_win_exc_anti),std(r_small_win_exc_anti),'g','LineWidth',1,'Marker', 'o');
@@ -829,6 +831,122 @@ switch plotType
         set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[0 2], 'yTick', [0 1 2], 'TickDir', 'out', 'FontSize',30);
         title('0 to 0.150')
         
+        
+        case 'delta_rate_mean_norm_instr'
+        % get exc and sup
+        cnt_exc=1; cnt_sup=1;
+        for cellNum = 1:length(units)
+            if strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.exc_instr==1
+                indx_exc(cnt_exc) = cellNum; cnt_exc=cnt_exc+1;
+            elseif strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.sup_instr==1
+                indx_sup(cnt_sup) = cellNum; cnt_sup=cnt_sup+1;
+            end
+        end
+        
+        % get exc and sup signif
+        cnt_exc=1; cnt_sup=1;
+        for cellNum = 1:length(units)
+            if strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.exc_instr==1 && units(cellNum).stats.instr.flags.proVsAnti_instr_ks_nspk==1
+                indx_exc_signif(cnt_exc) = cellNum; cnt_exc=cnt_exc+1;
+            elseif strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.sup_instr==1 && units(cellNum).stats.instr.flags.proVsAnti_instr_ks_nspk==1
+                indx_sup_signif(cnt_sup) = cellNum; cnt_sup=cnt_sup+1;
+            end
+        end
+        
+        % get exc
+        t = units(1).pro.neural.instr.ts_pst_win;
+        for i = 1:length(indx_exc)
+            r_exc_pro(i,:) = units(indx_exc(i)).pro.neural.instr.norm.delta_rate;
+            std_exc_pro(i,:)= std(units(indx_exc(i)).pro.neural.instr.norm.delta_rate);
+            sem_exc_pro(i,:)= std(units(indx_exc(i)).pro.neural.instr.norm.delta_rate)/sqrt(length(indx_exc));
+            r_exc_anti(i,:) = units(indx_exc(i)).anti.neural.instr.norm.delta_rate;
+            std_exc_anti(i,:)= std(units(indx_exc(i)).anti.neural.instr.norm.delta_rate);
+            sem_exc_anti(i,:)= std(units(indx_exc(i)).anti.neural.instr.norm.delta_rate)/sqrt(length(indx_exc));
+        end
+        
+        % get exc signif
+        for i = 1:length(indx_exc_signif)
+            r_exc_pro_signif(i,:) = units(indx_exc_signif(i)).pro.neural.instr.norm.delta_rate;
+            std_exc_pro_signif(i,:)= std(units(indx_exc_signif(i)).pro.neural.instr.norm.delta_rate);
+            sem_exc_pro_signif(i,:)= std(units(indx_exc_signif(i)).pro.neural.instr.norm.delta_rate)/sqrt(length(indx_exc_signif));
+            r_exc_anti_signif(i,:) = units(indx_exc_signif(i)).anti.neural.instr.norm.delta_rate;
+            std_exc_anti_signif(i,:)= std(units(indx_exc_signif(i)).anti.neural.instr.norm.delta_rate);
+            sem_exc_anti_signif(i,:)= std(units(indx_exc_signif(i)).anti.neural.instr.norm.delta_rate)/sqrt(length(indx_exc_signif));
+        end
+        
+        % get sup
+        for i = 1:length(indx_sup)
+            r_sup_pro(i,:) = units(indx_sup(i)).pro.neural.instr.norm.delta_rate;
+            std_sup_pro(i,:)= std(units(indx_sup(i)).pro.neural.instr.norm.delta_rate);
+            sem_sup_pro(i,:)= std(units(indx_sup(i)).pro.neural.instr.norm.delta_rate)/sqrt(length(indx_sup));
+            r_sup_anti(i,:) = units(indx_sup(i)).anti.neural.instr.norm.delta_rate;
+            std_sup_anti(i,:)= std(units(indx_sup(i)).anti.neural.instr.norm.delta_rate);
+            sem_sup_anti(i,:)= std(units(indx_sup(i)).anti.neural.instr.norm.delta_rate)/sqrt(length(indx_sup));
+        end
+        
+        % get exc signif
+        for i = 1:length(indx_sup_signif)
+            r_sup_pro_signif(i,:) = units(indx_sup_signif(i)).pro.neural.instr.norm.delta_rate;
+            std_sup_pro_signif(i,:)= std(units(indx_sup_signif(i)).pro.neural.instr.norm.delta_rate);
+            sem_sup_pro_signif(i,:)= std(units(indx_sup_signif(i)).pro.neural.instr.norm.delta_rate)/sqrt(length(indx_sup_signif));
+            r_sup_anti_signif(i,:) = units(indx_sup_signif(i)).anti.neural.instr.norm.delta_rate;
+            std_sup_anti_signif(i,:)= std(units(indx_sup_signif(i)).anti.neural.instr.norm.delta_rate);
+            sem_sup_anti_signif(i,:)= std(units(indx_sup_signif(i)).anti.neural.instr.norm.delta_rate)/sqrt(length(indx_sup_signif));
+        end
+        
+        % plot exc
+        figure; hold on;
+        plot(t,mean(r_exc_pro));
+        plot(t,mean(r_exc_anti));
+        s_pro = shadedErrorBar(t, mean(r_exc_pro),repmat(mean(std_exc_pro),[size(mean(r_exc_pro)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_exc_anti),repmat(mean(std_exc_anti),[size(mean(r_exc_anti)) 1]), 'lineprops','g');
+        set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
+        set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
+        set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
+        %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-4 16], 'ytick', [-4 16],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-2 2], 'ytick', [-2 2],'TickDir', 'out', 'FontSize', 26);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)')
+        
+        % plot sup
+        %figure; hold on;
+        plot(t,mean(r_sup_pro));
+        plot(t,mean(r_sup_anti));
+        s_pro = shadedErrorBar(t, mean(r_sup_pro), repmat(mean(std_sup_pro),[size(mean(r_sup_pro)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_sup_anti),repmat(mean(std_sup_anti),[size(mean(r_sup_anti)) 1]), 'lineprops','g');
+        set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
+        set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
+        set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
+        %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-10 2], 'ytick', [-10 2],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-2.7 2.7], 'ytick', [-2.7 0 2.7],'TickDir', 'out', 'FontSize', 26);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)')
+        
+        % plot exc signif
+        figure; hold on;
+        plot(t,mean(r_exc_pro_signif));
+        plot(t,mean(r_exc_anti_signif));
+        s_pro = shadedErrorBar(t, mean(r_exc_pro_signif), repmat(mean(std_exc_pro_signif),[size(mean(r_exc_pro_signif)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_exc_anti_signif),repmat(mean(std_exc_anti_signif),[size(mean(r_exc_anti_signif)) 1]), 'lineprops','g');
+        set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
+        set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
+        set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
+        % set(gca, 'xlim',[-0.150 0.151], 'ylim', [-10 30], 'ytick', [-10 30],'TickDir', 'out', 'FontSize', 18);
+        % set(gca, 'xlim',[-0.150 0.151], 'ylim', [-5 20], 'ytick', [-5 20],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-2.7 2.7], 'ytick', [-2.7 0 2.7],'TickDir', 'out', 'FontSize', 26);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)');
+        
+        
+        % plot sup signif
+        %figure; hold on;
+        plot(t,mean(r_sup_pro_signif));
+        plot(t,mean(r_sup_anti_signif));
+        s_pro = shadedErrorBar(t, mean(r_sup_pro_signif), repmat(mean(std_sup_pro_signif),[size(mean(r_sup_pro_signif)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_sup_anti_signif),repmat(mean(std_sup_anti_signif),[size(mean(r_sup_anti_signif)) 1]), 'lineprops','g');
+        set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
+        set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
+        set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
+        %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-20 5], 'ytick', [-20 5],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-2.7 2.7], 'ytick', [-2.7 0 2.7],'TickDir', 'out', 'FontSize', 26);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)'); title('signif')
         
         
     case 'change_anti-pro'
@@ -1754,13 +1872,13 @@ switch plotType
             t_instr = units(indx_area(i)).pro.neural.instr.ts_pst;
             position_stat_sign_instr(i,:) = abs(stat_instr(i,:))>=1.96;
             %
-            % plot instr
-            %             figure; subplot(2,1,1);
-            %             plot(t_instr, stat_instr(i,:), 'k','MarkerSize', 15);
-            %             hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-            %             set(gca, 'xlim',[-0.150 0.151],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
-            %             title ('Binomial pb dist - Instruction')
-            %             xlabel('time (s)')
+            %plot instr
+                        figure; subplot(2,1,1);
+                        plot(t_instr, stat_instr(i,:), 'k','MarkerSize', 15);
+                        hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
+                        set(gca, 'xlim',[0 0.350],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
+                        title ('Binomial pb dist - Instruction')
+                        xlabel('time (s)')
             %             %
             %             %             % sacc
             %             %             %gather
@@ -1768,15 +1886,15 @@ switch plotType
             stat_sacc(i,:) = units(indx_area(i)).stats.sacc.pval.pbDist_testStat;
             position_stat_sign_sacc(i,:) = abs(stat_sacc(i,:))>=1.96;
             %             %             % plot
-            %             subplot(2,1,2)
-            %             plot(t_sacc, stat_sacc(i,:), 'k','MarkerSize', 15);
-            %             hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-            %             set(gca, 'xlim',[-0.150 0.151],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
-            %             title (['Binomial pb dist - Saccade cell: ' num2str(indx_area(i))])
-            %             xlabel('time')
-            %             fname = 'Binomial_pb_dist';
-            %             print(fname,'-append', '-dpsc2')
-            %             waitforbuttonpress; close all;
+                        subplot(2,1,2)
+                        plot(t_sacc, stat_sacc(i,:), 'k','MarkerSize', 15);
+                        hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
+                        set(gca, 'xlim',[-0.150 0.151],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
+                        title (['Binomial pb dist - Saccade cell: ' num2str(indx_area(i))])
+                        xlabel('time')
+                        fname = 'Binomial_pb_dist';
+                        print(fname,'-append', '-dpsc2')
+                        waitforbuttonpress; close all;
             %
         end
         

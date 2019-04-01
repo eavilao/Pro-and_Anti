@@ -651,13 +651,13 @@ for cellNum = 1:length(units)
     
     
     %% normalized FR - z-scored aligned to sacc
-    %% pro --  aligned to saccade
+    % pro --  aligned to saccade
     units(cellNum).pro.neural.sacc.norm.rate_pst = (units(cellNum).pro.neural.sacc.rate_pst - mean(units(cellNum).pro.neural.sacc.rate_pst))/...
         std(units(cellNum).pro.neural.sacc.rate_pst);
-    %% anti --  aligned to saccade
+    % anti --  aligned to saccade
     units(cellNum).anti.neural.sacc.norm.rate_pst = (units(cellNum).anti.neural.sacc.rate_pst - mean(units(cellNum).anti.neural.sacc.rate_pst))/...
         std(units(cellNum).anti.neural.sacc.rate_pst);
-    %% normalize anti based on prosaccades (as described by Maarten, March 2019)
+    % normalize anti based on prosaccades (as described by Maarten, March 2019)
     units(cellNum).anti.neural.sacc.norm.rate_pst_pro = (units(cellNum).anti.neural.sacc.rate_pst - mean(units(cellNum).pro.neural.sacc.rate_pst))/...
         std(units(cellNum).pro.neural.sacc.rate_pst);
     % grab normalized baseline vals
@@ -665,6 +665,21 @@ for cellNum = 1:length(units)
     % compute change in firing rate for pro and anti with normalized 
     units(cellNum).pro.neural.sacc.norm.delta_rate = units(cellNum).pro.neural.sacc.norm.rate_pst(sacc_win) - norm_pro_base;
     units(cellNum).anti.neural.sacc.norm.delta_rate = units(cellNum).anti.neural.sacc.norm.rate_pst_pro(sacc_win) - norm_pro_base; 
+    %% normalized FR - z-scored aligned to instr onset
+    % pro --  aligned to instr
+    units(cellNum).pro.neural.instr.norm.rate_pst = (units(cellNum).pro.neural.instr.rate_pst - mean(units(cellNum).pro.neural.instr.rate_pst))/...
+        std(units(cellNum).pro.neural.instr.rate_pst);
+    % anti --  aligned to instr
+    units(cellNum).anti.neural.instr.norm.rate_pst = (units(cellNum).anti.neural.instr.rate_pst - mean(units(cellNum).anti.neural.instr.rate_pst))/...
+        std(units(cellNum).anti.neural.instr.rate_pst);
+    % normalize anti based on prosaccades (as described by Maarten, March 2019)
+    units(cellNum).anti.neural.instr.norm.rate_pst_pro = (units(cellNum).anti.neural.instr.rate_pst - mean(units(cellNum).pro.neural.instr.rate_pst))/...
+        std(units(cellNum).pro.neural.instr.rate_pst);
+    % grab normalized baseline vals
+    norm_pro_base = mean(units(cellNum).pro.neural.instr.norm.rate_pst(base_instr));
+    % compute change in firing rate for pro and anti with normalized 
+    units(cellNum).pro.neural.instr.norm.delta_rate = units(cellNum).pro.neural.instr.norm.rate_pst(instr_win) - norm_pro_base;
+    units(cellNum).anti.neural.instr.norm.delta_rate = units(cellNum).anti.neural.instr.norm.rate_pst_pro(instr_win) - norm_pro_base; 
     
     %% compute change index in norm -- CHECK! 
     units(cellNum).stats.instr.change_indx = (units(cellNum).pro.neural.instr.rate_mu  - units(cellNum).anti.neural.instr.rate_mu)/(units(cellNum).pro.neural.instr.rate_mu  + units(cellNum).anti.neural.instr.rate_mu);
