@@ -898,55 +898,50 @@ switch plotType
         figure; hold on;
         plot(t,mean(r_exc_pro));
         plot(t,mean(r_exc_anti));
-        s_pro = shadedErrorBar(t, mean(r_exc_pro),repmat(mean(std_exc_pro),[size(mean(r_exc_pro)) 1]), 'lineprops','r');
-        s_anti = shadedErrorBar(t, mean(r_exc_anti),repmat(mean(std_exc_anti),[size(mean(r_exc_anti)) 1]), 'lineprops','g');
+        s_pro = shadedErrorBar(t, mean(r_exc_pro),repmat(mean(sem_exc_pro),[size(mean(r_exc_pro)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_exc_anti),repmat(mean(sem_exc_anti),[size(mean(r_exc_anti)) 1]), 'lineprops','g');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
-        %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-4 16], 'ytick', [-4 16],'TickDir', 'out', 'FontSize', 18);
-        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-2 2], 'ytick', [-2 2],'TickDir', 'out', 'FontSize', 26);
-        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)')
+        set(gca, 'xlim',[0.05 0.350], 'ylim', [0 1], 'ytick', [0 1],'TickDir', 'out', 'FontSize', 26);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)');hline(0, '--k');
         
         % plot sup
         %figure; hold on;
         plot(t,mean(r_sup_pro));
         plot(t,mean(r_sup_anti));
-        s_pro = shadedErrorBar(t, mean(r_sup_pro), repmat(mean(std_sup_pro),[size(mean(r_sup_pro)) 1]), 'lineprops','r');
-        s_anti = shadedErrorBar(t, mean(r_sup_anti),repmat(mean(std_sup_anti),[size(mean(r_sup_anti)) 1]), 'lineprops','g');
+        s_pro = shadedErrorBar(t, mean(r_sup_pro), repmat(mean(sem_sup_pro),[size(mean(r_sup_pro)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_sup_anti),repmat(mean(sem_sup_anti),[size(mean(r_sup_anti)) 1]), 'lineprops','g');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
-        %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-10 2], 'ytick', [-10 2],'TickDir', 'out', 'FontSize', 18);
-        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-2.7 2.7], 'ytick', [-2.7 0 2.7],'TickDir', 'out', 'FontSize', 26);
-        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)')
+        set(gca, 'xlim',[0.05 0.350], 'ylim', [-1 0], 'ytick', [-1 0],'TickDir', 'out', 'FontSize', 26);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)');hline(0, '--k');
         
         % plot exc signif
         figure; hold on;
         plot(t,mean(r_exc_pro_signif));
         plot(t,mean(r_exc_anti_signif));
-        s_pro = shadedErrorBar(t, mean(r_exc_pro_signif), repmat(mean(std_exc_pro_signif),[size(mean(r_exc_pro_signif)) 1]), 'lineprops','r');
-        s_anti = shadedErrorBar(t, mean(r_exc_anti_signif),repmat(mean(std_exc_anti_signif),[size(mean(r_exc_anti_signif)) 1]), 'lineprops','g');
+        s_pro = shadedErrorBar(t, mean(r_exc_pro_signif), repmat(mean(sem_exc_pro_signif),[size(mean(r_exc_pro_signif)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_exc_anti_signif),repmat(mean(sem_exc_anti_signif),[size(mean(r_exc_anti_signif)) 1]), 'lineprops','g');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
-        % set(gca, 'xlim',[-0.150 0.151], 'ylim', [-10 30], 'ytick', [-10 30],'TickDir', 'out', 'FontSize', 18);
-        % set(gca, 'xlim',[-0.150 0.151], 'ylim', [-5 20], 'ytick', [-5 20],'TickDir', 'out', 'FontSize', 18);
-        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-2.7 2.7], 'ytick', [-2.7 0 2.7],'TickDir', 'out', 'FontSize', 26);
-        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)');
+        set(gca, 'xlim',[0.05 0.350], 'ylim', [-0.5 2], 'ytick', [-0.5 0 2],'TickDir', 'out', 'FontSize', 26);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)'); hline(0, '--k');
         
         
         % plot sup signif
         %figure; hold on;
         plot(t,mean(r_sup_pro_signif));
         plot(t,mean(r_sup_anti_signif));
-        s_pro = shadedErrorBar(t, mean(r_sup_pro_signif), repmat(mean(std_sup_pro_signif),[size(mean(r_sup_pro_signif)) 1]), 'lineprops','r');
-        s_anti = shadedErrorBar(t, mean(r_sup_anti_signif),repmat(mean(std_sup_anti_signif),[size(mean(r_sup_anti_signif)) 1]), 'lineprops','g');
+        s_pro = shadedErrorBar(t, mean(r_sup_pro_signif), repmat(mean(sem_sup_pro_signif),[size(mean(r_sup_pro_signif)) 1]), 'lineprops','r');
+        s_anti = shadedErrorBar(t, mean(r_sup_anti_signif),repmat(mean(sem_sup_anti_signif),[size(mean(r_sup_anti_signif)) 1]), 'lineprops','g');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
-        %set(gca, 'xlim',[-0.150 0.151], 'ylim', [-20 5], 'ytick', [-20 5],'TickDir', 'out', 'FontSize', 18);
-        set(gca, 'xlim',[-0.150 0.151], 'ylim', [-2.7 2.7], 'ytick', [-2.7 0 2.7],'TickDir', 'out', 'FontSize', 26);
-        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)'); title('signif')
+        set(gca, 'xlim',[0.05 0.350], 'ylim', [-2 0.5], 'ytick', [-2 0 0.5],'TickDir', 'out', 'FontSize', 26);
+        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)'); title('signif');hline(0, '--k');
         
         
     case 'change_anti-pro'
