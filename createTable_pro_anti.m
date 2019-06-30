@@ -79,3 +79,76 @@ disp(['Sign diff base vs sacc pro = ' num2str(lateral_diff_sacc_base_pro)]);
 disp(['Sign diff base vs instr anti = ' num2str(lateral_diff_instr_base_anti)]);
 disp(['Sign diff base vs sacc anti = ' num2str(lateral_diff_sacc_base_anti)]);
 
+%% Firing rate, Amplitude, RT, Peak vel.  -- Nico add CS
+
+%% SACCADE PERIOD
+%% Vermis
+recArea = 'vermis';
+for cellNum = 1:length(units)
+    indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+end
+indx_area = find(indx_area);
+
+for i = 1:length(indx_area)
+    r_pro(i,:) = units(indx_area(i)).pro.neural.sacc.rate_pst;
+    sem_pro(i,:) = std(units(indx_area(i)).pro.neural.sacc.rate_pst)/sqrt(length(units(indx_area(i)).pro.neural.trial));
+    std_pro(i,:) = std(units(indx_area(i)).pro.neural.sacc.rate_pst);
+end
+
+%% Exc and sup
+cnt_exc=1; cnt_sup=1;
+for cellNum = 1:length(units)
+    if strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.exc==1
+        indx_exc(cnt_exc) = cellNum; cnt_exc=cnt_exc+1;
+    elseif strcmp(units(cellNum).area, recArea) && units(cellNum).pro.neural.sup==1
+        indx_sup(cnt_sup) = cellNum; cnt_sup=cnt_sup+1;
+    end
+end
+
+% get exc
+t = units(1).pro.neural.sacc.ts_pst_win;
+for i = 1:length(indx_exc)
+    r_exc_pro(i,:) = units(indx_exc(i)).pro.neural.sacc.rate_pst_win;
+    std_exc_pro(i) = std(units(indx_exc(i)).pro.neural.sacc.rate_pst_win);
+    sem_exc_pro(i,:)= std(units(indx_exc(i)).pro.neural.sacc.rate_pst_win)/sqrt(length(indx_exc));
+    r_exc_anti(i,:) = units(indx_exc(i)).anti.neural.sacc.rate_pst_win;
+    std_exc_anti(i,:) = std(units(indx_exc(i)).anti.neural.sacc.rate_pst_win);
+    sem_exc_anti(i,:)= std(units(indx_exc(i)).anti.neural.sacc.rate_pst_win)/sqrt(length(indx_sup));
+end
+
+% get supp
+for i = 1:length(indx_sup)
+    r_sup_pro(i,:) = units(indx_sup(i)).pro.neural.sacc.rate_pst_win;
+    std_sup_pro(i,:) = std(units(indx_sup(i)).pro.neural.sacc.rate_pst_win);
+    sem_sup_pro(i,:)= std(units(indx_sup(i)).pro.neural.sacc.rate_pst_win)/sqrt(length(indx_sup));
+    r_sup_anti(i,:) = units(indx_sup(i)).anti.neural.sacc.rate_pst_win;
+    std_sup_anti(i,:) = std(units(indx_sup(i)).anti.neural.sacc.rate_pst_win);
+    sem_sup_anti(i,:)= std(units(indx_sup(i)).anti.neural.sacc.rate_pst_win)/sqrt(length(indx_sup));
+end
+%% Lateral 
+recArea = 'lateral';
+
+
+%% Table with FRs and kinematics
+%% vermis 
+omv = units(indx_vermis);
+clear r_pro r_anti
+%get fr for all neurons
+for i = 1:length(omv)
+    r_pro(i) = omv(i).pro.neural.sacc.rate_mu; 
+    r_anti(i) = omv(i).anti.neural.sacc.rate_mu;
+end 
+pro_mu = nanmean(r_pro); pro_std = nanstd(r_pro);
+anti_mu = nanmean(r_anti); anti_std = nanstd(r_anti);
+
+%% lateral 
+lat = units(indx_lateral);
+clear r_pro r_anti
+%get fr for all neurons
+for i = 1:length(lat)
+    r_pro(i) = lat(i).pro.neural.sacc.rate_mu; 
+    r_anti(i) = lat(i).anti.neural.sacc.rate_mu;
+end 
+pro_mu = nanmean(r_pro); pro_std = nanstd(r_pro);
+anti_mu = nanmean(r_anti); anti_std = nanstd(r_anti);
+
