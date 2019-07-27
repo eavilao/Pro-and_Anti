@@ -925,8 +925,8 @@ switch plotType
         figure; hold on;
         plot(t,mean(r_exc_pro));
         plot(t,mean(r_exc_anti));
-        s_pro = shadedErrorBar(t, mean(r_exc_pro),repmat(mean(sem_exc_pro),[size(mean(r_exc_pro)) 1]), 'lineprops','r');
-        s_anti = shadedErrorBar(t, mean(r_exc_anti),repmat(mean(sem_exc_anti),[size(mean(r_exc_anti)) 1]), 'lineprops','g');
+        s_pro = shadedErrorBar(t, mean(r_exc_pro),repmat(mean(sem_exc_pro),[size(mean(r_exc_pro)) 1]), 'lineprops','m');
+        s_anti = shadedErrorBar(t, mean(r_exc_anti),repmat(mean(sem_exc_anti),[size(mean(r_exc_anti)) 1]), 'lineprops','b');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
@@ -937,8 +937,8 @@ switch plotType
         %figure; hold on;
         plot(t,mean(r_sup_pro));
         plot(t,mean(r_sup_anti));
-        s_pro = shadedErrorBar(t, mean(r_sup_pro), repmat(mean(sem_sup_pro),[size(mean(r_sup_pro)) 1]), 'lineprops','r');
-        s_anti = shadedErrorBar(t, mean(r_sup_anti),repmat(mean(sem_sup_anti),[size(mean(r_sup_anti)) 1]), 'lineprops','g');
+        s_pro = shadedErrorBar(t, mean(r_sup_pro), repmat(mean(sem_sup_pro),[size(mean(r_sup_pro)) 1]), 'lineprops','m');
+        s_anti = shadedErrorBar(t, mean(r_sup_anti),repmat(mean(sem_sup_anti),[size(mean(r_sup_anti)) 1]), 'lineprops','b');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
@@ -988,7 +988,7 @@ switch plotType
         
         
         t = units(1).pro.neural.sacc.ts_pst_win;
-        for i = 1:length(indx_area)
+        for i = 1:length(indx_area)w
             r_pro(i,:) = units(indx_area(i)).pro.neural.sacc.delta_rate_base;
             r_anti(i,:) = units(indx_area(i)).anti.neural.sacc.delta_rate_base;
             indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
@@ -1802,47 +1802,85 @@ switch plotType
         xlabel('Firing rate (spks/s)'); ylabel('Amplitude (deg)');
         [rho_pro,pval_pro] = corr(amp_pro,spk_pro)
         [rho_anti,pval_anti] = corr(amp_anti,spk_anti)
-
         
         %Avg per amplitude blocks
-        block1 = 4.9;
-        block2 = 9.9;
-        block3 = 15;
+        block1 = 4; %4.9;
+        block2 = 6; %9.9;
+        block3 = 8; %15;
         
         %pro
-        block1_pro_indx = find([units(cellNum).pro.behav.trial.saccAmplitude]<=block1);
-        block2_pro_indx = find([units(cellNum).pro.behav.trial.saccAmplitude]>block1 & [units(cellNum).pro.behav.trial.saccAmplitude]<= block2);
-        block3_pro_indx = find([units(cellNum).pro.behav.trial.saccAmplitude]>block2 & [units(cellNum).pro.behav.trial.saccAmplitude]<= block3);
+        block1_pro_spk = spk_pro(amp_pro<block1);
+        block2_pro_spk = spk_pro(amp_pro>=block1 & amp_pro<block2);
+        block3_pro_spk = spk_pro(amp_pro>=block2 & amp_pro<block3);
+        block4_pro_spk = spk_pro(amp_pro>=block3);
         
-        for i = 1:length(block1_pro_indx)
-            block1_pro(i,1) = units(cellNum).pro.neural.sacc.nspk(block1_pro_indx(i));
-        end
-        for i = 1:length(block2_pro_indx)
-            block2_pro(i,1) = units(cellNum).pro.neural.sacc.nspk(block2_pro_indx(i));
-        end
-        for i = 1:length(block3_pro_indx)
-            block3_pro(i,1) = units(cellNum).pro.neural.sacc.nspk(block1_pro_indx(i));
-        end
+        block1_pro_amp = amp_pro(amp_pro<block1);
+        block2_pro_amp = amp_pro(amp_pro>=block1 & amp_pro<block2);
+        block3_pro_amp = amp_pro(amp_pro>=block2 & amp_pro<block3);
+        block4_pro_amp = amp_pro(amp_pro>=block3); 
         
+        % anti
+        block1_anti_spk = spk_pro(amp_anti<block1);
+        block2_anti_spk = spk_pro(amp_anti>=block1 & amp_anti<block2);
+        block3_anti_spk = spk_pro(amp_anti>=block2 & amp_anti<block3);
+        block4_anti_spk = spk_pro(amp_anti>=block3);
         
-        %anti
-        block1_anti_indx = find([units(cellNum).anti.behav.trial.saccAmplitude]<=block1);
-        block2_anti_indx = find([units(cellNum).anti.behav.trial.saccAmplitude]>block1 & [units(cellNum).anti.behav.trial.saccAmplitude]<= block2);
-        block3_anti_indx = find([units(cellNum).anti.behav.trial.saccAmplitude]>block2 & [units(cellNum).anti.behav.trial.saccAmplitude]<= block3);
+        block1_anti_amp = amp_anti(amp_anti<block1);
+        block2_anti_amp = amp_anti(amp_anti>=block1 & amp_anti<block2);
+        block3_anti_amp = amp_anti(amp_anti>=block2 & amp_anti<block3);
+        block4_anti_amp = amp_anti(amp_anti>=block3); 
         
-        if ~isempty(block1_anti_indx)
-            for i = 1:length(block1_anti_indx)
-                block1_anti(i,1) = units(cellNum).anti.neural.sacc.nspk(block1_anti_indx(i));
-            end
-        else
-            block1_anti(i,1) = NaN;
-        end
-        for i = 1:length(block2_anti_indx)
-            block2_anti(i,1) = units(cellNum).anti.neural.sacc.nspk(block2_anti_indx(i));
-        end
-        for i = 1:length(block3_anti_indx)
-            block3_anti(i,1) = units(cellNum).anti.neural.sacc.nspk(block3_anti_indx(i));
-        end
+        % plot pro
+        figure; hold on; 
+        errorbar(mean(block1_pro_spk),mean(block1_pro_amp), std(block1_pro_amp), std(block1_pro_amp),std(block1_pro_spk),std(block1_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block2_pro_spk),mean(block2_pro_amp), std(block2_pro_amp), std(block2_pro_amp),std(block2_pro_spk),std(block2_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block3_pro_spk),mean(block3_pro_amp), std(block3_pro_amp), std(block3_pro_amp),std(block3_pro_spk),std(block3_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0);
+        errorbar(mean(block4_pro_spk),mean(block4_pro_amp), std(block4_pro_amp), std(block4_pro_amp),std(block4_pro_spk),std(block4_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0);
+        
+        % plot anti
+        errorbar(mean(block1_anti_spk),mean(block1_anti_amp), std(block1_anti_amp), std(block1_anti_amp),std(block1_anti_spk),std(block1_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block2_anti_spk),mean(block2_anti_amp), std(block2_anti_amp), std(block2_anti_amp),std(block2_anti_spk),std(block2_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block3_anti_spk),mean(block3_anti_amp), std(block3_anti_amp), std(block3_anti_amp),std(block3_anti_spk),std(block3_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0);
+        errorbar(mean(block4_anti_spk),mean(block4_anti_amp), std(block4_anti_amp), std(block4_anti_amp),std(block4_anti_spk),std(block4_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0);
+        
+        set(gca, 'xlim',[0 200], 'ylim', [0 30]); 
+         
+
+
+%         %pro
+%         block1_pro_indx = find([units(cellNum).pro.behav.trial.saccAmplitude]<=block1);
+%         block2_pro_indx = find([units(cellNum).pro.behav.trial.saccAmplitude]>block1 & [units(cellNum).pro.behav.trial.saccAmplitude]<= block2);
+%         block3_pro_indx = find([units(cellNum).pro.behav.trial.saccAmplitude]>block2 & [units(cellNum).pro.behav.trial.saccAmplitude]<= block3);
+%         
+%         for i = 1:length(block1_pro_indx)
+%             block1_pro(i,1) = units(cellNum).pro.neural.sacc.nspk(block1_pro_indx(i));
+%         end
+%         for i = 1:length(block2_pro_indx)
+%             block2_pro(i,1) = units(cellNum).pro.neural.sacc.nspk(block2_pro_indx(i));
+%         end
+%         for i = 1:length(block3_pro_indx)
+%             block3_pro(i,1) = units(cellNum).pro.neural.sacc.nspk(block1_pro_indx(i));
+%         end
+%         
+%         
+%         %anti
+%         block1_anti_indx = find([units(cellNum).anti.behav.trial.saccAmplitude]<=block1);
+%         block2_anti_indx = find([units(cellNum).anti.behav.trial.saccAmplitude]>block1 & [units(cellNum).anti.behav.trial.saccAmplitude]<= block2);
+%         block3_anti_indx = find([units(cellNum).anti.behav.trial.saccAmplitude]>block2 & [units(cellNum).anti.behav.trial.saccAmplitude]<= block3);
+%         
+%         if ~isempty(block1_anti_indx)
+%             for i = 1:length(block1_anti_indx)
+%                 block1_anti(i,1) = units(cellNum).anti.neural.sacc.nspk(block1_anti_indx(i));
+%             end
+%         else
+%             block1_anti(i,1) = NaN;
+%         end
+%         for i = 1:length(block2_anti_indx)
+%             block2_anti(i,1) = units(cellNum).anti.neural.sacc.nspk(block2_anti_indx(i));
+%         end
+%         for i = 1:length(block3_anti_indx)
+%             block3_anti(i,1) = units(cellNum).anti.neural.sacc.nspk(block3_anti_indx(i));
+%         end
         
         % mean pro
                 block1_pro_mu = nanmean(block1_pro); block1_pro_sig = nanstd(block1_pro);
@@ -1882,8 +1920,6 @@ switch plotType
             [rho_pro_all(i,:),pval_pro_all(i,:)] = corr(amp_pro_all{i,:}',spk_pro_all{i,:});
             [rho_anti_all(i,:),pval_anti_all(i,:)] = corr(amp_anti_all{i,:}',spk_anti_all{i,:});
         end
-        
-        z=1;
         
     case 'firingVSvel'
         pv_pro = [units(cellNum).pro.behav.trial.saccPeakVel];
@@ -1945,6 +1981,47 @@ switch plotType
         xlabel('Firing rate (spks/s)'); ylabel('Peak Vel (deg/s)');
         [rho_pro,pval_pro] = corr(x_pro,spk_pro)
         [rho_anti,pval_anti] = corr(x_anti,spk_anti)
+        
+        block1 = 200; 
+        block2 = 300; 
+        block3 = 400;
+        
+        %pro
+        block1_pro_spk = spk_pro(x_pro<block1);
+        block2_pro_spk = spk_pro(x_pro>=block1 & x_pro<block2);
+        block3_pro_spk = spk_pro(x_pro>=block2 & x_pro<block3);
+        block4_pro_spk = spk_pro(x_pro>=block3);
+        
+        block1_pro_amp = x_pro(x_pro<block1);
+        block2_pro_amp = x_pro(x_pro>=block1 & x_pro<block2);
+        block3_pro_amp = x_pro(x_pro>=block2 & x_pro<block3);
+        block4_pro_amp = x_pro(x_pro>=block3); 
+        
+        % anti
+        block1_anti_spk = spk_pro(x_anti<block1);
+        block2_anti_spk = spk_pro(x_anti>=block1 & x_anti<block2);
+        block3_anti_spk = spk_pro(x_anti>=block2 & x_anti<block3);
+        block4_anti_spk = spk_pro(x_anti>=block3);
+        
+        block1_anti_amp = x_anti(x_anti<block1);
+        block2_anti_amp = x_anti(x_anti>=block1 & x_anti<block2);
+        block3_anti_amp = x_anti(x_anti>=block2 & x_anti<block3);
+        block4_anti_amp = x_anti(x_anti>=block3); 
+        
+        % plot pro
+        figure; hold on; 
+        errorbar(mean(block1_pro_spk),mean(block1_pro_amp), std(block1_pro_amp), std(block1_pro_amp),std(block1_pro_spk),std(block1_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block2_pro_spk),mean(block2_pro_amp), std(block2_pro_amp), std(block2_pro_amp),std(block2_pro_spk),std(block2_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block3_pro_spk),mean(block3_pro_amp), std(block3_pro_amp), std(block3_pro_amp),std(block3_pro_spk),std(block3_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0);
+        errorbar(mean(block4_pro_spk),mean(block4_pro_amp), std(block4_pro_amp), std(block4_pro_amp),std(block4_pro_spk),std(block4_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0);
+        
+        % plot anti
+        errorbar(mean(block1_anti_spk),mean(block1_anti_amp), std(block1_anti_amp), std(block1_anti_amp),std(block1_anti_spk),std(block1_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block2_anti_spk),mean(block2_anti_amp), std(block2_anti_amp), std(block2_anti_amp),std(block2_anti_spk),std(block2_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block3_anti_spk),mean(block3_anti_amp), std(block3_anti_amp), std(block3_anti_amp),std(block3_anti_spk),std(block3_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0);
+        errorbar(mean(block4_anti_spk),mean(block4_anti_amp), std(block4_anti_amp), std(block4_anti_amp),std(block4_anti_spk),std(block4_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0);
+        
+        set(gca, 'xlim',[0 200], 'ylim', [0 1000]); 
 
         
     case 'firingVSdur'
@@ -2007,6 +2084,47 @@ switch plotType
         xlabel('Firing rate (spks/s)'); ylabel('Duration (ms)');
         [rho_pro,pval_pro] = corr(x_pro,spk_pro)
         [rho_anti,pval_anti] = corr(x_anti,spk_anti)
+        
+        block1 = 20; 
+        block2 = 40; 
+        block3 = 60;
+        
+        %pro
+        block1_pro_spk = spk_pro(x_pro<block1);
+        block2_pro_spk = spk_pro(x_pro>=block1 & x_pro<block2);
+        block3_pro_spk = spk_pro(x_pro>=block2 & x_pro<block3);
+        block4_pro_spk = spk_pro(x_pro>=block3);
+        
+        block1_pro_amp = x_pro(x_pro<block1);
+        block2_pro_amp = x_pro(x_pro>=block1 & x_pro<block2);
+        block3_pro_amp = x_pro(x_pro>=block2 & x_pro<block3);
+        block4_pro_amp = x_pro(x_pro>=block3); 
+        
+        % anti
+        block1_anti_spk = spk_pro(x_anti<block1);
+        block2_anti_spk = spk_pro(x_anti>=block1 & x_anti<block2);
+        block3_anti_spk = spk_pro(x_anti>=block2 & x_anti<block3);
+        block4_anti_spk = spk_pro(x_anti>=block3);
+        
+        block1_anti_amp = x_anti(x_anti<block1);
+        block2_anti_amp = x_anti(x_anti>=block1 & x_anti<block2);
+        block3_anti_amp = x_anti(x_anti>=block2 & x_anti<block3);
+        block4_anti_amp = x_anti(x_anti>=block3); 
+        
+        % plot pro
+        figure; hold on; 
+        errorbar(mean(block1_pro_spk),mean(block1_pro_amp), std(block1_pro_amp), std(block1_pro_amp),std(block1_pro_spk),std(block1_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block2_pro_spk),mean(block2_pro_amp), std(block2_pro_amp), std(block2_pro_amp),std(block2_pro_spk),std(block2_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block3_pro_spk),mean(block3_pro_amp), std(block3_pro_amp), std(block3_pro_amp),std(block3_pro_spk),std(block3_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0);
+        errorbar(mean(block4_pro_spk),mean(block4_pro_amp), std(block4_pro_amp), std(block4_pro_amp),std(block4_pro_spk),std(block4_pro_spk),'om', 'MarkerSize', 12, 'Capsize', 0);
+        
+        % plot anti
+        errorbar(mean(block1_anti_spk),mean(block1_anti_amp), std(block1_anti_amp), std(block1_anti_amp),std(block1_anti_spk),std(block1_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block2_anti_spk),mean(block2_anti_amp), std(block2_anti_amp), std(block2_anti_amp),std(block2_anti_spk),std(block2_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0); 
+        errorbar(mean(block3_anti_spk),mean(block3_anti_amp), std(block3_anti_amp), std(block3_anti_amp),std(block3_anti_spk),std(block3_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0);
+        errorbar(mean(block4_anti_spk),mean(block4_anti_amp), std(block4_anti_amp), std(block4_anti_amp),std(block4_anti_spk),std(block4_anti_spk),'ob', 'MarkerSize', 12, 'Capsize', 0);
+        
+        set(gca, 'xlim',[0 200], 'ylim', [0 200]); 
         
     case 'binomial_pb_dist'
         % statistical test to compare if pro == anti - aligned to instr/sacc using spk count
@@ -2635,20 +2753,30 @@ switch plotType
             indx_sign_vermis(i) = logical(units(indx_area_vermis(i)).stats.sacc.flags.proVsAnti_sacc_ks_nspk);
         end
         unit_vermis_sign = unit_vermis(indx_sign_vermis);
+        unit_vermis_ns = unit_vermis(~indx_sign_vermis);
         
         for i = 1:length(indx_area_lat)
             indx_sign_lat(i) = logical(units(indx_area_lat(i)).stats.sacc.flags.proVsAnti_sacc_ks_nspk);
         end
         unit_lat_sign = unit_lat(indx_sign_lat);
+        unit_lat_ns = unit_lat(~indx_sign_lat);
         
+        % extract
         for i = 1:length(unit_vermis_sign)
             mod_r_vermis_sign(i) = unit_vermis_sign(i).stats.mod_ratio;
+        end
+        for i = 1:length(unit_vermis_ns)
+            mod_r_vermis_ns(i) = unit_vermis_ns(i).stats.mod_ratio;
         end
         
         for i = 1:length(unit_lat_sign)
             mod_r_lat_sign(i) = unit_lat_sign(i).stats.mod_ratio;
         end
         mod_r_lat_sign(6)=[];
+        for i = 1:length(unit_lat_ns)
+            mod_r_lat_ns(i) = unit_lat_ns(i).stats.mod_ratio;
+        end
+        
         
         figure; hold on;
         cdfplot(mod_r_vermis_sign);
@@ -2656,6 +2784,32 @@ switch plotType
         vline(1);
         set(gca, 'yTick',[0 0.5 1],'xlim',[0.5 1.5] ,'XGrid', 'off', 'YGrid', 'off', 'TickDir', 'out', 'FontSize', 30); title('Modulation ratio OMV vs Lateral signif');
         axis square;
+        
+        figure; hold on;
+        [f_v,x_v] = ksdensity(mod_r_vermis_sign);
+        y1_v = cumsum(f_v); y1_v = y1_v./max(y1_v);
+        plot(x_v,y1_v,'k','linewidth',2);
+        xlabel('Modulation ratio'); axis square; box off;
+        
+        [f_l,x_l] = ksdensity(mod_r_lat_sign);
+        y1_l = cumsum(f_l); y1_l = y1_l./max(y1_l);
+        plot(x_l,y1_l,'--k','linewidth',2);
+        set(gca, 'yTick',[0 50 100], 'xlim',[0.25 1.6], 'xTick', [0.5 1 1.5], 'TickDir', 'out', 'FontSize', 30);
+        xlabel('Modulation ratio'); axis square; box off; vline(1, 'k');
+        
+        % not significant
+        [f_ns_v,x_ns_v] = ksdensity(mod_r_vermis_ns);
+        y1_ns_v = cumsum(f_ns_v); y1_ns_v = y1_ns_v./max(y1_ns_v);
+        plot(x_ns_v,y1_ns_v,'r','linewidth',2);
+        xlabel('Modulation ratio'); axis square; box off;
+        
+        [f_ns_l,x_ns_l] = ksdensity(mod_r_lat_ns);
+        y1_ns_l = cumsum(f_ns_l); y1_ns_l = y1_ns_l./max(y1_ns_l);
+        plot(x_ns_l,y1_ns_l,'g','linewidth',2);
+        xlabel('Modulation ratio'); axis square; box off;
+        
+        
+        
         
     case 'sorted_colormap_sacc'
         % get area
@@ -2699,7 +2853,7 @@ switch plotType
         %         vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Pro ' recArea])
         
         % anti
-        [maxRates_anti,pos_max_anti] = max(r_anti, [], 2);
+        [maxRates_anti, ] = max(r_anti, [], 2);
         [~,indx_max_anti] = sort(pos_max_anti);
         r_anti_norm = r_anti./repmat(maxRates_anti,[1 size(r_anti,2)]);
         r_anti_sorted = r_anti_norm(indx_max_anti,:); [~, max_pos_anti] =  max(r_anti_sorted,[],2);
@@ -2720,15 +2874,15 @@ switch plotType
         set(gca,'xlim',[-0.15 0.15],'ylim',[0 nunits_area(end)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         title('Anti');
         %% plot a few neurons for sanity check
-        cell = 134;
+        cell = 46;
         t_check = units(cell).pro.neural.sacc.ts_pst;
         r_check_pro = units(cell).pro.neural.sacc.rate_pst;
         r_check_anti = units(cell).anti.neural.sacc.rate_pst;
         
         figure;
-        plot(t_check,r_check_pro,'color','r'); hold on;
-        plot(t_check,r_check_anti,'color','g');
-        set(gca, 'xlim',([-0.2 0.2]), 'TickDir', 'out', 'FontSize',22); % analysis window size
+        plot(t_check,r_check_pro,'color','m'); hold on;
+        plot(t_check,r_check_anti,'color','b');
+        set(gca, 'xlim',([-0.150 0.151]), 'TickDir', 'out', 'FontSize',22); % analysis window size
         xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
         vline(0, 'k-');
         box off

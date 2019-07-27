@@ -152,3 +152,17 @@ end
 pro_mu = nanmean(r_pro); pro_std = nanstd(r_pro);
 anti_mu = nanmean(r_anti); anti_std = nanstd(r_anti);
 
+%% Plot
+
+total_rec = [198 114]; total_rec_labels = {'OMV', 'Lateral'};
+included = [117 46 81 68]; included_labels = {'OMV ns', 'Lat ns', 'OMV sign', 'Lat sign'}; 
+type_activity = [47 34 41 27]; activity_labels = {'omv facil', 'omv supp', 'lat facil', 'lat supp'}; 
+
+% plot
+p1 = pie(total_rec); p1(2).String = [total_rec_labels{1} p1(2).String]; p1(4).String = [total_rec_labels{2} p1(4).String];
+p2 = pie(included); p2(2).String = [included_labels{1} p2(2).String]; p2(4).String = [included_labels{2} p2(4).String]; p2(6).String = [included_labels{3} p2(6).String]; p2(8).String = [included_labels{4} p2(8).String]; 
+p3 = pie(type_activity); p3(2).String = [activity_labels{1} p3(2).String]; p3(4).String = [activity_labels{2} p3(4).String]; p3(6).String = [activity_labels{3} p3(6).String]; p3(8).String = [activity_labels{4} p3(8).String];
+
+
+
+
