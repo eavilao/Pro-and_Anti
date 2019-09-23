@@ -92,6 +92,7 @@ switch plotType
         set(h2(2),'Color',[0 0 1]);
         vline(mean(proAmp),'m'); % draw line on mean
         vline(mean(antiAmp),'b'); % draw line on mean
+        [p,h,stats] = ranksum(proAmp, antiAmp); 
         
         %plot dur
         figure; hold on
@@ -107,6 +108,7 @@ switch plotType
         set(h2(2),'Color',[0 0 1]);
         vline(mean(proDur),'m'); % draw line on mean
         vline(mean(antiDur),'b'); % draw line on mean
+        [p,h] = ranksum(proDur, antiDur);
         
         % plot PV
         figure; hold on
@@ -122,6 +124,7 @@ switch plotType
         set(h2(2),'Color',[0 0 1]);
         vline(mean(proPV),'m'); % draw line on mean
         vline(mean(antiPV),'b'); % draw line on mean
+        [p,h] = ranksum(proPV, antiPV);
         
         % plot RT
         figure; hold on
@@ -137,6 +140,7 @@ switch plotType
         set(h2(2),'Color',[0 0 1]);
         vline(mean(proRT),'m'); % draw line on mean
         vline(mean(antiRT),'b'); % draw line on mean
+        [p,h] = ranksum(proRT, antiRT);
         
         
     case 'raster_sacc'
@@ -826,8 +830,8 @@ switch plotType
         title('-0.1 to 0')
         
         figure; hold on;
-        errorbar(1,mean(r_win_exc_pro),std(r_win_exc_pro),'r','LineWidth',1, 'Marker', 'o');
-        errorbar(2,mean(r_win_exc_anti),std(r_win_exc_anti),'g','LineWidth',1, 'Marker', 'o');
+        errorbar(1,mean(r_win_exc_pro),std(r_win_exc_pro),'m','LineWidth',1, 'Marker', 'o');
+        errorbar(2,mean(r_win_exc_anti),std(r_win_exc_anti),'b','LineWidth',1, 'Marker', 'o');
         set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[-0.3 1.2], 'yTick', [0 0.5 1], 'TickDir', 'out', 'FontSize',30);
         title('-0.150 to 0')
         
@@ -853,8 +857,8 @@ switch plotType
         title('0 to 0.1')
         
         figure; hold on;
-        errorbar(1,mean(r_win_exc_pro),std(r_win_exc_pro),'r','LineWidth',1, 'Marker', 'o');
-        errorbar(2,mean(r_win_exc_anti),std(r_win_exc_anti),'g','LineWidth',1, 'Marker', 'o');
+        errorbar(1,mean(r_win_exc_pro),std(r_win_exc_pro),'m','LineWidth',1, 'Marker', 'o');
+        errorbar(2,mean(r_win_exc_anti),std(r_win_exc_anti),'b','LineWidth',1, 'Marker', 'o');
         set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[0 2], 'yTick', [0 1 2], 'TickDir', 'out', 'FontSize',30);
         title('0 to 0.150')
         
@@ -988,7 +992,7 @@ switch plotType
         
         
         t = units(1).pro.neural.sacc.ts_pst_win;
-        for i = 1:length(indx_area)w
+        for i = 1:length(indx_area)
             r_pro(i,:) = units(indx_area(i)).pro.neural.sacc.delta_rate_base;
             r_anti(i,:) = units(indx_area(i)).anti.neural.sacc.delta_rate_base;
             indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
@@ -1009,21 +1013,21 @@ switch plotType
         end
         
         % plot all cells
-        figure; hold on;
-        plot(t,mean(abs(r_anti))-mean(abs(r_pro)),'Color','m', 'LineWidth', 2);
-        set(gca,'xlim', [-0.150 0.151],'TickDir','out','ylim',[-1 3], 'ytick',[-1 0 3], 'FontSize', 26)
-        xlabel('Time (s)'); ylabel('Abs change in FR anti-pro'); title('all cells')
-        
-        % plot all signif cells
-        figure; hold on;
-        plot(t,mean(abs(r_anti(indx_sign,:)))-mean(abs(r_pro(indx_sign,:))),'Color','k', 'LineWidth', 2);
-        set(gca,'xlim', [-0.150 0.151],'TickDir','out','ylim',[-1 4], 'ytick',[-1 0 4], 'FontSize', 26)
-        xlabel('Time (s)'); ylabel('Abs change in FR anti-pro')
+%         figure; hold on;
+%         plot(t,mean(abs(r_anti))-mean(abs(r_pro)),'Color','m', 'LineWidth', 2);
+%         set(gca,'xlim', [-0.150 0.151],'TickDir','out','ylim',[-1 3], 'ytick',[-1 0 3], 'FontSize', 26)
+%         xlabel('Time (s)'); ylabel('Abs change in FR anti-pro'); title('all cells')
+%         
+%         % plot all signif cells
+%         figure; hold on;
+%         plot(t,mean(abs(r_anti(indx_sign,:)))-mean(abs(r_pro(indx_sign,:))),'Color','k', 'LineWidth', 2);
+%         set(gca,'xlim', [-0.150 0.151],'TickDir','out','ylim',[-1 4], 'ytick',[-1 0 4], 'FontSize', 26)
+%         xlabel('Time (s)'); ylabel('Abs change in FR anti-pro')
         
         % plot together omv and lat
         figure; hold on;
-        plot(t,mean(abs(r_anti_vermis(indx_sign_vermis,:)))-mean(abs(r_pro_vermis(indx_sign_vermis,:))),'Color','y', 'LineWidth', 2);
-        plot(t,mean(abs(r_anti_lat(indx_sign_lat,:)))-mean(abs(r_pro_lat(indx_sign_lat,:))),'Color','c', 'LineWidth', 2);
+        plot(t,mean(abs(r_anti_vermis(indx_sign_vermis,:)))-mean(abs(r_pro_vermis(indx_sign_vermis,:))),'-k', 'LineWidth', 2);
+        plot(t,mean(abs(r_anti_lat(indx_sign_lat,:)))-mean(abs(r_pro_lat(indx_sign_lat,:))),'--k', 'LineWidth', 2);
         set(gca,'xlim', [-0.150 0.151],'TickDir','out','ylim',[0 7], 'ytick',[0 7], 'FontSize', 26)
         xlabel('Time (s)'); ylabel('Abs change in FR anti-pro')
         
@@ -1077,9 +1081,9 @@ switch plotType
         
         % plot together omv and lat
         figure; hold on;
-        plot(t,mean(abs(r_anti_vermis(indx_sign_vermis,:)))-mean(abs(r_pro_vermis(indx_sign_vermis,:))),'Color','r', 'LineWidth', 2);
-        plot(t,mean(abs(r_anti_lat(indx_sign_lat,:)))-mean(abs(r_pro_lat(indx_sign_lat,:))),'Color','c', 'LineWidth', 2);
-        set(gca,'xlim', [0.05 0.350],'TickDir','out','ylim',[-5 2], 'ytick',[-5 0 2], 'FontSize', 26)
+        plot(t,mean(abs(r_anti_vermis(indx_sign_vermis,:)))-mean(abs(r_pro_vermis(indx_sign_vermis,:))),'-k', 'LineWidth', 2);
+        plot(t,mean(abs(r_anti_lat(indx_sign_lat,:)))-mean(abs(r_pro_lat(indx_sign_lat,:))),'--k', 'LineWidth', 2);
+        set(gca,'xlim', [0.05 0.350],'TickDir','out','ylim',[-3 3], 'ytick',[-3 0 3], 'FontSize', 26);
         xlabel('Time (s)'); ylabel('Abs change in FR anti-pro')
         
     case 'max_delta_rate'

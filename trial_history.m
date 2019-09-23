@@ -29,11 +29,14 @@ for cell = 1:length(units)
     n_area(cell) = strcmp(units(cell).area, recArea);
     n_area_signif(cell) = units(cell).stats.sacc.flags.proVsAnti_sacc_ks_nspk;
     exc(cell) = units(cell).pro.neural.exc;
-    sup(cell) = units(cell).pro.neural.sup;
+    sup(cell) = units(cell).pro.neural.sup; 
+    monk(cell) = strcmp(units(cell).monk, 'mickey');
 end
 
-%indx_area = find(n_area); % all
-indx_area = find(n_area & n_area_signif); % significantly diff
+indx_area = find(n_area); % all
+%indx_area = find(n_area & n_area_signif); % significantly diff
+%indx_area = find(n_area & n_area_signif & monk); % significantly diff and monk
+
 
 for cellNum = 1:length(indx_area)
     trial_hist          = zeros(size(units(indx_area(cellNum)).trial.behav,2),1) ; % with that don't have have three consesequtive correct trials are 0
@@ -718,7 +721,7 @@ end
 %% plot
 
 % instr
-ts=instr(2).units_t_hist.ts;
+ts=instr(3).units_t_hist.ts;
 for cellNum = 1:length(instr)
     cond_1_abs(cellNum,:) = abs(instr(cellNum).units_t_hist.rate_pst(1,:) - instr(cellNum).units_t_hist.rate_pst_min1(1,:));
     cond_2_abs(cellNum,:) = abs(instr(cellNum).units_t_hist.rate_pst(2,:) - instr(cellNum).units_t_hist.rate_pst_min1(2,:));
@@ -729,29 +732,28 @@ for cellNum = 1:length(instr)
     cond_7_abs(cellNum,:) = abs(instr(cellNum).units_t_hist.rate_pst(7,:) - instr(cellNum).units_t_hist.rate_pst_min1(7,:));
     cond_8_abs(cellNum,:) = abs(instr(cellNum).units_t_hist.rate_pst(8,:) - instr(cellNum).units_t_hist.rate_pst_min1(8,:));
 end
-
-% normalize by max
-c_1_norm = nanmean(cond_1_abs)./repmat(max(nanmean(cond_1_abs)),[1 size(nanmean(cond_1_abs),2)]);
-c_2_norm = nanmean(cond_2_abs)./repmat(max(nanmean(cond_2_abs)),[1 size(nanmean(cond_2_abs),2)]);
-c_3_norm = nanmean(cond_3_abs)./repmat(max(nanmean(cond_3_abs)),[1 size(nanmean(cond_3_abs),2)]);
-c_4_norm = nanmean(cond_4_abs)./repmat(max(nanmean(cond_4_abs)),[1 size(nanmean(cond_4_abs),2)]);
-c_5_norm = nanmean(cond_5_abs)./repmat(max(nanmean(cond_5_abs)),[1 size(nanmean(cond_5_abs),2)]);
-c_6_norm = nanmean(cond_6_abs)./repmat(max(nanmean(cond_6_abs)),[1 size(nanmean(cond_6_abs),2)]);
-c_7_norm = nanmean(cond_7_abs)./repmat(max(nanmean(cond_7_abs)),[1 size(nanmean(cond_7_abs),2)]);
-c_8_norm = nanmean(cond_8_abs)./repmat(max(nanmean(cond_8_abs)),[1 size(nanmean(cond_8_abs),2)]);
+conds = [nanmean(cond_1_abs)' nanmean(cond_2_abs)' nanmean(cond_3_abs)' nanmean(cond_4_abs)' nanmean(cond_5_abs)' nanmean(cond_6_abs)' nanmean(cond_7_abs)' nanmean(cond_8_abs)'];
 
 % raw plot
  figure; hold on; 
  plot(ts,nanmean(cond_1_abs)', 'Color', [0 0 0.125]); plot(ts,nanmean(cond_2_abs)','Color', [0 0 0.250]); plot(ts,nanmean(cond_3_abs)','Color', [0 0 0.375]); plot(ts,nanmean(cond_4_abs)','Color', [0 0 0.5]); 
  plot(ts,nanmean(cond_5_abs)','Color', [0 0 0.625]); plot(ts,nanmean(cond_6_abs)','Color', [0 0 0.750]); plot(ts,nanmean(cond_7_abs)','Color', [0 0 0.875]); plot(ts,nanmean(cond_8_abs),'Color', [0 0 1]); 
- set(gca,'xlim', [-0 0.355], 'FontSize', 22, 'TickDir', 'out'); 
+ set(gca,'xlim', [-0 0.355], 'FontSize', 22, 'TickDir', 'out');  title('Instr min1')
+ 
+
+%  figure; hold on; 
+%  plot(ts,cond_1_abs', 'Color', [0 0 0.125]); plot(ts,cond_2_abs','Color', [0 0 0.250]); plot(ts,cond_3_abs','Color', [0 0 0.375]); plot(ts,cond_4_abs','Color', [0 0 0.5]); 
+%  plot(ts,cond_5_abs','Color', [0 0 0.625]); plot(ts,cond_6_abs','Color', [0 0 0.750]); plot(ts,cond_7_abs','Color', [0 0 0.875]); plot(ts,cond_8_abs,'Color', [0 0 1]); 
+%  set(gca,'xlim', [-0 0.355], 'FontSize', 22, 'TickDir', 'out');  title('Instr min1')
+
+ 
  
  % plot colormap
  r = [nanmean(cond_1_abs) ; nanmean(cond_2_abs) ; nanmean(cond_3_abs) ; nanmean(cond_4_abs) ; nanmean(cond_5_abs) ; nanmean(cond_6_abs) ; nanmean(cond_7_abs) ; nanmean(cond_8_abs)];
  B = goodcolormap('bwr'); ncond = 8; 
  figure; set(gcf,'Position',[100 200 300 300]);
  hold on; colormap(winter);
- imagesc(ts,1:ncond,r,[0,10]);
+ imagesc(ts,1:ncond,r,[0,10]); 
  set(gca,'xlim',[0 0.350],'ylim',[1 ncond(end)],'TickDir','Out','Fontsize',18);
  xlabel('Time (s)'); ylabel('cond');
  title('Instr min1')
@@ -766,27 +768,29 @@ c_8_norm = nanmean(cond_8_abs)./repmat(max(nanmean(cond_8_abs)),[1 size(nanmean(
 
 % instr nspk
 for cellNum = 1:length(instr)
-   cond_1_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_1) - nanmean(instr(cellNum).units_t_hist.nspk_1_min1); 
-   cond_2_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_2) - nanmean(instr(cellNum).units_t_hist.nspk_2_min1); 
-   cond_3_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_3) - nanmean(instr(cellNum).units_t_hist.nspk_3_min1); 
-   cond_4_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_4) - nanmean(instr(cellNum).units_t_hist.nspk_4_min1); 
-   cond_5_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_5) - nanmean(instr(cellNum).units_t_hist.nspk_5_min1); 
-   cond_6_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_6) - nanmean(instr(cellNum).units_t_hist.nspk_6_min1); 
-   cond_7_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_7) - nanmean(instr(cellNum).units_t_hist.nspk_7_min1); 
-   cond_8_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_8) - nanmean(instr(cellNum).units_t_hist.nspk_8_min1); 
+   cond_1_nspk(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_1-instr(cellNum).units_t_hist.nspk_1_min1)); 
+   cond_2_nspk(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_2-instr(cellNum).units_t_hist.nspk_2_min1)); 
+   cond_3_nspk(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_3-instr(cellNum).units_t_hist.nspk_3_min1)); 
+   cond_4_nspk(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_4-instr(cellNum).units_t_hist.nspk_4_min1)); 
+   cond_5_nspk(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_5-instr(cellNum).units_t_hist.nspk_5_min1)); 
+   cond_6_nspk(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_6-instr(cellNum).units_t_hist.nspk_6_min1)); 
+   cond_7_nspk(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_7-instr(cellNum).units_t_hist.nspk_7_min1)); 
+   cond_8_nspk(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_8-instr(cellNum).units_t_hist.nspk_8_min1)); 
 end
 
+conds_nspk1 = [cond_1_nspk' cond_2_nspk' cond_3_nspk' cond_4_nspk' cond_5_nspk' cond_6_nspk' cond_7_nspk' cond_8_nspk'];
+p_instr_min1 = kruskalwallis(conds_nspk1);
+
 figure; hold on;
-plot(1,cond_1_nspk, '.k'); plot(1,nanmean(cond_1_nspk), '.g', 'MarkerSize', 20);
-plot(2,cond_2_nspk, '.k'); plot(2,nanmean(cond_2_nspk), '.g', 'MarkerSize', 20);
-plot(3,cond_3_nspk, '.k'); plot(3,nanmean(cond_3_nspk), '.g', 'MarkerSize', 20);
-plot(4,cond_4_nspk, '.k'); plot(4,nanmean(cond_4_nspk), '.g', 'MarkerSize', 20);
-plot(5,cond_5_nspk, '.k'); plot(5,nanmean(cond_5_nspk), '.g', 'MarkerSize', 20);
-plot(6,cond_6_nspk, '.k'); plot(6,nanmean(cond_6_nspk), '.g', 'MarkerSize', 20);
-plot(7,cond_7_nspk, '.k'); plot(7,nanmean(cond_7_nspk), '.g', 'MarkerSize', 20);
-plot(8,cond_8_nspk, '.k'); plot(8,nanmean(cond_8_nspk), '.g', 'MarkerSize', 20);
-hline(0,'--k');
-set(gca, 'ylim', [-20 20],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
+plot(1,cond_1_nspk, '.k','MarkerSize', 10); plot(1,nanmean(cond_1_nspk), '.g', 'MarkerSize', 30);
+plot(2,cond_2_nspk, '.k','MarkerSize', 10); plot(2,nanmean(cond_2_nspk), '.g', 'MarkerSize', 30);
+plot(3,cond_3_nspk, '.k','MarkerSize', 10); plot(3,nanmean(cond_3_nspk), '.g', 'MarkerSize', 30);
+plot(4,cond_4_nspk, '.k','MarkerSize', 10); plot(4,nanmean(cond_4_nspk), '.g', 'MarkerSize', 30);
+plot(5,cond_5_nspk, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_nspk), '.g', 'MarkerSize', 30);
+plot(6,cond_6_nspk, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_nspk), '.g', 'MarkerSize', 30);
+plot(7,cond_7_nspk, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_nspk), '.g', 'MarkerSize', 30);
+plot(8,cond_8_nspk, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_nspk), '.g', 'MarkerSize', 30);
+set(gca, 'ylim', [0 40],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
 title('instr min1')
 
 blue       = [0.2235    0.3255    0.6431];
@@ -806,6 +810,39 @@ anti = ['\color{blue}' 'anti '];
  ax.XTick = [1:8]; %
  ax.XTickLabel = (xlabels(1:8)); % with these labels
  ax.XTickLabelRotation = 45;
+ 
+ % plot for individual cells
+% p=numSubplots(length(instr));
+%  for cellNum = 1:length(instr)
+%      
+%      cond_1 = abs(instr(cellNum).units_t_hist.nspk_1-instr(cellNum).units_t_hist.nspk_1_min1);
+%      cond_2 = abs(instr(cellNum).units_t_hist.nspk_2-instr(cellNum).units_t_hist.nspk_2_min1);
+%      cond_3 = abs(instr(cellNum).units_t_hist.nspk_3-instr(cellNum).units_t_hist.nspk_3_min1);
+%      cond_4 = abs(instr(cellNum).units_t_hist.nspk_4-instr(cellNum).units_t_hist.nspk_4_min1);
+%      cond_5 = abs(instr(cellNum).units_t_hist.nspk_5-instr(cellNum).units_t_hist.nspk_5_min1);
+%      cond_6 = abs(instr(cellNum).units_t_hist.nspk_6-instr(cellNum).units_t_hist.nspk_6_min1);
+%      cond_7 = abs(instr(cellNum).units_t_hist.nspk_7-instr(cellNum).units_t_hist.nspk_7_min1);
+%      cond_8 = abs(instr(cellNum).units_t_hist.nspk_8-instr(cellNum).units_t_hist.nspk_8_min1);
+%      
+%      
+%      figure(1); subplot(p(1),p(2),cellNum); hold on; 
+%      if ~isempty(cond_1), plot(1,cond_1, '.k','MarkerSize', 10); plot(1,nanmean(cond_1), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_2), plot(2,cond_2, '.k','MarkerSize', 10); plot(2,nanmean(cond_2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_3), plot(3,cond_3, '.k','MarkerSize', 10); plot(3,nanmean(cond_3), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_4), plot(4,cond_4, '.k','MarkerSize', 10); plot(4,nanmean(cond_4), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_5), plot(5,cond_5, '.k','MarkerSize', 10); plot(5,nanmean(cond_5), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_6), plot(6,cond_6, '.k','MarkerSize', 10); plot(6,nanmean(cond_6), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_7), plot(7,cond_7, '.k','MarkerSize', 10); plot(7,nanmean(cond_7), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_8), plot(8,cond_8, '.k','MarkerSize', 10); plot(8,nanmean(cond_8), '.g', 'MarkerSize', 30);...
+%      set(gca,'ylim', [0 max([cond_1 ; cond_2 ; cond_3 ; cond_4 ; cond_5 ; cond_6 ; cond_7 ; cond_8])], 'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 14); box off; end
+%      
+%      title(['min1 cell ' num2str(cellNum)]);
+%  end
+%      ax=gca;
+%      ax.XTick = [1:8]; %
+%      ax.XTickLabel = (xlabels(1:8)); % with these labels
+%      ax.XTickLabelRotation = 45;
+ 
 
 % min2
 for cellNum = 1:length(instr)
@@ -825,6 +862,11 @@ figure; hold on;
  plot(ts,nanmean(cond_5_abs_min2)','Color', [0 0 0.625]); plot(ts,nanmean(cond_6_abs_min2)','Color', [0 0 0.750]); plot(ts,nanmean(cond_7_abs_min2)','Color', [0 0 0.875]); plot(ts,nanmean(cond_8_abs_min2),'Color', [0 0 1]); 
  set(gca,'xlim', [-0 0.355], 'FontSize', 22, 'TickDir', 'out'); title('instr min2')
  
+%  figure; hold on; 
+%  plot(ts,cond_1_abs_min2', 'Color', [0 0 0.125]); plot(ts,cond_2_abs_min2','Color', [0 0 0.250]); plot(ts,cond_3_abs_min2','Color', [0 0 0.375]); plot(ts,cond_4_abs_min2','Color', [0 0 0.5]); 
+%  plot(ts,cond_5_abs_min2','Color', [0 0 0.625]); plot(ts,cond_6_abs_min2','Color', [0 0 0.750]); plot(ts,cond_7_abs_min2','Color', [0 0 0.875]); plot(ts,cond_8_abs_min2,'Color', [0 0 1]); 
+%  set(gca,'xlim', [-0 0.355], 'FontSize', 22, 'TickDir', 'out'); title('instr min2')
+ 
  % plot colormap
  r_min2 = [nanmean(cond_1_abs_min2) ; nanmean(cond_2_abs_min2) ; nanmean(cond_3_abs_min2) ; nanmean(cond_4_abs_min2) ; nanmean(cond_5_abs_min2) ; nanmean(cond_6_abs_min2) ; nanmean(cond_7_abs_min2) ; nanmean(cond_8_abs_min2)];
  B = goodcolormap('bwr'); ncond = 8; 
@@ -838,30 +880,32 @@ figure; hold on;
  
  % instr nspk min2
 for cellNum = 1:length(instr)
-   cond_1_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_1) - nanmean(instr(cellNum).units_t_hist.nspk_1_min2); 
-   cond_2_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_2) - nanmean(instr(cellNum).units_t_hist.nspk_2_min2); 
-   cond_3_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_3) - nanmean(instr(cellNum).units_t_hist.nspk_3_min2); 
-   cond_4_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_4) - nanmean(instr(cellNum).units_t_hist.nspk_4_min2); 
-   cond_5_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_5) - nanmean(instr(cellNum).units_t_hist.nspk_5_min2); 
-   cond_6_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_6) - nanmean(instr(cellNum).units_t_hist.nspk_6_min2); 
-   cond_7_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_7) - nanmean(instr(cellNum).units_t_hist.nspk_7_min2); 
-   cond_8_nspk(cellNum) = nanmean(instr(cellNum).units_t_hist.nspk_8) - nanmean(instr(cellNum).units_t_hist.nspk_8_min2); 
+   cond_1_nspk2(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_1-instr(cellNum).units_t_hist.nspk_1_min2)); 
+   cond_2_nspk2(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_2-instr(cellNum).units_t_hist.nspk_2_min2)); 
+   cond_3_nspk2(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_3-instr(cellNum).units_t_hist.nspk_3_min2)); 
+   cond_4_nspk2(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_4-instr(cellNum).units_t_hist.nspk_4_min2)); 
+   cond_5_nspk2(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_5-instr(cellNum).units_t_hist.nspk_5_min2)); 
+   cond_6_nspk2(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_6-instr(cellNum).units_t_hist.nspk_6_min2)); 
+   cond_7_nspk2(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_7-instr(cellNum).units_t_hist.nspk_7_min2)); 
+   cond_8_nspk2(cellNum) = nanmean(abs(instr(cellNum).units_t_hist.nspk_8-instr(cellNum).units_t_hist.nspk_8_min2)); 
 end
 
+conds_nspk2 = [cond_1_nspk' cond_2_nspk' cond_3_nspk' cond_4_nspk' cond_5_nspk' cond_6_nspk' cond_7_nspk' cond_8_nspk'];
+p_instr_min2 = kruskalwallis(conds_nspk2);
+
 figure; hold on;
-plot(1,cond_1_nspk, '.k'); plot(1,nanmean(cond_1_nspk), '.g', 'MarkerSize', 20);
-plot(2,cond_2_nspk, '.k'); plot(2,nanmean(cond_2_nspk), '.g', 'MarkerSize', 20);
-plot(3,cond_3_nspk, '.k'); plot(3,nanmean(cond_3_nspk), '.g', 'MarkerSize', 20);
-plot(4,cond_4_nspk, '.k'); plot(4,nanmean(cond_4_nspk), '.g', 'MarkerSize', 20);
-plot(5,cond_5_nspk, '.k'); plot(5,nanmean(cond_5_nspk), '.g', 'MarkerSize', 20);
-plot(6,cond_6_nspk, '.k'); plot(6,nanmean(cond_6_nspk), '.g', 'MarkerSize', 20);
-plot(7,cond_7_nspk, '.k'); plot(7,nanmean(cond_7_nspk), '.g', 'MarkerSize', 20);
-plot(8,cond_8_nspk, '.k'); plot(8,nanmean(cond_8_nspk), '.g', 'MarkerSize', 20);
-hline(0,'--k');
-set(gca, 'ylim', [-20 20],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
+plot(1,cond_1_nspk2, '.k','MarkerSize', 10); plot(1,nanmean(cond_1_nspk2), '.g', 'MarkerSize', 30);
+plot(2,cond_2_nspk2, '.k','MarkerSize', 10); plot(2,nanmean(cond_2_nspk2), '.g', 'MarkerSize', 30);
+plot(3,cond_3_nspk2, '.k','MarkerSize', 10); plot(3,nanmean(cond_3_nspk2), '.g', 'MarkerSize', 30);
+plot(4,cond_4_nspk2, '.k','MarkerSize', 10); plot(4,nanmean(cond_4_nspk2), '.g', 'MarkerSize', 30);
+plot(5,cond_5_nspk2, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_nspk2), '.g', 'MarkerSize', 30);
+plot(6,cond_6_nspk2, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_nspk2), '.g', 'MarkerSize', 30);
+plot(7,cond_7_nspk2, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_nspk2), '.g', 'MarkerSize', 30);
+plot(8,cond_8_nspk2, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_nspk2), '.g', 'MarkerSize', 30);
+set(gca, 'ylim', [0 40],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
 title('instr min2')
 
-blue       = [0.2235    0.3255    0.6431];
+blue       = [0.2235    0.3255    0.6431];   
 magenta    = [0.4588    0.1725    0.3922];
 pro = ['\color{magenta}' 'pro '];
 anti = ['\color{blue}' 'anti '];
@@ -878,12 +922,43 @@ anti = ['\color{blue}' 'anti '];
  ax.XTick = [1:8]; %
  ax.XTickLabel = (xlabels(1:8)); % with these labels
  ax.XTickLabelRotation = 45;
+ 
+ % instr min2
+%  p=numSubplots(length(instr));
+%  for cellNum = 1:length(instr)
+%      
+%      cond_1_min2 = abs(instr(cellNum).units_t_hist.nspk_1-instr(cellNum).units_t_hist.nspk_1_min2);
+%      cond_2_min2 = abs(instr(cellNum).units_t_hist.nspk_2-instr(cellNum).units_t_hist.nspk_2_min2);
+%      cond_3_min2 = abs(instr(cellNum).units_t_hist.nspk_3-instr(cellNum).units_t_hist.nspk_3_min2);
+%      cond_4_min2 = abs(instr(cellNum).units_t_hist.nspk_4-instr(cellNum).units_t_hist.nspk_4_min2);
+%      cond_5_min2 = abs(instr(cellNum).units_t_hist.nspk_5-instr(cellNum).units_t_hist.nspk_5_min2);
+%      cond_6_min2 = abs(instr(cellNum).units_t_hist.nspk_6-instr(cellNum).units_t_hist.nspk_6_min2);
+%      cond_7_min2 = abs(instr(cellNum).units_t_hist.nspk_7-instr(cellNum).units_t_hist.nspk_7_min2);
+%      cond_8_min2 = abs(instr(cellNum).units_t_hist.nspk_8-instr(cellNum).units_t_hist.nspk_8_min2);
+%      
+%      
+%      figure(1); subplot(p(1),p(2),cellNum); hold on; 
+%      if ~isempty(cond_1_min2), plot(1,cond_1_min2, '.k','MarkerSize', 10); plot(1,nanmean(cond_1_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_2_min2), plot(2,cond_2_min2, '.k','MarkerSize', 10); plot(2,nanmean(cond_2_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_3_min2), plot(3,cond_3_min2, '.k','MarkerSize', 10); plot(3,nanmean(cond_3_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_4_min2), plot(4,cond_4_min2, '.k','MarkerSize', 10); plot(4,nanmean(cond_4_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_5_min2), plot(5,cond_5_min2, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_6_min2), plot(6,cond_6_min2, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_7_min2), plot(7,cond_7_min2, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_8_min2), plot(8,cond_8_min2, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_min2), '.g', 'MarkerSize', 30); ...
+%      set(gca, 'ylim', [0 max([cond_1_min2 ; cond_2_min2 ; cond_3_min2 ; cond_4_min2 ; cond_5_min2 ; cond_6_min2 ; cond_7_min2 ; cond_8_min2])], 'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 14); box off; end
+%      title(['min2 cell ' num2str(cellNum)]);
+%  end
+%      ax=gca;
+%      ax.XTick = [1:8]; %
+%      ax.XTickLabel = (xlabels(1:8)); % with these labels
+%      ax.XTickLabelRotation = 45;
 
 
 %% sacc
 % sacc(19)=[]; % leave out for now, deal with it later. 
 
-ts=sacc(2).units_t_hist.ts;
+ts=sacc(3).units_t_hist.ts;
 for cellNum = 1:length(sacc)
     cond_1_abs_sacc(cellNum,:) = abs(sacc(cellNum).units_t_hist.rate_pst(1,:) - sacc(cellNum).units_t_hist.rate_pst_min1(1,:));
     cond_2_abs_sacc(cellNum,:) = abs(sacc(cellNum).units_t_hist.rate_pst(2,:) - sacc(cellNum).units_t_hist.rate_pst_min1(2,:));
@@ -900,13 +975,18 @@ end
  figure; hold on; 
  plot(ts,nanmean(cond_1_abs_sacc)', 'Color', [0 0 0.125]); plot(ts,nanmean(cond_2_abs_sacc)','Color', [0 0 0.250]); plot(ts,nanmean(cond_3_abs_sacc)','Color', [0 0 0.375]); plot(ts,nanmean(cond_4_abs_sacc)','Color', [0 0 0.5]); 
  plot(ts,nanmean(cond_5_abs_sacc)','Color', [0 0 0.625]); plot(ts,nanmean(cond_6_abs_sacc)','Color', [0 0 0.750]); plot(ts,nanmean(cond_7_abs_sacc)','Color', [0 0 0.875]); plot(ts,nanmean(cond_8_abs_sacc),'Color', [0 0 1]); 
- set(gca,'xlim', [-0.150 0.151], 'ylim', [0 20], 'FontSize', 22, 'TickDir', 'out'); vline(0,'--k'); 
+ set(gca,'xlim', [-0.150 0.151], 'ylim', [0 15], 'FontSize', 22, 'TickDir', 'out'); vline(0,'--k'); 
+ 
+%  figure; hold on; 
+%  plot(ts,cond_1_abs_sacc', 'Color', [0 0 0.125]); plot(ts,cond_2_abs_sacc','Color', [0 0 0.250]); plot(ts,cond_3_abs_sacc','Color', [0 0 0.375]); plot(ts,cond_4_abs_sacc','Color', [0 0 0.5]); 
+%  plot(ts,cond_5_abs_sacc','Color', [0 0 0.625]); plot(ts,cond_6_abs_sacc','Color', [0 0 0.750]); plot(ts,cond_7_abs_sacc','Color', [0 0 0.875]); plot(ts,cond_8_abs_sacc,'Color', [0 0 1]); 
+%  set(gca,'xlim', [-0.150 0.151], 'ylim', [0 30], 'FontSize', 22, 'TickDir', 'out'); vline(0,'--k'); 
  
  % plot colormap
  r_sacc = [nanmean(cond_1_abs_sacc) ; nanmean(cond_2_abs_sacc) ; nanmean(cond_3_abs_sacc) ; nanmean(cond_4_abs_sacc) ; nanmean(cond_5_abs_sacc) ; nanmean(cond_6_abs_sacc) ; nanmean(cond_7_abs_sacc) ; nanmean(cond_8_abs_sacc)];
  figure; set(gcf,'Position',[100 200 300 300]);
  hold on; colormap(winter);
- imagesc(ts,1:ncond,r_sacc,[0,16]);
+ imagesc(ts,1:ncond,r_sacc,[0,15]);
  set(gca,'xlim',[-0.150 0.151],'ylim',[1 ncond(end)],'TickDir','Out','Fontsize',18);
  xlabel('Time (s)'); ylabel('cond');
  title('Sacc min1')
@@ -914,33 +994,68 @@ end
  
 % sacc nspk
 for cellNum = 1:length(sacc)
-   cond_1_nspk_sacc(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_1) - nanmean(sacc(cellNum).units_t_hist.nspk_1_min1); 
-   cond_2_nspk_sacc(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_2) - nanmean(sacc(cellNum).units_t_hist.nspk_2_min1); 
-   cond_3_nspk_sacc(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_3) - nanmean(sacc(cellNum).units_t_hist.nspk_3_min1); 
-   cond_4_nspk_sacc(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_4) - nanmean(sacc(cellNum).units_t_hist.nspk_4_min1); 
-   cond_5_nspk_sacc(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_5) - nanmean(sacc(cellNum).units_t_hist.nspk_5_min1); 
-   cond_6_nspk_sacc(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_6) - nanmean(sacc(cellNum).units_t_hist.nspk_6_min1); 
-   cond_7_nspk_sacc(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_7) - nanmean(sacc(cellNum).units_t_hist.nspk_7_min1); 
-   cond_8_nspk_sacc(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_8) - nanmean(sacc(cellNum).units_t_hist.nspk_8_min1); 
+   cond_1_nspk_sacc(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_1-sacc(cellNum).units_t_hist.nspk_1_min1)); 
+   cond_2_nspk_sacc(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_2-sacc(cellNum).units_t_hist.nspk_2_min1)); 
+   cond_3_nspk_sacc(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_3-sacc(cellNum).units_t_hist.nspk_3_min1)); 
+   cond_4_nspk_sacc(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_4-sacc(cellNum).units_t_hist.nspk_4_min1)); 
+   cond_5_nspk_sacc(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_5-sacc(cellNum).units_t_hist.nspk_5_min1)); 
+   cond_6_nspk_sacc(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_6-sacc(cellNum).units_t_hist.nspk_6_min1)); 
+   cond_7_nspk_sacc(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_7-sacc(cellNum).units_t_hist.nspk_7_min1)); 
+   cond_8_nspk_sacc(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_8-sacc(cellNum).units_t_hist.nspk_8_min1)); 
 end
 
+conds_nspk_sacc = [cond_1_nspk_sacc' cond_2_nspk_sacc' cond_3_nspk_sacc' cond_4_nspk_sacc' cond_5_nspk_sacc' cond_6_nspk_sacc' cond_7_nspk_sacc' cond_8_nspk_sacc'];
+p_sacc = kruskalwallis(conds_nspk_sacc);
+
+
 figure; hold on;
-plot(1,cond_1_nspk_sacc, '.k'); plot(1,nanmean(cond_1_nspk_sacc), '.g', 'MarkerSize', 20);
-plot(2,cond_2_nspk_sacc, '.k'); plot(2,nanmean(cond_2_nspk_sacc), '.g', 'MarkerSize', 20);
-plot(3,cond_3_nspk_sacc, '.k'); plot(3,nanmean(cond_3_nspk_sacc), '.g', 'MarkerSize', 20);
-plot(4,cond_4_nspk_sacc, '.k'); plot(4,nanmean(cond_4_nspk_sacc), '.g', 'MarkerSize', 20);
-plot(5,cond_5_nspk_sacc, '.k'); plot(5,nanmean(cond_5_nspk_sacc), '.g', 'MarkerSize', 20);
-plot(6,cond_6_nspk_sacc, '.k'); plot(6,nanmean(cond_6_nspk_sacc), '.g', 'MarkerSize', 20);
-plot(7,cond_7_nspk_sacc, '.k'); plot(7,nanmean(cond_7_nspk_sacc), '.g', 'MarkerSize', 20);
-plot(8,cond_8_nspk_sacc, '.k'); plot(8,nanmean(cond_8_nspk_sacc), '.g', 'MarkerSize', 20);
-hline(0,'--k');
-set(gca, 'ylim', [-20 20],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
+plot(1,cond_1_nspk_sacc, '.k','MarkerSize', 10); plot(1,nanmean(cond_1_nspk_sacc), '.g', 'MarkerSize', 30);
+plot(2,cond_2_nspk_sacc, '.k','MarkerSize', 10); plot(2,nanmean(cond_2_nspk_sacc), '.g', 'MarkerSize', 30);
+plot(3,cond_3_nspk_sacc, '.k','MarkerSize', 10); plot(3,nanmean(cond_3_nspk_sacc), '.g', 'MarkerSize', 30);
+plot(4,cond_4_nspk_sacc, '.k','MarkerSize', 10); plot(4,nanmean(cond_4_nspk_sacc), '.g', 'MarkerSize', 30);
+plot(5,cond_5_nspk_sacc, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_nspk_sacc), '.g', 'MarkerSize', 30);
+plot(6,cond_6_nspk_sacc, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_nspk_sacc), '.g', 'MarkerSize', 30);
+plot(7,cond_7_nspk_sacc, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_nspk_sacc), '.g', 'MarkerSize', 30);
+plot(8,cond_8_nspk_sacc, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_nspk_sacc), '.g', 'MarkerSize', 30);
+set(gca, 'ylim', [0 25],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
 title('sacc min1')
 
  ax=gca;
  ax.XTick = [1:8]; %
  ax.XTickLabel = (xlabels(1:8)); % with these labels
  ax.XTickLabelRotation = 45;
+ 
+ p=numSubplots(length(sacc));
+ for cellNum = 1:length(sacc)
+     
+     cond_1 = abs(sacc(cellNum).units_t_hist.nspk_1-sacc(cellNum).units_t_hist.nspk_1_min1);
+     cond_2 = abs(sacc(cellNum).units_t_hist.nspk_2-sacc(cellNum).units_t_hist.nspk_2_min1);
+     cond_3 = abs(sacc(cellNum).units_t_hist.nspk_3-sacc(cellNum).units_t_hist.nspk_3_min1);
+     cond_4 = abs(sacc(cellNum).units_t_hist.nspk_4-sacc(cellNum).units_t_hist.nspk_4_min1);
+     cond_5 = abs(sacc(cellNum).units_t_hist.nspk_5-sacc(cellNum).units_t_hist.nspk_5_min1);
+     cond_6 = abs(sacc(cellNum).units_t_hist.nspk_6-sacc(cellNum).units_t_hist.nspk_6_min1);
+     cond_7 = abs(sacc(cellNum).units_t_hist.nspk_7-sacc(cellNum).units_t_hist.nspk_7_min1);
+     cond_8 = abs(sacc(cellNum).units_t_hist.nspk_8-sacc(cellNum).units_t_hist.nspk_8_min1);
+     
+     
+     figure(1); subplot(p(1),p(2),cellNum); hold on; 
+     if ~isempty(cond_1), plot(1,cond_1, '.k','MarkerSize', 10); plot(1,nanmean(cond_1), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_2), plot(2,cond_2, '.k','MarkerSize', 10); plot(2,nanmean(cond_2), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_3), plot(3,cond_3, '.k','MarkerSize', 10); plot(3,nanmean(cond_3), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_4), plot(4,cond_4, '.k','MarkerSize', 10); plot(4,nanmean(cond_4), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_5), plot(5,cond_5, '.k','MarkerSize', 10); plot(5,nanmean(cond_5), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_6), plot(6,cond_6, '.k','MarkerSize', 10); plot(6,nanmean(cond_6), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_7), plot(7,cond_7, '.k','MarkerSize', 10); plot(7,nanmean(cond_7), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_8), plot(8,cond_8, '.k','MarkerSize', 10); plot(8,nanmean(cond_8), '.g', 'MarkerSize', 30);...
+      set(gca, 'ylim', [0 max([cond_1 ; cond_2 ; cond_3 ; cond_4 ; cond_5 ; cond_6 ; cond_7 ; cond_8])],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 14); box off; end
+    
+     title(['min1 cell ' num2str(cellNum)]);
+ end
+     ax=gca;
+     ax.XTick = [1:8]; %
+     ax.XTickLabel = (xlabels(1:8)); % with these labels
+     ax.XTickLabelRotation = 45;
+ 
 
 % min2
 for cellNum = 1:length(sacc)
@@ -958,13 +1073,18 @@ end
  figure; hold on; 
  plot(ts,nanmean(cond_1_abs_min2_sacc)', 'Color', [0 0 0.125]); plot(ts,nanmean(cond_2_abs_min2_sacc)','Color', [0 0 0.250]); plot(ts,nanmean(cond_3_abs_min2_sacc)','Color', [0 0 0.375]); plot(ts,nanmean(cond_4_abs_min2_sacc)','Color', [0 0 0.5]); 
  plot(ts,nanmean(cond_5_abs_min2_sacc)','Color', [0 0 0.625]); plot(ts,nanmean(cond_6_abs_min2_sacc)','Color', [0 0 0.750]); plot(ts,nanmean(cond_7_abs_min2_sacc)','Color', [0 0 0.875]); plot(ts,nanmean(cond_8_abs_min2_sacc),'Color', [0 0 1]); 
- set(gca,'xlim', [-0.150 0.151], 'FontSize', 22, 'TickDir', 'out'); vline(0,'--k'); title('sacc min2')
+ set(gca,'xlim', [-0.150 0.151], 'FontSize', 22, 'TickDir', 'out'); vline(0,'--k'); title('sacc min2'); ylim([0 15]);
+ 
+%  figure; hold on; 
+%  plot(ts,cond_1_abs_min2_sacc', 'Color', [0 0 0.125]); plot(ts,cond_2_abs_min2_sacc','Color', [0 0 0.250]); plot(ts,cond_3_abs_min2_sacc','Color', [0 0 0.375]); plot(ts,cond_4_abs_min2_sacc','Color', [0 0 0.5]); 
+%  plot(ts,cond_5_abs_min2_sacc','Color', [0 0 0.625]); plot(ts,cond_6_abs_min2_sacc','Color', [0 0 0.750]); plot(ts,cond_7_abs_min2_sacc','Color', [0 0 0.875]); plot(ts,cond_8_abs_min2_sacc,'Color', [0 0 1]); 
+%  set(gca,'xlim', [-0.150 0.151], 'FontSize', 22, 'TickDir', 'out'); vline(0,'--k'); title('sacc min2')
  
  % plot colormap
  r_sacc2 = [nanmean(cond_1_abs_min2_sacc) ; nanmean(cond_2_abs_min2_sacc) ; nanmean(cond_3_abs_min2_sacc) ; nanmean(cond_4_abs_min2_sacc) ; nanmean(cond_5_abs_min2_sacc) ; nanmean(cond_6_abs_min2_sacc) ; nanmean(cond_7_abs_min2_sacc) ; nanmean(cond_8_abs_min2_sacc)];
  figure; set(gcf,'Position',[100 200 300 300]);
  hold on; colormap(winter);
- imagesc(ts,1:ncond,r_sacc2,[0,16]);
+ imagesc(ts,1:ncond,r_sacc2,[0,15]);
  set(gca,'xlim',[-0.150 0.151],'ylim',[1 ncond(end)],'TickDir','Out','Fontsize',18);
  xlabel('Time (s)'); ylabel('cond');
  title('Sacc min2')
@@ -972,27 +1092,30 @@ end
  
  % sacc nspk min2
 for cellNum = 1:length(sacc)
-   cond_1_nspk_sacc2(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_1) - nanmean(sacc(cellNum).units_t_hist.nspk_1_min2); 
-   cond_2_nspk_sacc2(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_2) - nanmean(sacc(cellNum).units_t_hist.nspk_2_min2); 
-   cond_3_nspk_sacc2(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_3) - nanmean(sacc(cellNum).units_t_hist.nspk_3_min2); 
-   cond_4_nspk_sacc2(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_4) - nanmean(sacc(cellNum).units_t_hist.nspk_4_min2); 
-   cond_5_nspk_sacc2(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_5) - nanmean(sacc(cellNum).units_t_hist.nspk_5_min2); 
-   cond_6_nspk_sacc2(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_6) - nanmean(sacc(cellNum).units_t_hist.nspk_6_min2); 
-   cond_7_nspk_sacc2(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_7) - nanmean(sacc(cellNum).units_t_hist.nspk_7_min2); 
-   cond_8_nspk_sacc2(cellNum) = nanmean(sacc(cellNum).units_t_hist.nspk_8) - nanmean(sacc(cellNum).units_t_hist.nspk_8_min2); 
+   cond_1_nspk_sacc2(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_1-sacc(cellNum).units_t_hist.nspk_1_min2)); 
+   cond_2_nspk_sacc2(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_2-sacc(cellNum).units_t_hist.nspk_2_min2)); 
+   cond_3_nspk_sacc2(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_3-sacc(cellNum).units_t_hist.nspk_3_min2)); 
+   cond_4_nspk_sacc2(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_4-sacc(cellNum).units_t_hist.nspk_4_min2)); 
+   cond_5_nspk_sacc2(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_5-sacc(cellNum).units_t_hist.nspk_5_min2)); 
+   cond_6_nspk_sacc2(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_6-sacc(cellNum).units_t_hist.nspk_6_min2)); 
+   cond_7_nspk_sacc2(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_7-sacc(cellNum).units_t_hist.nspk_7_min2)); 
+   cond_8_nspk_sacc2(cellNum) = nanmean(abs(sacc(cellNum).units_t_hist.nspk_8-sacc(cellNum).units_t_hist.nspk_8_min2)); 
 end
 
+conds_nspk_sacc2 = [cond_1_nspk_sacc2' cond_2_nspk_sacc2' cond_3_nspk_sacc2' cond_4_nspk_sacc2' cond_5_nspk_sacc2' cond_6_nspk_sacc2' cond_7_nspk_sacc2' cond_8_nspk_sacc2'];
+p_sacc2 = kruskalwallis(conds_nspk_sacc2);
+
 figure; hold on;
-plot(1,cond_1_nspk_sacc2, '.k'); plot(1,nanmean(cond_1_nspk), '.g', 'MarkerSize', 20);
-plot(2,cond_2_nspk_sacc2, '.k'); plot(2,nanmean(cond_2_nspk), '.g', 'MarkerSize', 20);
-plot(3,cond_3_nspk_sacc2, '.k'); plot(3,nanmean(cond_3_nspk), '.g', 'MarkerSize', 20);
-plot(4,cond_4_nspk_sacc2, '.k'); plot(4,nanmean(cond_4_nspk), '.g', 'MarkerSize', 20);
-plot(5,cond_5_nspk_sacc2, '.k'); plot(5,nanmean(cond_5_nspk), '.g', 'MarkerSize', 20);
-plot(6,cond_6_nspk_sacc2, '.k'); plot(6,nanmean(cond_6_nspk), '.g', 'MarkerSize', 20);
-plot(7,cond_7_nspk_sacc2, '.k'); plot(7,nanmean(cond_7_nspk), '.g', 'MarkerSize', 20);
-plot(8,cond_8_nspk_sacc2, '.k'); plot(8,nanmean(cond_8_nspk), '.g', 'MarkerSize', 20);
+plot(1,cond_1_nspk_sacc2, '.k', 'MarkerSize', 10); plot(1,nanmean(cond_1_nspk_sacc2), '.g', 'MarkerSize', 30);
+plot(2,cond_2_nspk_sacc2, '.k', 'MarkerSize', 10); plot(2,nanmean(cond_2_nspk_sacc2), '.g', 'MarkerSize', 30);
+plot(3,cond_3_nspk_sacc2, '.k', 'MarkerSize', 10); plot(3,nanmean(cond_3_nspk_sacc2), '.g', 'MarkerSize', 30);
+plot(4,cond_4_nspk_sacc2, '.k', 'MarkerSize', 10); plot(4,nanmean(cond_4_nspk_sacc2), '.g', 'MarkerSize', 30);
+plot(5,cond_5_nspk_sacc2, '.k', 'MarkerSize', 10); plot(5,nanmean(cond_5_nspk_sacc2), '.g', 'MarkerSize', 30);
+plot(6,cond_6_nspk_sacc2, '.k', 'MarkerSize', 10); plot(6,nanmean(cond_6_nspk_sacc2), '.g', 'MarkerSize', 30);
+plot(7,cond_7_nspk_sacc2, '.k', 'MarkerSize', 10); plot(7,nanmean(cond_7_nspk_sacc2), '.g', 'MarkerSize', 30);
+plot(8,cond_8_nspk_sacc2, '.k', 'MarkerSize', 10); plot(8,nanmean(cond_8_nspk_sacc2), '.g', 'MarkerSize', 30);
 hline(0,'--k');
-set(gca, 'ylim', [-20 20],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
+set(gca, 'ylim', [0 25],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
 title('sacc min2')
 
 
@@ -1001,6 +1124,35 @@ title('sacc min2')
  ax.XTickLabel = (xlabels(1:8)); % with these labels
  ax.XTickLabelRotation = 45;
 
+ p=numSubplots(length(sacc));
+ for cellNum = 1:length(sacc)
+     
+     cond_1_min2 = abs(sacc(cellNum).units_t_hist.nspk_1-sacc(cellNum).units_t_hist.nspk_1_min2);
+     cond_2_min2 = abs(sacc(cellNum).units_t_hist.nspk_2-sacc(cellNum).units_t_hist.nspk_2_min2);
+     cond_3_min2 = abs(sacc(cellNum).units_t_hist.nspk_3-sacc(cellNum).units_t_hist.nspk_3_min2);
+     cond_4_min2 = abs(sacc(cellNum).units_t_hist.nspk_4-sacc(cellNum).units_t_hist.nspk_4_min2);
+     cond_5_min2 = abs(sacc(cellNum).units_t_hist.nspk_5-sacc(cellNum).units_t_hist.nspk_5_min2);
+     cond_6_min2 = abs(sacc(cellNum).units_t_hist.nspk_6-sacc(cellNum).units_t_hist.nspk_6_min2);
+     cond_7_min2 = abs(sacc(cellNum).units_t_hist.nspk_7-sacc(cellNum).units_t_hist.nspk_7_min2);
+     cond_8_min2 = abs(sacc(cellNum).units_t_hist.nspk_8-sacc(cellNum).units_t_hist.nspk_8_min2);
+     
+     
+     figure(1); subplot(p(1),p(2),cellNum); hold on; 
+     if ~isempty(cond_1_min2), plot(1,cond_1_min2, '.k','MarkerSize', 10); plot(1,nanmean(cond_1_min2), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_2_min2), plot(2,cond_2_min2, '.k','MarkerSize', 10); plot(2,nanmean(cond_2_min2), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_3_min2), plot(3,cond_3_min2, '.k','MarkerSize', 10); plot(3,nanmean(cond_3_min2), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_4_min2), plot(4,cond_4_min2, '.k','MarkerSize', 10); plot(4,nanmean(cond_4_min2), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_5_min2), plot(5,cond_5_min2, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_min2), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_6_min2), plot(6,cond_6_min2, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_min2), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_7_min2), plot(7,cond_7_min2, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_min2), '.g', 'MarkerSize', 30); end
+     if ~isempty(cond_8_min2), plot(8,cond_8_min2, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_min2), '.g', 'MarkerSize', 30); ...
+     set(gca, 'ylim', [0 max([cond_1_min2 ; cond_2_min2 ; cond_3_min2 ; cond_4_min2 ; cond_5_min2 ; cond_6_min2 ; cond_7_min2 ; cond_8_min2])],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 14); box off; end
+     title(['min2 cell ' num2str(cellNum)]);
+ end
+     ax=gca;
+     ax.XTick = [1:8]; %
+     ax.XTickLabel = (xlabels(1:8)); % with these labels
+     ax.XTickLabelRotation = 45;
 
 
 

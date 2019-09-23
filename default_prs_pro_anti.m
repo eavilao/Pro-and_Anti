@@ -15,7 +15,7 @@ prs.eye_win_sacc = [-0.5 0.5];
 % extract spk timing
 prs.tspk = [-2 0.2]; %900 ms before trial starts to reward +200 ms
 
-% Prosaccade condition codes
+% Prosaccade condition codes bvcv
 prs.proConditions = [1 4 5 8 10 11 14 15];
 prs.antiConditions = [ 2 16 7 6 12 3 13 9 ];
 
