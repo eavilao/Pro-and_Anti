@@ -39,9 +39,9 @@ total_lateral = length(indx_lateral); %%%%%%%%%%%%% to table
 for i=1:length(indx_lateral)
 indx_sign_sacc_lat(i)= units(indx_lateral(i)).stats.sacc.flags.proVsAnti_sacc_ks_nspk; 
 indx_sign_instr_lat(i)= units(indx_lateral(i)).stats.instr.flags.proVsAnti_instr_ks_nspk; 
-indx_sign_sacc_base_pro_lat(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase_nspk; 
+indx_sign_sacc_base_pro_lat(i)= units(indx_lateral(i)).stats.pro.flags.saccVSbase_nspk; 
 indx_sign_instr_base_pro_lat(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase_nspk;
-indx_sign_sacc_base_anti_lat(i)= units(indx_lateral(i)).stats.anti.flags.instrVSbase_nspk; 
+indx_sign_sacc_base_anti_lat(i)= units(indx_lateral(i)).stats.anti.flags.saccVSbase_nspk; 
 indx_sign_instr_base_anti_lat(i)= units(indx_lateral(i)).stats.anti.flags.instrVSbase_nspk;
 end 
 

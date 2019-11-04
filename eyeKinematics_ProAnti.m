@@ -2,7 +2,7 @@ function eyeKin = eyeKinematics_ProAnti(units)
 % Saccade kinematics
 
 %IN = units.m
-% This code takes in units and plots eye data and computes stats for
+% This code takes in units to plot eye data and compute stats for
 % all neurons. 
 
 %gather
@@ -35,6 +35,3 @@ antiPV = vertcat(eyeKin(1,:).antiPV);
 
 proRT = vertcat(eyeKin(1,:).proRT)*1000; 
 antiRT = vertcat(eyeKin(1,:).antiRT)*1000; 
-
-
-

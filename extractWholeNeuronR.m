@@ -180,7 +180,7 @@ for cellNum = 1:length(units)
     units(cellNum).pro.neural.sacc.rate_pst = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst,prs.binwidth,prs.tsmooth);
     
     %% sanity check -- for every cell, randomize half of the trials and compute psth (5 times)
-    for j = 1:5;
+    for j = 1:100;
     numtrials = []; pick_trials = []; 
     numtrials = length(units(cellNum).pro.neural.trial); % number of trials
     pick_trials = sort(randsample(numtrials, round(numtrials/2)));  % pick half of the trials randomly
@@ -219,7 +219,7 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.sacc.rate_pst = smooth_pst(units(cellNum).anti.neural.sacc.rate_pst,prs.binwidth,prs.tsmooth);
     
     %% sanity check -- for every cell, pick random half of the trials and compute psth
-    for j = 1:5;
+    for j = 1:100;
     numtrials = []; pick_trials = []; 
     numtrials = length(units(cellNum).anti.neural.trial); % number of trials
     pick_trials = sort(randsample(numtrials, round(numtrials/2)));  % pick half of the trials randomly

@@ -20,7 +20,7 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'pplsth_sacc_all': psth aligned to saccade onset for all cells. Press any key to plot next cell
 % 'psth_instr_all':psth aligned to instruction onset for all cells. Press any key to plot next cell
 % 'psth_mean_instr'
-%'psth_mean': mean psth of two separate populations, exc and sup.
+% 'psth_mean': mean psth of two separate populations, exc and sup.
 % 'delta_rate_mean': plot mean change in firing rate for all and only significant cells
 % 'delta_rate_mean_norm_pro': plot mean change in firing rate for all and only significant cells normalized by prosaccade rate.
 % 'delta_rate_mean_norm_instr'
@@ -62,9 +62,11 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 
 switch plotType
     case 'eye_kin'
+
         %% plot
         % gather
         eyeKin = eyeKinematics_ProAnti(units);
+        %eyeKin = eyeKinematics_ProAnti_perMonk(units); % MODIFY THIS !!! 
         
         proAmp = vertcat(eyeKin(1,:).proAmp);
         antiAmp = vertcat(eyeKin(1,:).antiAmp);
@@ -420,10 +422,10 @@ switch plotType
             
             % plot w/sem
             figure; hold on;
-            shadedErrorBar(t,r_pro,sem_pro,'lineprops','r');
-            shadedErrorBar(t,r_anti,sem_anti,'lineprops','g');
+            shadedErrorBar(t,r_pro,sem_pro,'lineprops','m');
+            shadedErrorBar(t,r_anti,sem_anti,'lineprops','b');
             plot(t,mean_base,'--k','LineWidth', 0.3);
-            set (gca, 'xlim',([-0.1 0.2]), 'TickDir', 'out', 'FontSize',18); % analysis window size
+            set (gca, 'xlim',([-0.15 0.15]), 'TickDir', 'out', 'FontSize',18); % analysis window size
             xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
             vline(0, 'k-');
             box off
@@ -460,8 +462,8 @@ switch plotType
             
             % plot w/sem
             figure; hold on;
-            s_pro = shadedErrorBar(t,r_pro,std_pro,'lineprops','r');
-            s_anti = shadedErrorBar(t,r_anti,std_anti,'lineprops','g');
+            s_pro = shadedErrorBar(t,r_pro,sem_pro,'lineprops','m');
+            s_anti = shadedErrorBar(t,r_anti,sem_anti,'lineprops','b');
             set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
             set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
             set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
@@ -812,55 +814,65 @@ switch plotType
         
         %% insets with means for smaller windows pre saccade
         % pro small_win -0.1 to 0 ::: win -0.150 to 0
-        r_small_win_exc_pro = mean(r_exc_pro_signif(:, t > -0.101 & t < 0.01));
+%         r_small_win_exc_pro = mean(r_exc_pro_signif(:, t > -0.101 & t < 0.01));
         r_win_exc_pro = mean(r_exc_pro_signif(:, t > -0.151 & t < 0.01));
-        r_small_win_sup_pro = mean(r_sup_pro_signif(:, t > -0.101 & t < 0.01));
+%         r_small_win_sup_pro = mean(r_sup_pro_signif(:, t > -0.101 & t < 0.01));
         r_win_sup_pro = mean(r_sup_pro_signif(:, t > -0.151 & t < 0.01));
         
         % anti small_win -0.1 to 0 ::: win -0.150 to 0
-        r_small_win_exc_anti = mean(r_exc_anti_signif(:, t > -0.101 & t < 0.01));
+%         r_small_win_exc_anti = mean(r_exc_anti_signif(:, t > -0.101 & t < 0.01));
         r_win_exc_anti = mean(r_exc_anti_signif(:, t > -0.151 & t < 0.01));
-        r_small_win_sup_anti = mean(r_sup_anti_signif(:, t > -0.101 & t < 0.01));
+%         r_small_win_sup_anti = mean(r_sup_anti_signif(:, t > -0.101 & t < 0.01));
         r_win_sup_anti = mean(r_sup_anti_signif(:, t > -0.151 & t < 0.01));
         
-        figure; hold on;
-        errorbar(1,mean(r_small_win_exc_pro),std(r_small_win_exc_pro),'m','LineWidth',1, 'Marker', 'o');
-        errorbar(2,mean(r_small_win_exc_anti),std(r_small_win_exc_anti),'b','LineWidth',1,'Marker', 'o');
-        set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[-0.2 1.2], 'yTick', [0 0.5 1], 'TickDir', 'out', 'FontSize',30);
-        title('-0.1 to 0')
+%         figure; hold on;
+%         errorbar(1,mean(r_small_win_exc_pro),std(r_small_win_exc_pro),'m','LineWidth',1, 'Marker', 'o');
+%         errorbar(2,mean(r_small_win_exc_anti),std(r_small_win_exc_anti),'b','LineWidth',1,'Marker', 'o');
+%         set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[-0.2 1.2], 'yTick', [0 0.5 1], 'TickDir', 'out', 'FontSize',30);
+%         title('-0.1 to 0')
         
         figure; hold on;
-        errorbar(1,mean(r_win_exc_pro),std(r_win_exc_pro),'m','LineWidth',1, 'Marker', 'o');
-        errorbar(2,mean(r_win_exc_anti),std(r_win_exc_anti),'b','LineWidth',1, 'Marker', 'o');
-        set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[-0.3 1.2], 'yTick', [0 0.5 1], 'TickDir', 'out', 'FontSize',30);
+        errorbar(1,mean(r_win_exc_pro),std(r_win_exc_pro),'g','LineWidth',1, 'Marker', '^','Capsize',0);
+        errorbar(2,mean(r_win_exc_anti),std(r_win_exc_anti),'b','LineWidth',1, 'Marker', '^','Capsize',0);
+        errorbar(1,mean(r_win_sup_pro),std(r_win_sup_pro),'m','LineWidth',1, 'Marker', 'v','Capsize',0);
+        errorbar(2,mean(r_win_sup_anti),std(r_win_sup_anti),'b','LineWidth',1, 'Marker', 'v','Capsize',0);
+        
+        set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[-1.2 1.2], 'yTick', [-1 -0.5 0 0.5 1], 'TickDir', 'out', 'FontSize',30);
         title('-0.150 to 0')
         
         %% insets with means for smaller windows post saccade
-        % pro small_win -0.1 to 0 ::: win -0.150 to 0
-        r_small_win_exc_pro = mean(r_exc_pro_signif(:, t > -0.01 & t < 0.1));
+        % pro small_win 0 to 0.100 ::: win 1 to 0.150
+%         r_small_win_exc_pro = mean(r_exc_pro_signif(:, t > -0.01 & t < 0.1));
         r_win_exc_pro = mean(r_exc_pro_signif(:, t > -0.01 & t < 0.150));
-        r_small_win_sup_pro = mean(r_sup_pro_signif(:, t > -0.01 & t < 0.1));
+%         r_small_win_sup_pro = mean(r_sup_pro_signif(:, t > -0.01 & t < 0.1));
         r_win_sup_pro = mean(r_sup_pro_signif(:, t > -0.01 & t < 0.150));
         
         % anti small_win -0.1 to 0 ::: win -0.150 to 0
-        r_small_win_exc_anti = mean(r_exc_anti_signif(:, t > -0.01 & t < 0.1));
+%         r_small_win_exc_anti = mean(r_exc_anti_signif(:, t > -0.01 & t < 0.1));
         r_win_exc_anti = mean(r_exc_anti_signif(:, t > -0.01 & t < 0.150));
-        r_small_win_sup_anti = mean(r_sup_anti_signif(:, t > -0.01 & t < 0.1));
+%         r_small_win_sup_anti = mean(r_sup_anti_signif(:, t > -0.01 & t < 0.1));
         r_win_sup_anti = mean(r_sup_anti_signif(:, t > -0.01 & t < 0.150));
         
         %%% take grand mean
         
+%         figure; hold on;
+%         errorbar(1,mean(r_small_win_exc_pro),std(r_small_win_exc_pro),'m','LineWidth',1, 'Marker', 'o');
+%         errorbar(2,mean(r_small_win_exc_anti),std(r_small_win_exc_anti),'b','LineWidth',1,'Marker', 'o');
+%         set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[0 2], 'yTick', [0 1 2], 'TickDir', 'out', 'FontSize',30);
+%         title('0 to 0.1')
+           
         figure; hold on;
-        errorbar(1,mean(r_small_win_exc_pro),std(r_small_win_exc_pro),'m','LineWidth',1, 'Marker', 'o');
-        errorbar(2,mean(r_small_win_exc_anti),std(r_small_win_exc_anti),'b','LineWidth',1,'Marker', 'o');
-        set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[0 2], 'yTick', [0 1 2], 'TickDir', 'out', 'FontSize',30);
-        title('0 to 0.1')
+        errorbar(1,mean(r_win_exc_pro),std(r_win_exc_pro),'m','LineWidth',1, 'Marker', '^', 'Capsize',0);
+        errorbar(2,mean(r_win_exc_anti),std(r_win_exc_anti),'b','LineWidth',1, 'Marker', '^','Capsize',0);
+        errorbar(1,mean(r_win_sup_pro),std(r_win_sup_pro),'m','LineWidth',1, 'Marker', 'v','Capsize',0);
+        errorbar(2,mean(r_win_sup_anti),std(r_win_sup_anti),'b','LineWidth',1, 'Marker', 'v','Capsize',0);
         
-        figure; hold on;
-        errorbar(1,mean(r_win_exc_pro),std(r_win_exc_pro),'m','LineWidth',1, 'Marker', 'o');
-        errorbar(2,mean(r_win_exc_anti),std(r_win_exc_anti),'b','LineWidth',1, 'Marker', 'o');
-        set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[0 2], 'yTick', [0 1 2], 'TickDir', 'out', 'FontSize',30);
+        set(gca,'xlim', [0 3], 'xTick',[], 'ylim',[-2 2], 'yTick', [-2 0 2], 'TickDir', 'out', 'FontSize',30);
         title('0 to 0.150')
+        
+        % stats : ranksum
+        [h,p] = ranksum(r_win_exc_pro, r_win_exc_anti)
+        
         
         
     case 'delta_rate_mean_norm_instr'
@@ -927,29 +939,24 @@ switch plotType
         
         % plot exc
         figure; hold on;
-        plot(t,mean(r_exc_pro));
-        plot(t,mean(r_exc_anti));
+%         plot(t,mean(r_exc_pro));
+%         plot(t,mean(r_exc_anti));
         s_pro = shadedErrorBar(t, mean(r_exc_pro),repmat(mean(sem_exc_pro),[size(mean(r_exc_pro)) 1]), 'lineprops','m');
         s_anti = shadedErrorBar(t, mean(r_exc_anti),repmat(mean(sem_exc_anti),[size(mean(r_exc_anti)) 1]), 'lineprops','b');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
-        set(gca, 'xlim',[0.05 0.350], 'ylim', [0 1], 'ytick', [0 1],'TickDir', 'out', 'FontSize', 26);
+        set(gca, 'xlim',[0.05 0.350], 'ylim', [0 1], 'ytick', [0 1],'TickDir', 'out', 'FontSize', 26 );
         ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)');hline(0, '--k');
         
         % plot sup
         %figure; hold on;
-        plot(t,mean(r_sup_pro));
-        plot(t,mean(r_sup_anti));
+%         plot(t,mean(r_sup_pro));
+%         plot(t,mean(r_sup_anti));
         s_pro = shadedErrorBar(t, mean(r_sup_pro), repmat(mean(sem_sup_pro),[size(mean(r_sup_pro)) 1]), 'lineprops','m');
         s_anti = shadedErrorBar(t, mean(r_sup_anti),repmat(mean(sem_sup_anti),[size(mean(r_sup_anti)) 1]), 'lineprops','b');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
-        set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
-        set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
-        set(gca, 'xlim',[0.05 0.350], 'ylim', [-1 0], 'ytick', [-1 0],'TickDir', 'out', 'FontSize', 26);
-        ylabel ('Change in firing rate (spk/s)'); xlabel('Time (s)');hline(0, '--k');
-        
-        % plot exc signif
+        set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none'); 
         figure; hold on;
         plot(t,mean(r_exc_pro_signif)); % plot(t,r_exc_pro_signif); %
         plot(t,mean(r_exc_anti_signif)); % plot(t,r_exc_anti_signif); %
@@ -2148,13 +2155,28 @@ switch plotType
             t_instr = units(indx_area(i)).pro.neural.instr.ts_pst;
             position_stat_sign_instr(i,:) = abs(stat_instr(i,:))>=1.96;
             %             %
-            %             %plot instr
-            %             figure; subplot(2,1,1);
-            %             plot(t_instr, stat_instr(i,:), 'k','MarkerSize', 15);
-            %             hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-            %             set(gca, 'xlim',[0 0.350],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
-            %             title ('Binomial pb dist - Instruction')
-            %             xlabel('time (s)')
+                        %plot instr
+                        subplot(2,1,1); hold on
+                        plot(t_instr, stat_instr(i,:), 'k','MarkerSize', 15);
+                        hline(-1.96, 'k');hline(1.96, 'k');
+                        set(gca, 'xlim',[0 0.350],'xTick',[0 0.175 0.350] ,'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
+                        title ('Binomial pb dist - Instruction')
+                        xlabel('time (s)'); ylabel('z-stat');
+                        
+                        % Find if there are two consecutive timepoints
+                        % above or below 1.96
+                        clear a0 ii
+                        a0 = abs(stat_instr(i,t_instr>0.049 & t_instr<0.351)); % input vector
+                        a0 = a0>1.96; 
+                        ii = strfind(a0,[1 1]);
+                        if ~isempty(ii)
+                            good_cell_instr(i) = 1; 
+                            good_cell_instr_timepoints{i} = ii; 
+                        else
+                            good_cell_instr(i) = 0; 
+                            good_cell_instr_timepoints{i} = []; 
+                        end
+                                                
             %             %             %
             %             %             %             % sacc
             %             %             %             %gather
@@ -2162,54 +2184,31 @@ switch plotType
             stat_sacc(i,:) = units(indx_area(i)).stats.sacc.pval.pbDist_testStat;
             position_stat_sign_sacc(i,:) = abs(stat_sacc(i,:))>=1.96;
             %             %             %             % plot
-            %             subplot(2,1,2)
-            %             plot(t_sacc, stat_sacc(i,:), 'k','MarkerSize', 15);
-            %             hline(-1.96, 'k');hline(1.96, 'k');vline(0, 'c');
-            %             set(gca, 'xlim',[-0.150 0.151],'ylim',[-6 6], 'TickDir', 'out', 'FontSize', 18)
-            %             title (['Binomial pb dist - Saccade cell: ' num2str(indx_area(i))])
-            %             xlabel('time')
-            %             fname = 'Binomial_pb_dist';
-            %             print(fname,'-append', '-dpsc2')
-            %             waitforbuttonpress; close all;
+                        subplot(2,1,2); hold on
+                        plot(t_sacc, stat_sacc(i,:), 'k','MarkerSize', 15);
+                        set(gca, 'xlim',[-0.150 0.151],'xTick',[-0.1 0 0.1],'ylim',[-8 8], 'TickDir', 'out', 'FontSize', 18)
+                        title (['Binomial pb dist - Saccade cell: ' num2str(indx_area(i))])
+                        xlabel('time (s)'); ylabel('z-stat'); hline(-1.96, 'k'); hline(1.96, 'k');vline(0, 'c');
+                        fname = 'Binomial_pb_dist';
+                        print(fname,'-append', '-dpsc2')
+                        %waitforbuttonpress; %close all;
+                        
+                         % Find if there are two consecutive timepoints
+                        % above or below 1.96
+                        clear a0 ii
+                        a0 = abs(stat_sacc(i,t_sacc>-0.151 & t_sacc<0.151)); % input vector
+                        a0 = a0>1.96; 
+                        ii = strfind(a0,[1 1]);
+                        if ~isempty(ii)
+                            good_cell_sacc(i) = 1;
+                            good_cell_sacc_timepoints{i} = ii;
+                        else
+                            good_cell_sacc(i) = 0;
+                            good_cell_sacc_timepoints{i} = [];
+                        end
             %             %
         end
         
-        %% Disused %% Take the absolute value of the Z-statistic and average across neurons - average for each time point and plot it as a function of time
-        % This will reveal how well an average neuron can discriminate between the two conditions.
-        
-        %         sacc_Z_stat = mean(abs(stat_sacc));
-        %         instr_Z_stat = mean(abs(stat_instr));
-        %
-        %         % plot instr Z stat
-        %         figure; hold on;
-        %         plot(abs(stat_instr), '.k'); hold on; hline(1.96);  % data points 11 to 41
-        %         %plot(nanmedian(abs(stat_instr)), '-r', 'LineWidth',2)
-        %         set(gca, 'xlim',[10.5 41.5], 'TickDir', 'out', 'FontSize', 18);
-        %
-        %         % side histogram
-        %         figure; hold on;
-        %         histogram(abs(stat_instr), 25)
-        %         set(gca,'Xdir','reverse','TickDir', 'out', 'FontSize', 18);
-        %
-        %         % Histogram of >1.96 only
-        %         figure; hold on
-        %         histogram(stat_instr(position_stat_sign_instr),25);
-        %         plot(t_sacc(),abs(stat_instr(position_stat_sign_instr)), '.k')
-        %
-        %         figure; hold on
-        %         histogram(abs(stat_instr(position_stat_sign_instr)),25);
-        %          set(gca,'TickDir', 'out', 'FontSize', 18);
-        %
-        %          % plot sacc Z stat
-        %          figure; hold on;
-        %         plot(abs(stat_sacc), '.k'); hold on; hline(1.96);  % data points 11 to 41
-        %         %plot(nanmedian(abs(stat_instr)), '-r', 'LineWidth',2)
-        %         set(gca, 'xlim',[10.5 41.5], 'TickDir', 'out', 'FontSize', 18);
-        %
-        %         % side histogram
-        %         figure; hold on;
-        %         histogram(abs(stat_sacc), 25)
-        %         set(gca,'Xdir','reverse','TickDir', 'out', 'FontSize', 18);
         
         %% Take the absolute value of the Z-statistic and average across significantly different neurons
         %                    instr -> get significantly different neurons
@@ -2221,6 +2220,50 @@ switch plotType
             indx_sign_instr_sup(i) = logical(units(indx_area(i)).stats.instr.flags.proVsAnti_instr_ks_nspk) & units(cellNum).pro.neural.sup==1;
         end
         n_instr = sum(indx_sign_instr);
+        
+         %% Disused %% Take the absolute value of the Z-statistic and average across neurons - average for each time point and plot it as a function of time
+        % This will reveal how well an average neuron can discriminate between the two conditions.
+        
+                sacc_Z_stat = mean(abs(stat_sacc));
+                instr_Z_stat = mean(abs(stat_instr));
+        
+                % plot instr Z stat
+                figure; hold on;
+                plot(t_instr,abs(stat_instr), '.', 'MarkerSize', 20, 'Color', [0.5 0.5 0.5]); hline(1.96);  % data points 11 to 41
+                plot(t_instr, abs(stat_instr(logical(good_cell_instr),:)), '-', 'LineWidth', 1);
+                %plot(t_instr,abs(stat_instr(indx_sign_instr,:)), '.', 'MarkerSize', 20); hold on; hline(1.96);  % data points 11 to 41
+                %plot(nanmedian(abs(stat_instr)), '-r', 'LineWidth',2)
+                set(gca, 'xlim',[0.05 0.35], 'xTick', [0.05 0.350],'yTick',[0 2 4], 'TickDir', 'out', 'FontSize', 18);
+                ylabel('z-stat'); xlabel('time (s)'); title('Instruction');
+        
+                % side histogram
+                figure; hold on;
+                histogram(abs(stat_instr), 25)
+                %histogram(abs(stat_instr(indx_sign_instr,:)), 25)
+                set(gca,'Xdir','reverse','TickDir', 'out', 'FontSize', 18);
+        
+                % Histogram of >1.96 only
+                figure; hold on
+                histogram(t_instr,stat_instr(position_stat_sign_instr),25);
+                plot(t_sacc(),abs(stat_instr(position_stat_sign_instr)), '.k')
+                set(gca, 'xlim',[0.05 0.35], 'TickDir', 'out', 'FontSize', 18);
+        
+                figure; hold on
+                histogram(abs(stat_instr(position_stat_sign_instr)),25);
+                 set(gca,'TickDir', 'out', 'FontSize', 18);
+        
+                 % plot sacc Z stat
+                figure; hold on;
+                plot(t_sacc,abs(stat_sacc), '.', 'MarkerSize', 20, 'Color', [0.5 0.5 0.5]); hline(1.96);  % data points 11 to 41
+                plot(t_sacc, abs(stat_sacc(logical(good_cell_sacc),:)), '-', 'LineWidth', 1);
+                %plot(nanmedian(abs(stat_instr)), '-r', 'LineWidth',2)
+                set(gca, 'xlim',[-0.150 0.150],'xTick',[-0.1 0 0.1],'ytick',[0 2 4], 'TickDir', 'out', 'FontSize', 18);
+                ylabel('z-stat'), xlabel('time (s)'); title('Saccade');
+        
+                % side histogram
+                figure; hold on;
+                histogram(abs(stat_sacc), 25)
+                set(gca,'Xdir','reverse','TickDir', 'out', 'FontSize', 18);
         
          %% exc and sup z stat
         cnt_exc=1; cnt_sup=1;
@@ -2789,6 +2832,8 @@ switch plotType
         set(gca, 'yTick',[0 0.5 1],'xlim',[0.5 1.5] ,'XGrid', 'off', 'YGrid', 'off', 'TickDir', 'out', 'FontSize', 30); title('Modulation ratio OMV vs Lateral signif');
         axis square;
         
+        [h_mod,p_mod] = kstest2(mod_r_vermis_sign, mod_r_lat_sign); 
+        
         figure; hold on;
         [f_v,x_v] = ksdensity(mod_r_vermis_sign);
         y1_v = cumsum(f_v); y1_v = y1_v./max(y1_v);
@@ -2812,8 +2857,24 @@ switch plotType
         plot(x_ns_l,y1_ns_l,'g','linewidth',2);
         xlabel('Modulation ratio'); axis square; box off;
         
+        % stat
+        [h,p] = kstest2(x_v, x_l)
         
+        % get slope
+        [coefficients_omv,s_omv] = polyfit(x_v, y1_v, 1);
+        [coefficients_lat,s_lat] = polyfit(x_l, y1_l, 1);
+        % Now get the slope, which is the first coefficient in the array:
+        slope_omv = coefficients_omv(1);
+        slope_lat = coefficients_lat(1);
+        [~,SE_omv] = polyval(coefficients_omv,x_v,s_omv);
+        [~,SE_lat] = polyval(coefficients_lat,x_l,s_lat);
         
+        % caluclate normal z as we cannot assume homogeneity of the error
+        % variances in the two samples. Difference between the two slopes
+        % divided by the standard error of the difference between the
+        % slopes. 
+        
+        z_slope = (coefficients_lat(1)-coefficients_omv(1))/(sqrt(SE_lat(2)-SE_omv(2)))
         
     case 'sorted_colormap_sacc'
         % get area
@@ -2857,7 +2918,7 @@ switch plotType
         %         vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Pro ' recArea])
         
         % anti
-        [maxRates_anti, ] = max(r_anti, [], 2);
+        [maxRates_anti,pos_max_anti ] = max(r_anti, [], 2);
         [~,indx_max_anti] = sort(pos_max_anti);
         r_anti_norm = r_anti./repmat(maxRates_anti,[1 size(r_anti,2)]);
         r_anti_sorted = r_anti_norm(indx_max_anti,:); [~, max_pos_anti] =  max(r_anti_sorted,[],2);
@@ -2877,6 +2938,21 @@ switch plotType
         scatterhist(t(max_pos_anti),1:size(r_anti,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','k','NBins',31);
         set(gca,'xlim',[-0.15 0.15],'ylim',[0 nunits_area(end)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         title('Anti');
+        
+        %% plot pro and anti sequences on top of each other
+        figure; hold on; 
+        plot(t(max_pos_pro), 'm', 'LineWidth',2);
+        plot(t(max_pos_anti), 'b', 'LineWidth',2); 
+        set(gca,'ylim',[-0.15 0.15],'xlim', [0 68], 'TickDir', 'out', 'FontSize', 18); box off;
+        ylabel('time (s)'); xlabel('neuron'); axis square;
+        
+        % compute difference between both - zero no change
+        figure; hold on; 
+        plot(t(max_pos_pro)-t(max_pos_anti), 'k','LineWidth',2); %% mean(t(max_pos_pro)-t(max_pos_anti)) % for difference between both
+        set(gca,'ylim',[-0.15 0.15],'xlim', [0 81], 'TickDir', 'out', 'FontSize', 18); box off;
+        axis square; hline(0); vline(68);
+        
+        
         %% plot a few neurons for sanity check
         cell = 46;
         t_check = units(cell).pro.neural.sacc.ts_pst;
@@ -2959,22 +3035,70 @@ switch plotType
             r_anti(j,:) = units(indx(j)).anti.neural.sacc.rate_pst_win; % psth
         end
         % pro
-        [maxRates,pos_max] = max(r_pro, [], 2);
+        [maxRates,pos_max_pro] = max(r_pro, [], 2);
         % plot
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
-        scatterhist(t_win(pos_max),1:size(r_pro,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','m','NBins',31);
+        scatterhist(t_win(pos_max_pro),1:size(r_pro,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','m','NBins',31);
         set(gca,'xlim',[-0.15 0.15],'ylim',[0 nunits_area(end)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         vline(0, '--k'); ylabel('Neuron'); box off; title(['Orig ' recArea]);
         
+        % comparison
+        % w1 = -150 ms to -75 ms ; w2 = -75 ms to 0 ; w3 = 0 to 75 ms ; w4 = 75 to 150 ms;
+        % get flag for position
+        win_indx_pro = zeros(length(indx),8);
+        for cell = 1:length(indx)
+            if t_win(pos_max_pro(cell)) >=-0.151 & t_win(pos_max_pro(cell)) <= -0.075;
+                win_indx_pro(cell,1) = 1;
+            elseif t_win(pos_max_pro(cell)) > -0.075 & t_win(pos_max_pro(cell)) <= 0;
+                win_indx_pro(cell,3) = 1;
+            elseif t_win(pos_max_pro(cell)) > 0 & t_win(pos_max_pro(cell))<= 0.075;
+                win_indx_pro(cell,5) = 1;
+            else
+                win_indx_pro(cell,7) = 1;
+            end
+        end
+        
+        % two window comparison
+        for cell = 1:length(indx)
+            if t_win(pos_max_pro(cell)) >=-0.151 & t_win(pos_max_pro(cell)) <= 0;
+                comparison_indx_pro(cell,1) = 1;
+            else
+                comparison_indx_pro(cell,3) = 1;
+            end
+        end
+        
+
         % anti
-        [maxRates,pos_max] = max(r_anti, [], 2);
-        r_anti_norm = r_anti./repmat(maxRates,[1 size(r_anti,2)]);
-        r_anti_sorted = r_anti_norm(pos_max,:); [~, max_pos_anti] =  max(r_anti_sorted,[],2);
+        [maxRates,pos_max_anti] = max(r_anti, [], 2);
+       
         % plot
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
-        scatterhist(t_win(pos_max),1:size(r_anti,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','b','NBins',31);
+        scatterhist(t_win(pos_max_anti),1:size(r_anti,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','b','NBins',31);
         set(gca,'xlim',[-0.15 0.15],'ylim',[0 nunits_area(end)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         ylabel('Neuron'); box off; title(['Orig ' recArea]);
+        
+               % get flag for position
+        win_indx_anti = zeros(length(indx),8);
+        for cell = 1:length(indx)
+            if t_win(pos_max_anti(cell)) >=-0.151 & t_win(pos_max_anti(cell)) <= -0.075;
+                win_indx_anti(cell,1) = 1;
+            elseif t_win(pos_max_anti(cell)) > -0.075 & t_win(pos_max_anti(cell)) <= 0;
+                win_indx_anti(cell,3) = 1;
+            elseif t_win(pos_max_anti(cell)) > 0 & t_win(pos_max_anti(cell))<= 0.075;
+                win_indx_anti(cell,5) = 1;
+            else
+                win_indx_anti(cell,7) = 1;
+            end
+        end
+        
+        % two window comparison
+        for cell = 1:length(indx)
+            if t_win(pos_max_anti(cell)) >=-0.151 & t_win(pos_max_anti(cell)) <= 0;
+                comparison_indx_anti(cell,1) = 1;
+            else
+                comparison_indx_anti(cell,3) = 1;
+            end
+        end
         
         
         %% one
@@ -2984,22 +3108,68 @@ switch plotType
         end
         
         % pro
-        [maxRates,pos_max] = max(r_pro, [], 2);
+        [maxRates,pos_max_pro_1] = max(r_pro, [], 2);
         % plot
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
-        scatterhist(t_win(pos_max),1:size(r_pro,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','m','NBins',31);
+        scatterhist(t_win(pos_max_pro_1),1:size(r_pro,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','m','NBins',31);
         set(gca,'xlim',[-0.15 0.15],'ylim',[0 nunits_area(end)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         vline(0, '--k'); ylabel('Neuron'); box off; title(['Rand1 ' recArea]);
         
+      % get flag for position
+        win_indx_pro_1 = zeros(length(indx),8);
+        for cell = 1:length(indx)
+            if t_win(pos_max_pro_1(cell)) >=-0.151 & t_win(pos_max_pro_1(cell)) <= -0.075;
+                win_indx_pro_1(cell,2) = 1;
+            elseif t_win(pos_max_pro_1(cell)) > -0.075 & t_win(pos_max_pro_1(cell)) <= 0;
+                win_indx_pro_1(cell,4) = 1;
+            elseif t_win(pos_max_pro_1(cell)) > 0 & t_win(pos_max_pro_1(cell))<= 0.075;
+                win_indx_pro_1(cell,6) = 1;
+            else
+                win_indx_pro_1(cell,8) = 1;
+            end
+        end
+        
+        % two window comparison
+        for cell = 1:length(indx)
+            if t_win(pos_max_pro_1(cell)) >=-0.151 & t_win(pos_max_pro_1(cell)) <= 0;
+                comparison_indx_pro_1(cell,2) = 1;
+            else
+                comparison_indx_pro_1(cell,4) = 1;
+            end
+        end
+        
         % anti
-        [maxRates,pos_max] = max(r_anti, [], 2);
-        r_anti_norm = r_anti./repmat(maxRates,[1 size(r_anti,2)]);
-        r_anti_sorted = r_anti_norm(pos_max,:); [~, max_pos_anti] =  max(r_anti_sorted,[],2);
+        [maxRates,pos_max_anti_1] = max(r_anti, [], 2);
+       
         % plot
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
-        scatterhist(t_win(pos_max),1:size(r_anti,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','b','NBins',31);
+        scatterhist(t_win(pos_max_anti_1),1:size(r_anti,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','b','NBins',31);
         set(gca,'xlim',[-0.15 0.15],'ylim',[0 nunits_area(end)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         ylabel('Neuron'); box off; title(['Rand1 ' recArea]);
+        
+             % get flag for position
+        win_indx_anti_1 = zeros(length(indx),8);
+        for cell = 1:length(indx)
+            if t_win(pos_max_anti_1(cell)) >=-0.151 & t_win(pos_max_anti_1(cell)) <= -0.075;
+                win_indx_anti_1(cell,2) = 1;
+            elseif t_win(pos_max_anti_1(cell)) > -0.075 & t_win(pos_max_anti_1(cell)) <= 0;
+                win_indx_anti_1(cell,4) = 1;
+            elseif t_win(pos_max_anti_1(cell)) > 0 & t_win(pos_max_anti_1(cell))<= 0.075;
+                win_indx_anti_1(cell,6) = 1;
+            else
+                win_indx_anti_1(cell,8) = 1;
+            end
+        end
+        
+        % two window comparison
+        for cell = 1:length(indx)
+            if t_win(pos_max_anti_1(cell)) >=-0.151 & t_win(pos_max_anti_1(cell)) <= 0;
+                comparison_indx_anti_1(cell,2) = 1;
+            else
+                comparison_indx_anti_1(cell,4) = 1;
+            end
+        end
+        
         
         %% two
         for j=1:length(indx)
@@ -3007,22 +3177,70 @@ switch plotType
             r_anti(j,:) = units(indx(j)).anti.neural.sacc.rate_pst_rand(2,t>-0.151 & t<0.151); % psth
         end
         % pro
-        [maxRates,pos_max] = max(r_pro, [], 2);
+        [maxRates,pos_max_pro_2] = max(r_pro, [], 2);
         % plot
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
-        scatterhist(t_win(pos_max),1:size(r_pro,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','m','NBins',31);
+        scatterhist(t_win(pos_max_pro_2),1:size(r_pro,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','m','NBins',31);
         set(gca,'xlim',[-0.15 0.15],'ylim',[0 nunits_area(end)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         vline(0, '--k'); ylabel('Neuron'); box off; title(['Rand2 ' recArea]);
         
+        % get flag for position
+        win_indx_pro_2 = zeros(length(indx),8);
+        for cell = 1:length(indx)
+            if t_win(pos_max_pro_2(cell)) >=-0.151 & t_win(pos_max_pro_2(cell)) <= -0.075;
+                win_indx_pro_2(cell,2) = 1;
+            elseif t_win(pos_max_pro_2(cell)) > -0.075 & t_win(pos_max_pro_2(cell)) <= 0;
+                win_indx_pro_2(cell,4) = 1;
+            elseif t_win(pos_max_pro_2(cell)) > 0 & t_win(pos_max_pro_2(cell))<= 0.075;
+                win_indx_pro_2(cell,6) = 1;
+            else
+                win_indx_pro_2(cell,8) = 1;
+            end
+        end
+        
+        % two window comparison
+        for cell = 1:length(indx)
+            if t_win(pos_max_pro_2(cell)) >=-0.151 & t_win(pos_max_pro_2(cell)) <= 0;
+                comparison_indx_pro_2(cell,2) = 1;
+            else
+                comparison_indx_pro_2(cell,4) = 1;
+            end
+        end
+        
         % anti
-        [maxRates,pos_max] = max(r_anti, [], 2);
+        [maxRates,pos_max_anti_2] = max(r_anti, [], 2);
         r_anti_norm = r_anti./repmat(maxRates,[1 size(r_anti,2)]);
-        r_anti_sorted = r_anti_norm(pos_max,:); [~, max_pos_anti] =  max(r_anti_sorted,[],2);
+        r_anti_sorted = r_anti_norm(pos_max_anti_2,:); [~, max_pos_anti] =  max(r_anti_sorted,[],2);
         % plot
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
-        scatterhist(t_win(pos_max),1:size(r_anti,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','b','NBins',31);
+        scatterhist(t_win(pos_max_anti_2),1:size(r_anti,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','b','NBins',31);
         set(gca,'xlim',[-0.15 0.15],'ylim',[0 nunits_area(end)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         ylabel('Neuron'); box off; title(['Rand2 ' recArea]);
+        
+               % get flag for position
+        win_indx_anti_2 = zeros(length(indx),8);
+        for cell = 1:length(indx)
+            if t_win(pos_max_anti_2(cell)) >=-0.151 & t_win(pos_max_anti_2(cell)) <= -0.075;
+                win_indx_anti_2(cell,2) = 1;
+            elseif t_win(pos_max_anti_2(cell)) > -0.075 & t_win(pos_max_anti_2(cell)) <= 0;
+                win_indx_anti_2(cell,4) = 1;
+            elseif t_win(pos_max_anti_2(cell)) > 0 & t_win(pos_max_anti_2(cell))<= 0.075;
+                win_indx_anti_2(cell,6) = 1;
+            else
+                win_indx_anti_2(cell,8) = 1;
+            end
+        end
+        
+        % two window comparison
+        for cell = 1:length(indx)
+            if t_win(pos_max_anti_2(cell)) >=-0.151 & t_win(pos_max_anti_2(cell)) <= 0;
+                comparison_indx_anti_2(cell,2) = 1;
+            else
+                comparison_indx_anti_2(cell,4) = 1;
+            end
+        end
+        
+
         
         %% three
         for j=1:length(indx)
@@ -3030,22 +3248,316 @@ switch plotType
             r_anti(j,:) = units(indx(j)).anti.neural.sacc.rate_pst_rand(3,t>-0.151 & t<0.151); % psth
         end
         % pro
-        [maxRates,pos_max] = max(r_pro, [], 2);
+        [maxRates,pos_max_pro_3] = max(r_pro, [], 2);
         % plot
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
-        scatterhist(t_win(pos_max),1:size(r_pro,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','m','NBins',31);
+        scatterhist(t_win(pos_max_pro_3),1:size(r_pro,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','m','NBins',31);
         set(gca,'xlim',[-0.15 0.15],'ylim',[0 nunits_area(end)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         vline(0, '--k'); ylabel('Neuron'); box off; title(['Rand3 ' recArea]);
         
+        % get flag for position
+        win_indx_pro_3 = zeros(length(indx),8);
+        for cell = 1:length(indx)
+            if t_win(pos_max_pro_3(cell)) >=-0.151 & t_win(pos_max_pro_3(cell)) <= -0.075;
+                win_indx_pro_3(cell,2) = 1;
+            elseif t_win(pos_max_pro_3(cell)) > -0.075 & t_win(pos_max_pro_3(cell)) <= 0;
+                win_indx_pro_3(cell,4) = 1;
+            elseif t_win(pos_max_pro_3(cell)) > 0 & t_win(pos_max_pro_3(cell))<= 0.075;
+                win_indx_pro_3(cell,6) = 1;
+            else
+                win_indx_pro_3(cell,8) = 1;
+            end
+        end
+        
+        % two window comparison
+        for cell = 1:length(indx)
+            if t_win(pos_max_pro_3(cell)) >=-0.151 & t_win(pos_max_pro_3(cell)) <= 0;
+                comparison_indx_pro_3(cell,2) = 1;
+            else
+                comparison_indx_pro_3(cell,4) = 1;
+            end
+        end
+        
+        
         % anti
-        [maxRates,pos_max] = max(r_anti, [], 2);
+        [maxRates,pos_max_anti_3] = max(r_anti, [], 2);
         r_anti_norm = r_anti./repmat(maxRates,[1 size(r_anti,2)]);
-        r_anti_sorted = r_anti_norm(pos_max,:); [~, max_pos_anti] =  max(r_anti_sorted,[],2);
+        r_anti_sorted = r_anti_norm(pos_max_anti_3,:); [~, max_pos_anti] =  max(r_anti_sorted,[],2);
         % plot
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
-        scatterhist(t_win(pos_max),1:size(r_anti,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','b','NBins',31);
+        scatterhist(t_win(pos_max_anti_3),1:size(r_anti,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','b','NBins',31);
         set(gca,'xlim',[-0.15 0.15],'ylim',[0 nunits_area(end)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         ylabel('Neuron'); box off; title(['Rand3 ' recArea]);
+        
+        
+             % get flag for position
+        win_indx_anti_3 = zeros(length(indx),8);
+        for cell = 1:length(indx)
+            if t_win(pos_max_anti_3(cell)) >=-0.151 & t_win(pos_max_anti_3(cell)) <= -0.075;
+                win_indx_anti_3(cell,2) = 1;
+            elseif t_win(pos_max_anti_3(cell)) > -0.075 & t_win(pos_max_anti_3(cell)) <= 0;
+                win_indx_anti_3(cell,4) = 1;
+            elseif t_win(pos_max_anti_3(cell)) > 0 & t_win(pos_max_anti_3(cell))<= 0.075;
+                win_indx_anti_3(cell,6) = 1;
+            else
+                win_indx_anti_3(cell,8) = 1;
+            end
+        end
+        
+        % two window comparison
+        for cell = 1:length(indx)
+            if t_win(pos_max_anti_3(cell)) >=-0.151 & t_win(pos_max_anti_3(cell)) <= 0;
+                comparison_indx_anti_3(cell,2) = 1;
+            else
+                comparison_indx_anti_3(cell,4) = 1;
+            end
+        end
+        
+
+        %% Compute cosine similarity index between 4 windows for pro
+        
+        for k = 1:length(win_indx_pro(1,:))
+            if k==8
+                break
+            else
+                cos_sim_indx_pro(k) = sum(win_indx_pro(:,k).*win_indx_pro_3(:,k+1))/(sqrt(sum(win_indx_pro(:,k))*sum(win_indx_pro_3(:,k+1))));
+            end
+        end
+        
+        grand_cos_pro(1) = mean(cos_sim_indx_pro(:,[1 3 5 7]));
+        
+        % plot
+        figure; hold on;
+        plot(cos_sim_indx_pro, '.m', 'MarkerSize', 20);
+        set(gca, 'xlim', [0 8], 'xTick', [], 'ylim',[0 1], 'yTick', [], 'TickDir', 'out','FontSize',20); box off
+        
+           %% Compute cosine similarity index between 4 windows for anti
+        
+        for k = 1:length(win_indx_anti(1,:))
+            if k==8
+                break
+            else
+                cos_sim_indx_anti(k) = sum(win_indx_anti(:,k).*win_indx_anti_3(:,k+1))/(sqrt(sum(win_indx_anti(:,k))*sum(win_indx_anti_3(:,k+1))));
+            end
+        end
+        
+        grand_cos_anti(1) = mean(cos_sim_indx_anti(:,[1 3 5 7]));
+        
+        % plot
+        figure; hold on;
+        plot(cos_sim_indx_anti, '.b', 'MarkerSize', 20);
+        set(gca, 'xlim', [0 8], 'xTick', [], 'ylim',[0 1], 'yTick', [], 'TickDir', 'out','FontSize',20); box off
+        
+        
+        
+        %% Compute cosine similarity index between 2 windows
+        
+        for k = 1:length(comparison_indx_pro(1,:))
+            if k==4
+                break
+            else
+                cos_sim_indx(k) = sum(comparison_indx_pro(:,k).*comparison_indx_pro_1(:,k+1))/(sqrt(sum(comparison_indx_pro(:,k))*sum(comparison_indx_pro_1(:,k+1))));
+            end
+        end
+        
+        grand_cos = mean(cos_sim_indx(:,[1 3])); 
+        
+        %% compute cosine similarity index for 100 iterations and plot. 
+        
+        % % pro 
+        % original 
+         r_pro = []; indx_max=[];
+        for j=1:length(indx)
+            r_pro(j,:) = units(indx(j)).pro.neural.sacc.rate_pst_win; % psth
+        end
+        % pro
+        [maxRates,pos_max_pro] = max(r_pro, [], 2);
+        
+        % w1 = -150 ms to -75 ms ; w2 = -75 ms to 0 ; w3 = 0 to 75 ms ; w4 = 75 to 150 ms;
+        % get flag for position
+        win_indx_pro = zeros(length(indx),8);
+        for cell = 1:length(indx)
+            if t_win(pos_max_pro(cell)) >=-0.151 & t_win(pos_max_pro(cell)) <= -0.075;
+                win_indx_pro(cell,1) = 1;
+            elseif t_win(pos_max_pro(cell)) > -0.075 & t_win(pos_max_pro(cell)) <= 0;
+                win_indx_pro(cell,3) = 1;
+            elseif t_win(pos_max_pro(cell)) > 0 & t_win(pos_max_pro(cell))<= 0.075;
+                win_indx_pro(cell,5) = 1;
+            else
+                win_indx_pro(cell,7) = 1;
+            end
+        end
+        
+         % two window comparison
+        for cell = 1:length(indx)
+            if t_win(pos_max_pro(cell)) >=-0.151 & t_win(pos_max_pro(cell)) <= 0;
+                comparison_indx_pro(cell,1) = 1;
+            else
+                comparison_indx_pro(cell,3) = 1;
+            end
+        end
+        
+        % rand
+        for iter = 1:length(units(indx(1)).pro.neural.sacc.rate_pst_rand(:,1))
+            
+            for j=1:length(indx)
+                r_pro_rnd(j,:) = units(indx(j)).pro.neural.sacc.rate_pst_rand(iter,t>-0.151 & t<0.151); % psth
+            end
+            % pro
+            [maxRates_rnd,pos_max_pro_rnd] = max(r_pro_rnd, [], 2);
+            
+            % get flag for position
+            win_indx_pro_rnd = zeros(length(indx),8);
+            for cell = 1:length(indx)
+                if t_win(pos_max_pro_rnd(cell)) >=-0.151 & t_win(pos_max_pro_rnd(cell)) <= -0.075;
+                    win_indx_pro_rnd(cell,2) = 1;
+                elseif t_win(pos_max_pro_rnd(cell)) > -0.075 & t_win(pos_max_pro_rnd(cell)) <= 0;
+                    win_indx_pro_rnd(cell,4) = 1;
+                elseif t_win(pos_max_pro_rnd(cell)) > 0 & t_win(pos_max_pro_rnd(cell))<= 0.075;
+                    win_indx_pro_rnd(cell,6) = 1;
+                else
+                    win_indx_pro_rnd(cell,8) = 1;
+                end
+            end
+            
+            % two window comparison
+            for cell = 1:length(indx)
+                if t_win(pos_max_pro_rnd(cell)) >=-0.151 & t_win(pos_max_pro_rnd(cell)) <= 0;
+                    comparison_indx_pro_rnd(cell,2) = 1;
+                else
+                    comparison_indx_pro_rnd(cell,4) = 1;
+                end
+            end
+            
+            % compute cosine similarity index
+            for k = 1:length(win_indx_pro(1,:))
+                if k==8
+                    break
+                else
+                    cos_sim_indx_pro(iter,k) = sum(win_indx_pro(:,k).*win_indx_pro_rnd(:,k+1))/(sqrt(sum(win_indx_pro(:,k))*sum(win_indx_pro_rnd(:,k+1))));
+                end
+            end
+            
+        end
+        
+        grand_cos_pro_rnd(1,:) = mean(cos_sim_indx_pro(:,[1 3 5 7]));
+        grand_cos_pro_rnd_std(1,:) = std(cos_sim_indx_pro(:,[1 3 5 7]));
+        
+        
+        % compute similarity index for two windows
+         for k = 1:length(comparison_indx_pro(1,:))
+            if k==4
+                break
+            else
+                cos_sim_indx_pro_two_win(k) = sum(comparison_indx_pro(:,k).*comparison_indx_pro_rnd(:,k+1))/(sqrt(sum(comparison_indx_pro(:,k))*sum(comparison_indx_pro_rnd(:,k+1))));
+            end
+        end
+        
+        grand_cos_pro_two_Win = mean(cos_sim_indx_pro_two_win(:,[1 3])); 
+        
+        % % anti 
+        % original 
+        r_anti = []; indx_max=[];
+        for j=1:length(indx)
+            r_anti(j,:) = units(indx(j)).anti.neural.sacc.rate_pst_win; % psth
+        end
+        % pro
+        [maxRates,pos_max_anti] = max(r_anti, [], 2);
+        
+        % w1 = -150 ms to -75 ms ; w2 = -75 ms to 0 ; w3 = 0 to 75 ms ; w4 = 75 to 150 ms;
+        % get flag for position
+        win_indx_anti = zeros(length(indx),8);
+        for cell = 1:length(indx)
+            if t_win(pos_max_anti(cell)) >=-0.151 & t_win(pos_max_anti(cell)) <= -0.075;
+                win_indx_anti(cell,1) = 1;
+            elseif t_win(pos_max_anti(cell)) > -0.075 & t_win(pos_max_anti(cell)) <= 0;
+                win_indx_anti(cell,3) = 1;
+            elseif t_win(pos_max_anti(cell)) > 0 & t_win(pos_max_anti(cell))<= 0.075;
+                win_indx_anti(cell,5) = 1;
+            else
+                win_indx_anti(cell,7) = 1;
+            end
+        end
+        
+         % two window comparison
+        for cell = 1:length(indx)
+            if t_win(pos_max_anti(cell)) >=-0.151 & t_win(pos_max_anti(cell)) <= 0;
+                comparison_indx_anti(cell,1) = 1;
+            else
+                comparison_indx_anti(cell,3) = 1;
+            end
+        end
+        
+        % rand
+        for iter = 1:length(units(indx(1)).anti.neural.sacc.rate_pst_rand(:,1))
+            
+            for j=1:length(indx)
+                r_anti_rnd(j,:) = units(indx(j)).anti.neural.sacc.rate_pst_rand(iter,t>-0.151 & t<0.151); % psth
+            end
+            % pro
+            [maxRates_rnd,pos_max_anti_rnd] = max(r_anti_rnd, [], 2);
+            
+            % get flag for position
+            win_indx_pro_rnd = zeros(length(indx),8);
+            for cell = 1:length(indx)
+                if t_win(pos_max_anti_rnd(cell)) >=-0.151 & t_win(pos_max_anti_rnd(cell)) <= -0.075;
+                    win_indx_anti_rnd(cell,2) = 1;
+                elseif t_win(pos_max_anti_rnd(cell)) > -0.075 & t_win(pos_max_anti_rnd(cell)) <= 0;
+                    win_indx_anti_rnd(cell,4) = 1;
+                elseif t_win(pos_max_anti_rnd(cell)) > 0 & t_win(pos_max_anti_rnd(cell))<= 0.075;
+                    win_indx_anti_rnd(cell,6) = 1;
+                else
+                    win_indx_anti_rnd(cell,8) = 1;
+                end
+            end
+            
+             % two window comparison
+            for cell = 1:length(indx)
+                if t_win(pos_max_anti_rnd(cell)) >=-0.151 & t_win(pos_max_anti_rnd(cell)) <= 0;
+                    comparison_indx_anti_rnd(cell,2) = 1;
+                else
+                    comparison_indx_anti_rnd(cell,4) = 1;
+                end
+            end
+            
+            
+            % compute cosine similarity index
+            for k = 1:length(win_indx_anti(1,:))
+                if k==8
+                    break
+                else
+                    cos_sim_indx_anti(iter,k) = sum(win_indx_anti(:,k).*win_indx_anti_rnd(:,k+1))/(sqrt(sum(win_indx_anti(:,k))*sum(win_indx_anti_rnd(:,k+1))));
+                end
+            end
+            
+        end
+        
+        grand_cos_anti_rnd(1,:) = mean(cos_sim_indx_anti(:,[1 3 5 7]));
+        grand_cos_anti_rnd_std(1,:) = std(cos_sim_indx_anti(:,[1 3 5 7]));
+        
+         % compute similarity index for two windows
+         for k = 1:length(comparison_indx_anti(1,:))
+            if k==4
+                break
+            else
+                cos_sim_indx_anti_two_win(k) = sum(comparison_indx_anti(:,k).*comparison_indx_anti_rnd(:,k+1))/(sqrt(sum(comparison_indx_anti(:,k))*sum(comparison_indx_anti_rnd(:,k+1))));
+            end
+        end
+        
+        grand_cos_anti_two_Win = mean(cos_sim_indx_anti_two_win(:,[1 3])); 
+        
+        %% plot 
+        
+        % pro
+        figure; hold on;
+        errorbar(1:4,grand_cos_pro_rnd,grand_cos_pro_rnd_std, '.m', 'MarkerSize', 20, 'CapSize', 0);
+        set(gca, 'xlim', [0 4], 'xTick', [], 'ylim',[0 1], 'yTick', [], 'TickDir', 'out','FontSize',20); box off
+        
+         % anti
+        figure; hold on;
+        errorbar(1:4,grand_cos_anti_rnd,grand_cos_anti_rnd_std, '.b', 'MarkerSize', 20, 'CapSize', 0);
+        set(gca, 'xlim', [0 4], 'xTick', [], 'ylim',[0 1], 'yTick', [], 'TickDir', 'out','FontSize',20); box off
+        
         
     case 'rec_location'
         
