@@ -790,7 +790,7 @@ plot(5,cond_5_nspk, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_nspk), '.g', '
 plot(6,cond_6_nspk, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_nspk), '.g', 'MarkerSize', 30);
 plot(7,cond_7_nspk, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_nspk), '.g', 'MarkerSize', 30);
 plot(8,cond_8_nspk, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_nspk), '.g', 'MarkerSize', 30);
-set(gca, 'ylim', [0 40],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
+set(gca, 'ylim', [0 35],'xlim',[0.5 8.5], 'yTick', [0 35], 'TickDir', 'out', 'FontSize', 22); box off
 title('instr min1')
 
 blue       = [0.2235    0.3255    0.6431];
@@ -902,7 +902,7 @@ plot(5,cond_5_nspk2, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_nspk2), '.g',
 plot(6,cond_6_nspk2, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_nspk2), '.g', 'MarkerSize', 30);
 plot(7,cond_7_nspk2, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_nspk2), '.g', 'MarkerSize', 30);
 plot(8,cond_8_nspk2, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_nspk2), '.g', 'MarkerSize', 30);
-set(gca, 'ylim', [0 40],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
+set(gca, 'ylim', [0 35],'xlim',[0.5 8.5],'yTick',[0 35], 'TickDir', 'out', 'FontSize', 22); box off
 title('instr min2')
 
 blue       = [0.2235    0.3255    0.6431];   
@@ -1019,7 +1019,7 @@ plot(5,cond_5_nspk_sacc, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_nspk_sacc
 plot(6,cond_6_nspk_sacc, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_nspk_sacc), '.g', 'MarkerSize', 30);
 plot(7,cond_7_nspk_sacc, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_nspk_sacc), '.g', 'MarkerSize', 30);
 plot(8,cond_8_nspk_sacc, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_nspk_sacc), '.g', 'MarkerSize', 30);
-set(gca, 'ylim', [0 25],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
+set(gca, 'ylim', [0 35],'xlim',[0.5 8.5], 'yTick', [0 35], 'TickDir', 'out', 'FontSize', 22); box off
 title('sacc min1')
 
  ax=gca;
@@ -1118,7 +1118,7 @@ plot(6,cond_6_nspk_sacc2, '.k', 'MarkerSize', 10); plot(6,nanmean(cond_6_nspk_sa
 plot(7,cond_7_nspk_sacc2, '.k', 'MarkerSize', 10); plot(7,nanmean(cond_7_nspk_sacc2), '.g', 'MarkerSize', 30);
 plot(8,cond_8_nspk_sacc2, '.k', 'MarkerSize', 10); plot(8,nanmean(cond_8_nspk_sacc2), '.g', 'MarkerSize', 30);
 hline(0,'--k');
-set(gca, 'ylim', [0 25],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 22); box off
+set(gca, 'ylim', [0 35],'xlim',[0.5 8.5],'yTick', [0 35], 'TickDir', 'out', 'FontSize', 22); box off
 title('sacc min2')
 
 

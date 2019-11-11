@@ -21,7 +21,7 @@ function units = extractWholeNeuronR(wholeNeuronResults)
 default_prs_pro_anti; % load parameters list
 run_error_trials =0 ; % if run_error_trials = 1 - extract only error trials same way as normal, min trial number from default prs
 
-% first find the ones that are not empty and
+% first find the ones that are not empty and have at least 10 trials.
 for i = 1:length(wholeNeuronResults)
     if  ~isempty(wholeNeuronResults(i).allStableTrials);
         cell_indx(i) = numel(wholeNeuronResults(i).selectedTrials.corProTrials)>=prs.min_trial & numel(wholeNeuronResults(i).selectedTrials.corAntiTrials)>=prs.min_trial;

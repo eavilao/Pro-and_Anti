@@ -18,6 +18,11 @@ indx_sign_sacc_base_pro(i)= units(indx_vermis(i)).stats.pro.flags.saccVSbase_nsp
 indx_sign_instr_base_pro(i)= units(indx_vermis(i)).stats.pro.flags.instrVSbase_nspk;
 indx_sign_sacc_base_anti(i)= units(indx_vermis(i)).stats.anti.flags.saccVSbase_nspk; 
 indx_sign_instr_base_anti(i)= units(indx_vermis(i)).stats.anti.flags.instrVSbase_nspk;
+
+num_corr_pro(i) = length(units(i).pro.indx_correctProTrials);  % calculate total number of trials for pro and anti
+num_corr_anti(i) = length(units(i).anti.indx_correctAntiTrials);  
+
+
 end 
 vermis_diff_pro_anti_sacc = sum(indx_sign_sacc); %%%%%%%%%%%%% to table
 proportion_vermis_sacc = vermis_diff_pro_anti_sacc/length(indx_vermis); %%%%%%%%%%%%% to table
@@ -27,6 +32,9 @@ vermis_diff_sacc_base_pro = sum(indx_sign_sacc_base_pro); %%%%%%%%%%%%% to table
 vermis_diff_instr_base_pro = sum(indx_sign_instr_base_pro); %%%%%%%%%%%%% to table
 vermis_diff_sacc_base_anti = sum(indx_sign_sacc_base_anti); %%%%%%%%%%%%% to table
 vermis_diff_instr_base_anti = sum(indx_sign_instr_base_anti); %%%%%%%%%%%%% to table
+
+
+
 
 %% lateral
 clear indx_area
@@ -43,6 +51,10 @@ indx_sign_sacc_base_pro_lat(i)= units(indx_lateral(i)).stats.pro.flags.saccVSbas
 indx_sign_instr_base_pro_lat(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase_nspk;
 indx_sign_sacc_base_anti_lat(i)= units(indx_lateral(i)).stats.anti.flags.saccVSbase_nspk; 
 indx_sign_instr_base_anti_lat(i)= units(indx_lateral(i)).stats.anti.flags.instrVSbase_nspk;
+
+num_corr_pro_lat(i) = length(units(i).pro.indx_correctProTrials);  % calculate total number of trials for pro and anti
+num_corr_anti_lat(i) = length(units(i).anti.indx_correctAntiTrials);  
+
 end 
 
 lateral_diff_pro_anti_sacc = sum(indx_sign_sacc_lat); %%%%%%%%%%%%% to table
