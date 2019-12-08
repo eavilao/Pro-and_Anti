@@ -107,6 +107,7 @@ for i = 1:length(indx_area)
     std_pro(i,:) = std(units(indx_area(i)).pro.neural.sacc.rate_pst);
 end
 
+
 %% Exc and sup
 cnt_exc=1; cnt_sup=1;
 for cellNum = 1:length(units)

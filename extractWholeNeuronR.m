@@ -1,4 +1,4 @@
-function units = extractWholeNeuronR(wholeNeuronResults)
+function [units,pop] = extractWholeNeuronR(wholeNeuronResults)
 % extractWholeNeuronResults
 % This function extracts data from wholeNeuronResults from Pete's code and
 % performs stats on simple spikes.
@@ -486,6 +486,9 @@ for cellNum = 1:length(units)
     [units(cellNum).pro.neural.instr.peak_resp, indx_max] = max(units(cellNum).pro.neural.instr.rate_pst_win);
     units(cellNum).pro.neural.instr.peak_resp_time = t_instr(indx_max);
     
+    [units(cellNum).pro.neural.instr.peak_resp, indx_min] = min(units(cellNum).pro.neural.instr.rate_pst_win);
+    units(cellNum).pro.neural.instr.peak_resp_time = t_instr(indx_min);
+    
     %sacc
     units(cellNum).pro.neural.sacc.ts_pst_win = units(cellNum).pro.neural.sacc.ts_pst(sacc_win);
     units(cellNum).pro.neural.sacc.rate_pst_win = units(cellNum).pro.neural.sacc.rate_pst(sacc_win);
@@ -495,6 +498,9 @@ for cellNum = 1:length(units)
     
     [units(cellNum).pro.neural.sacc.peak_resp, indx_max] = max(units(cellNum).pro.neural.sacc.rate_pst_win);
     units(cellNum).pro.neural.sacc.peak_resp_time = t_sacc(indx_max);
+    
+    [units(cellNum).pro.neural.sacc.min_resp, indx_min] = min(units(cellNum).pro.neural.sacc.rate_pst_win);
+    units(cellNum).pro.neural.sacc.min_resp_time = t_sacc(indx_min);
     
     %base
     units(cellNum).pro.neural.base.ts_pst_win = units(cellNum).pro.neural.sacc.ts_pst(base_win);
@@ -544,6 +550,9 @@ for cellNum = 1:length(units)
     [units(cellNum).anti.neural.instr.peak_resp, indx_max] = max(units(cellNum).anti.neural.instr.rate_pst_win);
     units(cellNum).anti.neural.instr.peak_resp_time = t_instr(indx_max);
     
+    [units(cellNum).anti.neural.instr.min_resp, indx_min] = min(units(cellNum).anti.neural.instr.rate_pst_win);
+    units(cellNum).anti.neural.instr.min_resp_time = t_instr(indx_min);
+    
     % sacc
     units(cellNum).anti.neural.sacc.ts_pst_win = units(cellNum).anti.neural.sacc.ts_pst(sacc_win);
     units(cellNum).anti.neural.sacc.rate_pst_win = units(cellNum).anti.neural.sacc.rate_pst(sacc_win);
@@ -553,6 +562,9 @@ for cellNum = 1:length(units)
     
     [units(cellNum).anti.neural.sacc.peak_resp, indx_max] = max(units(cellNum).anti.neural.sacc.rate_pst_win);
     units(cellNum).anti.neural.sacc.peak_resp_time = t_sacc(indx_max);
+    
+    [units(cellNum).anti.neural.sacc.min_resp, indx_min] = min(units(cellNum).anti.neural.sacc.rate_pst_win);
+    units(cellNum).anti.neural.sacc.min_resp_time = t_sacc(indx_min);
     
     % base
     units(cellNum).anti.neural.base.ts_pst_win = units(cellNum).anti.neural.sacc.ts_pst(base_win);
@@ -684,6 +696,25 @@ for cellNum = 1:length(units)
     %% compute change index in norm -- CHECK! 
     units(cellNum).stats.instr.change_indx = (units(cellNum).pro.neural.instr.rate_mu  - units(cellNum).anti.neural.instr.rate_mu)/(units(cellNum).pro.neural.instr.rate_mu  + units(cellNum).anti.neural.instr.rate_mu);
     units(cellNum).stats.sacc.change_indx = (units(cellNum).pro.neural.sacc.rate_mu  - units(cellNum).anti.neural.sacc.rate_mu)/(units(cellNum).pro.neural.sacc.rate_mu  + units(cellNum).anti.neural.sacc.rate_mu);
+    
+    %% compute modulation depth (or index) for each cell for pro and anti (max-min)/max+min
+     % instr
+     units(cellNum).stats.pro.instr.mod_depth = (units(cellNum).pro.neural.instr.peak_resp - units(cellNum).pro.neural.instr.min_resp)/ (units(cellNum).pro.neural.instr.peak_resp + units(cellNum).pro.neural.instr.min_resp)
+     units(cellNum).stats.anti.instr.mod_depth = (units(cellNum).anti.neural.instr.peak_resp - units(cellNum).anti.neural.instr.min_resp)/ (units(cellNum).anti.neural.instr.peak_resp + units(cellNum).anti.neural.instr.min_resp)
+     
+     % sacc
+     units(cellNum).stats.pro.sacc.mod_depth = (units(cellNum).pro.neural.sacc.peak_resp - units(cellNum).pro.neural.sacc.min_resp)/ (units(cellNum).pro.neural.sacc.peak_resp + units(cellNum).pro.neural.sacc.min_resp)
+     units(cellNum).stats.anti.sacc.mod_depth = (units(cellNum).anti.neural.sacc.peak_resp - units(cellNum).anti.neural.sacc.min_resp)/ (units(cellNum).anti.neural.sacc.peak_resp + units(cellNum).anti.neural.sacc.min_resp)
+
+
+        %% Compute modulation (another) mod index as describred in Wypych et al 2012. 
+    % instr
+    units(cellNum).stats.pro.instr.mod_indx_mu = (units(cellNum).pro.neural.instr.nspk)/(units(cellNum).pro.neural.instr.rate_mu - units(cellNum).pro.neural.base.rate_instr_mu); 
+    units(cellNum).stats.anti.instr.mod_indx_mu = (units(cellNum).anti.neural.instr.nspk)/(units(cellNum).anti.neural.instr.rate_mu - units(cellNum).anti.neural.base.rate_instr_mu); 
+    
+    % sacc
+    units(cellNum).stats.pro.sacc.mod_indx_mu = (units(cellNum).pro.neural.sacc.nspk)/(units(cellNum).pro.neural.sacc.rate_mu - units(cellNum).pro.neural.base.rate_mu); 
+    units(cellNum).stats.anti.sacc.mod_indx_mu = (units(cellNum).anti.neural.sacc.nspk)/(units(cellNum).anti.neural.sacc.rate_mu - units(cellNum).anti.neural.base.rate_mu); 
     
     %% statistical test to compare if pro == anti - aligned to instr using spk count
     % H0:pro=anti  versus HA:pro?anti
@@ -821,6 +852,81 @@ for cellNum = 1:length(units)
     %     end
     
 end
+
+%% compute spontaneous firing rate using ITI 
+
+
+
+%% Compute comparison of FR for all neurons using nspk instr
+spks_pro = []; spks_anti = []; 
+for cellNum = 1:length(units)
+    spks_pro = [spks_pro ; units(cellNum).pro.neural.instr.nspk];
+    spks_anti = [spks_anti ; units(cellNum).anti.neural.instr.nspk];
+end
+
+% mean 
+pop.pro.instr.nspk_mu = mean(spks_pro); pop.anti.instr.nspk_mu = mean(spks_anti); % mean
+pop.pro.instr.nspk_std = std(spks_pro); pop.anti.instr.nspk_std = std(spks_anti); % std dev
+
+% compute stats using kstest 
+[pop.stats.instr.pro_anti_nspk_pVal, ~] = ranksum(spks_pro, spks_anti); 
+
+%% Compute comparison of FR for all neurons using nspk sacc
+spks_pro = []; spks_anti = []; 
+for cellNum = 1:length(units)
+    spks_pro = [spks_pro ; units(cellNum).pro.neural.sacc.nspk];
+    spks_anti = [spks_anti ; units(cellNum).anti.neural.sacc.nspk];
+end
+
+% mean 
+pop.pro.sacc.nspk_mu = mean(spks_pro); pop.anti.sacc.nspk_mu = mean(spks_anti); % mean
+pop.pro.sacc.nspk_std = std(spks_pro); pop.anti.sacc.nspk_std = std(spks_anti); % std dev
+
+% compute stats using kstest 
+[pop.stats.sacc.pro_anti_nspk_pVal, ~] = ranksum(spks_pro, spks_anti);
+
+%% regress activity to saccade kinematics
+
+% gather data vermis
+recArea = 'vermis';
+for cellNum = 1:length(units)
+    indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+end
+indx_area = find(indx_area);
+
+r_all_pro = []; kin_all_pro = []; r_all_anti = []; kin_all_anti = [];      
+
+for i = 1:length(indx_area)
+    r_pro = []; amp_pro = []; dur_pro = []; pv_pro = []; rt_pro = [];  r_anti = []; amp_anti = []; dur_anti = []; pv_anti = []; rt_anti = [];
+    
+    
+    % run for pro and anti separately (unequal nr of trials)
+    for j = 1:length(units(indx_area(i)).pro.behav.trial)
+        r_pro(j) = units(indx_area(i)).pro.neural.sacc.nspk(j);
+        amp_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccAmplitude;
+        dur_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccDuration;
+        pv_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccPeakVel;
+        rt_pro(j) = units(indx_area(i)).pro.behav.trial(j).reactionTime;
+    end
+    for j = 1:length(units(indx_area(i)).anti.behav.trial)
+        r_anti(j) = units(indx_area(i)).anti.neural.sacc.nspk(j);
+        amp_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccAmplitude;
+        dur_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccDuration;
+        pv_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccPeakVel;
+        rt_anti(j) = units(indx_area(i)).anti.behav.trial(j).reactionTime;
+    end
+    
+    r_all_pro = [ r_all_pro ; r_pro' ];
+    kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' rt_pro' ones(size(amp_pro,2),1)];
+    
+    r_all_anti = [ r_all_anti ; r_anti' ];
+    kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' rt_anti' ones(size(amp_anti,2),1)];
+    
+end
+
+[pop.stats.sacc.pro.regress.coeff_pro, pop.stats.sacc.pro.regress.CI_pro, pop.stats.sacc.pro.regress.rsq_pro, pop.stats.sacc.pro.regress.reg_stats_pro] = regress(r_all_pro,kin_all_pro); 
+[pop.stats.sacc.anti.regress.coeff_anti, pop.stats.sacc.anti.regress.CI_anti, pop.stats.sacc.anti.regress.rsq_anti, pop.stats.sacc.anti.regress.reg_stats_anti] = regress(r_all_anti,kin_all_anti); 
+
 
 %% coefficient of variation and CV2
 % CV_isi = mean_isi/std_isi
