@@ -486,8 +486,8 @@ for cellNum = 1:length(units)
     [units(cellNum).pro.neural.instr.peak_resp, indx_max] = max(units(cellNum).pro.neural.instr.rate_pst_win);
     units(cellNum).pro.neural.instr.peak_resp_time = t_instr(indx_max);
     
-    [units(cellNum).pro.neural.instr.peak_resp, indx_min] = min(units(cellNum).pro.neural.instr.rate_pst_win);
-    units(cellNum).pro.neural.instr.peak_resp_time = t_instr(indx_min);
+    [units(cellNum).pro.neural.instr.min_resp, indx_min] = min(units(cellNum).pro.neural.instr.rate_pst_win);
+    units(cellNum).pro.neural.instr.min_resp_time = t_instr(indx_min);
     
     %sacc
     units(cellNum).pro.neural.sacc.ts_pst_win = units(cellNum).pro.neural.sacc.ts_pst(sacc_win);
@@ -699,12 +699,12 @@ for cellNum = 1:length(units)
     
     %% compute modulation depth (or index) for each cell for pro and anti (max-min)/max+min
      % instr
-     units(cellNum).stats.pro.instr.mod_depth = (units(cellNum).pro.neural.instr.peak_resp - units(cellNum).pro.neural.instr.min_resp)/ (units(cellNum).pro.neural.instr.peak_resp + units(cellNum).pro.neural.instr.min_resp)
-     units(cellNum).stats.anti.instr.mod_depth = (units(cellNum).anti.neural.instr.peak_resp - units(cellNum).anti.neural.instr.min_resp)/ (units(cellNum).anti.neural.instr.peak_resp + units(cellNum).anti.neural.instr.min_resp)
+     units(cellNum).stats.pro.instr.mod_depth = (units(cellNum).pro.neural.instr.peak_resp - units(cellNum).pro.neural.instr.min_resp)/ (units(cellNum).pro.neural.instr.peak_resp + units(cellNum).pro.neural.instr.min_resp);
+     units(cellNum).stats.anti.instr.mod_depth = (units(cellNum).anti.neural.instr.peak_resp - units(cellNum).anti.neural.instr.min_resp)/ (units(cellNum).anti.neural.instr.peak_resp + units(cellNum).anti.neural.instr.min_resp);
      
      % sacc
-     units(cellNum).stats.pro.sacc.mod_depth = (units(cellNum).pro.neural.sacc.peak_resp - units(cellNum).pro.neural.sacc.min_resp)/ (units(cellNum).pro.neural.sacc.peak_resp + units(cellNum).pro.neural.sacc.min_resp)
-     units(cellNum).stats.anti.sacc.mod_depth = (units(cellNum).anti.neural.sacc.peak_resp - units(cellNum).anti.neural.sacc.min_resp)/ (units(cellNum).anti.neural.sacc.peak_resp + units(cellNum).anti.neural.sacc.min_resp)
+     units(cellNum).stats.pro.sacc.mod_depth = (units(cellNum).pro.neural.sacc.peak_resp - units(cellNum).pro.neural.sacc.min_resp)/ (units(cellNum).pro.neural.sacc.peak_resp + units(cellNum).pro.neural.sacc.min_resp);
+     units(cellNum).stats.anti.sacc.mod_depth = (units(cellNum).anti.neural.sacc.peak_resp - units(cellNum).anti.neural.sacc.min_resp)/ (units(cellNum).anti.neural.sacc.peak_resp + units(cellNum).anti.neural.sacc.min_resp);
 
 
         %% Compute modulation (another) mod index as describred in Wypych et al 2012. 
@@ -885,7 +885,7 @@ pop.pro.sacc.nspk_std = std(spks_pro); pop.anti.sacc.nspk_std = std(spks_anti); 
 % compute stats using kstest 
 [pop.stats.sacc.pro_anti_nspk_pVal, ~] = ranksum(spks_pro, spks_anti);
 
-%% regress activity to saccade kinematics
+%% regress activity to saccade kinematics (all)
 
 % gather data vermis
 recArea = 'vermis';
@@ -924,8 +924,86 @@ for i = 1:length(indx_area)
     
 end
 
-[pop.stats.sacc.pro.regress.coeff_pro, pop.stats.sacc.pro.regress.CI_pro, pop.stats.sacc.pro.regress.rsq_pro, pop.stats.sacc.pro.regress.reg_stats_pro] = regress(r_all_pro,kin_all_pro); 
-[pop.stats.sacc.anti.regress.coeff_anti, pop.stats.sacc.anti.regress.CI_anti, pop.stats.sacc.anti.regress.rsq_anti, pop.stats.sacc.anti.regress.reg_stats_anti] = regress(r_all_anti,kin_all_anti); 
+[pop.stats.sacc.pro.regress.vermis.coeff_pro, pop.stats.sacc.pro.regress.vermis.CI_pro, pop.stats.sacc.pro.regress.vermis.rsq_pro, pop.stats.sacc.pro.regress.vermis.reg_stats_pro] = regress(r_all_pro,kin_all_pro); 
+[pop.stats.sacc.anti.regress.vermis.coeff_anti, pop.stats.sacc.anti.regress.vermis.CI_anti, pop.stats.sacc.anti.regress.vermis.rsq_anti, pop.stats.sacc.anti.regress.vermis.reg_stats_anti] = regress(r_all_anti,kin_all_anti); 
+
+% gather data lateral
+recArea = 'lateral';
+for cellNum = 1:length(units)
+    indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+end
+indx_area = find(indx_area);
+
+r_all_pro = []; kin_all_pro = []; r_all_anti = []; kin_all_anti = [];      
+
+for i = 1:length(indx_area)
+    r_pro = []; amp_pro = []; dur_pro = []; pv_pro = []; rt_pro = [];  r_anti = []; amp_anti = []; dur_anti = []; pv_anti = []; rt_anti = [];
+    
+    
+    % run for pro and anti separately (unequal nr of trials)
+    for j = 1:length(units(indx_area(i)).pro.behav.trial)
+        r_pro(j) = units(indx_area(i)).pro.neural.sacc.nspk(j);
+        amp_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccAmplitude;
+        dur_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccDuration;
+        pv_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccPeakVel;
+        rt_pro(j) = units(indx_area(i)).pro.behav.trial(j).reactionTime;
+    end
+    for j = 1:length(units(indx_area(i)).anti.behav.trial)
+        r_anti(j) = units(indx_area(i)).anti.neural.sacc.nspk(j);
+        amp_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccAmplitude;
+        dur_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccDuration;
+        pv_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccPeakVel;
+        rt_anti(j) = units(indx_area(i)).anti.behav.trial(j).reactionTime;
+    end
+    
+    r_all_pro = [ r_all_pro ; r_pro' ];
+    kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' rt_pro' ones(size(amp_pro,2),1)];
+    
+    r_all_anti = [ r_all_anti ; r_anti' ];
+    kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' rt_anti' ones(size(amp_anti,2),1)];
+    
+end
+
+[pop.stats.sacc.pro.regress.vermis.coeff_pro, pop.stats.sacc.pro.regress.vermis.CI_pro, pop.stats.sacc.pro.regress.vermis.rsq_pro, pop.stats.sacc.pro.regress.vermis.reg_stats_pro] = regress(r_all_pro,kin_all_pro); 
+[pop.stats.sacc.anti.regress.vermis.coeff_anti, pop.stats.sacc.anti.regress.vermis.CI_anti, pop.stats.sacc.anti.regress.vermis.rsq_anti, pop.stats.sacc.anti.regress.vermis.reg_stats_anti] = regress(r_all_anti,kin_all_anti); 
+
+
+%% regress activity to saccade kinematics per cell
+r_all_pro = []; kin_all_pro = []; r_all_anti = []; kin_all_anti = [];      
+for i = 1:length(indx_area)
+    r_pro = []; amp_pro = []; dur_pro = []; pv_pro = []; rt_pro = [];  r_anti = []; amp_anti = []; dur_anti = []; pv_anti = []; rt_anti = [];
+
+    
+    % run for pro and anti separately (unequal nr of trials)
+    for j = 1:length(units(indx_area(i)).pro.behav.trial)
+        r_pro(i,j) = units(indx_area(i)).pro.neural.sacc.nspk(j);
+        amp_pro(i,j) = units(indx_area(i)).pro.behav.trial(j).saccAmplitude;
+        dur_pro(i,j) = units(indx_area(i)).pro.behav.trial(j).saccDuration;
+        pv_pro(i,j) = units(indx_area(i)).pro.behav.trial(j).saccPeakVel;
+        rt_pro(i,j) = units(indx_area(i)).pro.behav.trial(j).reactionTime;
+    end
+    for j = 1:length(units(indx_area(i)).anti.behav.trial)
+        r_anti(i,j) = units(indx_area(i)).anti.neural.sacc.nspk(j);
+        amp_anti(i,j) = units(indx_area(i)).anti.behav.trial(j).saccAmplitude;
+        dur_anti(i,j) = units(indx_area(i)).anti.behav.trial(j).saccDuration;
+        pv_anti(i,j) = units(indx_area(i)).anti.behav.trial(j).saccPeakVel;
+        rt_anti(i,j) = units(indx_area(i)).anti.behav.trial(j).reactionTime;
+    end
+    
+    r_all_pro = [ r_all_pro ; r_pro' ];
+    kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' rt_pro' ones(size(amp_pro,2),1)];
+    
+    r_all_anti = [ r_all_anti ; r_anti' ];
+    kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' rt_anti' ones(size(amp_anti,2),1)];
+   
+     [units(i).stats.sacc.regress.coeff_pro, units(i).stats.sacc.regress.CI_pro, units(i).stats.sacc.regress.rsq_pro, units(i).stats.sacc.regress.reg_stats_pro] = ...
+        regress(r_all_pro,kin_all_pro); 
+    
+    [units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
+        regress(r_all_anti,kin_all_anti); 
+    
+end
+
 
 
 %% coefficient of variation and CV2
@@ -967,14 +1045,6 @@ for cellNum = 1:length(units)
     
     units(cellNum).anti.meanCV_isi =  mean([units(cellNum).anti.neural.trial.cv_isi]);
     
-end
-
-%% Modulation ratio
-for cellNum = 1:length(units)
-    units(cellNum).stats.mod_ratio = units(cellNum).pro.neural.sacc.rate_pst_win / units(cellNum).anti.neural.sacc.rate_pst_win;
-end
-
-
 end
 
 
