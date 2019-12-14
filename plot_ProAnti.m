@@ -51,6 +51,7 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 % 'peak_vel_distr'
 % 'rate_sorted_vel'
 % 'mod_ratio': plot modulation ratio for all neurons and for signif diff neurons
+% 'mod_depth' : plot modulation depth
 % 'sorted_colormap_sacc'
 % 'sorted_colormap_instr'
 % 'sorted_colormap_sacc_rand'
