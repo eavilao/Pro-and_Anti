@@ -872,9 +872,11 @@ for cellNum = 1:length(units)
     spks_anti = [spks_anti ; units(cellNum).anti.neural.instr.nspk];
 end
 
+pop.pro.instr.all_spk = spks_pro; pop.anti.instr.all_spk = spks_anti; 
 % mean 
 pop.pro.instr.nspk_mu = mean(spks_pro); pop.anti.instr.nspk_mu = mean(spks_anti); % mean
 pop.pro.instr.nspk_std = std(spks_pro); pop.anti.instr.nspk_std = std(spks_anti); % std dev
+
 
 % compute stats using kstest 
 [pop.stats.instr.pro_anti_nspk_pVal, ~] = ranksum(spks_pro, spks_anti); 
@@ -885,6 +887,8 @@ for cellNum = 1:length(units)
     spks_pro = [spks_pro ; units(cellNum).pro.neural.sacc.nspk];
     spks_anti = [spks_anti ; units(cellNum).anti.neural.sacc.nspk];
 end
+
+pop.pro.sacc.all_spk = spks_pro; pop.anti.sacc.all_spk = spks_anti; 
 
 % mean 
 pop.pro.sacc.nspk_mu = mean(spks_pro); pop.anti.sacc.nspk_mu = mean(spks_anti); % mean
@@ -933,13 +937,13 @@ for i = 1:length(indx_area)
 end
 
  % save all r and kin vermis
-pop.pro.vermis.r_all = r_all_pro; pop.pro.vermis.kin_all = kin_all_pro; 
-pop.anti.vermis.r_all = r_all_anti; pop.anti.vermis.kin_all = kin_all_anti; 
+pop.pro.vermis.r_all = r_all_pro; pop.pro.vermis.kin_all = kin_all_pro; pop.pro.vermis.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}]; 
+pop.anti.vermis.r_all = r_all_anti; pop.anti.vermis.kin_all = kin_all_anti; pop.anti.vermis.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}];
 
 [pop.stats.sacc.pro.regress.vermis.coeff_pro, pop.stats.sacc.pro.regress.vermis.CI_pro, pop.stats.sacc.pro.regress.vermis.rsq_pro, pop.stats.sacc.pro.regress.vermis.reg_stats_pro] = regress(r_all_pro,kin_all_pro); 
 [pop.stats.sacc.anti.regress.vermis.coeff_anti, pop.stats.sacc.anti.regress.vermis.CI_anti, pop.stats.sacc.anti.regress.vermis.rsq_anti, pop.stats.sacc.anti.regress.vermis.reg_stats_anti] = regress(r_all_anti,kin_all_anti); 
 
-% gather data lateral
+%% gather data lateral
 recArea = 'lateral';
 for cellNum = 1:length(units)
     indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
@@ -977,8 +981,8 @@ for i = 1:length(indx_area)
 end
 
  % save all r and kin vermis
-pop.pro.lateral.r_all = r_all_pro; pop.pro.lateral.kin_all = kin_all_pro; 
-pop.anti.lateral.r_all = r_all_anti; pop.anti.lateral.kin_all = kin_all_anti; 
+pop.pro.lateral.r_all = r_all_pro; pop.pro.lateral.kin_all = kin_all_pro; pop.pro.lateral.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}]; 
+pop.anti.lateral.r_all = r_all_anti; pop.anti.lateral.kin_all = kin_all_anti;  pop.anti.lateral.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}]; 
 
 [pop.stats.sacc.pro.regress.lateral.coeff_pro, pop.stats.sacc.pro.regress.lateral.CI_pro, pop.stats.sacc.pro.regress.lateral.rsq_pro, pop.stats.sacc.pro.regress.lateral.reg_stats_pro] = regress(r_all_pro,kin_all_pro); 
 [pop.stats.sacc.anti.regress.lateral.coeff_anti, pop.stats.sacc.anti.regress.lateral.CI_anti, pop.stats.sacc.anti.regress.lateral.rsq_anti, pop.stats.sacc.anti.regress.lateral.reg_stats_anti] = regress(r_all_anti,kin_all_anti); 

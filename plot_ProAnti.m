@@ -1,4 +1,4 @@
-function plot_ProAnti(units, plotType, cellNum, recArea)
+function plot_ProAnti(units, pop, plotType, cellNum, recArea)
 
 % Needed: units.mat
 % Input:    units  - output from extractWholeNeuronResults.m
@@ -12,7 +12,8 @@ function plot_ProAnti(units, plotType, cellNum, recArea)
 
 % List of plots
 
-% 'eyeKin' : plot eye kinematics for all cells and trials
+% 'eyeKin' : plot eye kinematics for all cells and trial
+% 'kin_regress' : plot eye kin multiple linear regression
 % 'raster_sacc': saccade aligned raster plot for the chosen cell
 % 'raster_sacc_single': plot raster for a single trial
 % 'raster_instr': instruction aligned raster plot for the chosen cell
@@ -145,6 +146,108 @@ switch plotType
         vline(mean(antiRT),'b'); % draw line on mean
         [p,h] = ranksum(proRT, antiRT);
         
+    case 'kin_regress_vermis'
+        x1_pro = pop.pro.vermis.kin_all(:,1);
+        x2_pro = pop.pro.vermis.kin_all(:,2);
+        x3_pro = pop.pro.vermis.kin_all(:,3);
+        x4_pro = pop.pro.vermis.kin_all(:,4)*1000;
+        y_pro = pop.pro.vermis.r_all;
+        coeff_pro = pop.stats.sacc.pro.regress.vermis.coeff_pro;
+        
+        [~,hfig] = plotmatrix([y_pro x1_pro x2_pro x3_pro x4_pro]);
+        hfig(1,1).YLabel.String = 'firing'; hfig(5,1).XLabel.String = 'firing';
+        hfig(2,1).YLabel.String = 'amp'; hfig(5,2).XLabel.String = 'amp';
+        hfig(3,1).YLabel.String = 'dur'; hfig(5,3).XLabel.String = 'dur';
+        hfig(4,1).YLabel.String = 'pv'; hfig(5,4).XLabel.String = 'pv';
+        hfig(5,1).YLabel.String = 'rt'; hfig(5,5).XLabel.String = 'rt';
+        
+        % stepwiselm([x1_pro x2_pro x3_pro x4_pro], y_pro)
+        % stepwise([x1_pro x2_pro x3_pro x4_pro], y_pro)
+
+        scatter3(x1_pro,x2_pro,y_pro); 
+        hold on;
+        x1fit_pro = linspace(min(x1_pro),max(x1_pro),25); 
+        x2fit_pro = linspace(min(x2_pro),max(x2_pro),25);
+        [X1FIT_pro,X2FIT_pro] = meshgrid(x1fit_pro,x2fit_pro);
+        YFIT_pro = coeff_pro(1) + coeff_pro(2)*X1FIT_pro + coeff_pro(3)*X2FIT_pro + coeff_pro(4)*X1FIT_pro.*X2FIT_pro;
+        mesh(X1FIT_pro,X2FIT_pro,YFIT_pro);
+        
+        x1_anti = pop.anti.vermis.kin_all(:,1);
+        x2_anti = pop.anti.vermis.kin_all(:,2);
+        x3_anti = pop.anti.vermis.kin_all(:,3);
+        x4_anti = pop.anti.vermis.kin_all(:,4)*1000;
+        y_anti = pop.anti.vermis.r_all;
+        coeff_pro = pop.stats.sacc.anti.regress.vermis.coeff_anti;
+        
+        % stepwiselm([x1_anti x2_anti x3_anti x4_anti], y_anti)
+        % stepwise([x1_anti x2_anti x3_anti x4_anti], y_anti)
+        
+        [~,hfig] = plotmatrix([y_pro x1_pro x2_pro x3_pro x4_pro]);
+        hfig(1,1).YLabel.String = 'firing'; hfig(5,1).XLabel.String = 'firing';
+        hfig(2,1).YLabel.String = 'amp'; hfig(5,2).XLabel.String = 'amp';
+        hfig(3,1).YLabel.String = 'dur'; hfig(5,3).XLabel.String = 'dur';
+        hfig(4,1).YLabel.String = 'pv'; hfig(5,4).XLabel.String = 'pv';
+        hfig(5,1).YLabel.String = 'rt'; hfig(5,5).XLabel.String = 'rt';
+        
+        scatter3(x1_anti,x2_anti,y_anti);
+        hold on;
+        x1fit_anti = min(x1_anti):1:max(x1_anti);
+        x2fit_anti = min(x2_anti):1:max(x2_anti);
+        [X1FIT_anti,X2FIT_anti] = meshgrid(x1fit_anti,x2fit_anti);
+        YFIT_anti = coeff_anti(1) + coeff_anti(2)*X1FIT_anti + coeff_anti(3)*X2FIT_anti + coeff_anti(4)*X1FIT_anti.*X2FIT_anti;
+        mesh(X1FIT_anti,X2FIT_anti,YFIT_anti);
+        
+    case 'kin_regress_lateral'
+        x1_pro = pop.pro.lateral.kin_all(:,1);
+        x2_pro = pop.pro.lateral.kin_all(:,2);
+        x3_pro = pop.pro.lateral.kin_all(:,3);
+        x4_pro = pop.pro.lateral.kin_all(:,4)*1000;
+        y_pro = pop.pro.lateral.r_all;
+        coeff_pro = pop.stats.sacc.pro.regress.lateral.coeff_pro;
+        
+        % stepwise([x1_pro x2_pro x3_pro x4_pro], y_pro)
+        % stepwiselm([x1_pro x2_pro x3_pro x4_pro], y_pro)
+        
+        [~,hfig] = plotmatrix([y_pro x1_pro x2_pro x3_pro x4_pro]);
+        hfig(1,1).YLabel.String = 'firing'; hfig(5,1).XLabel.String = 'firing';
+        hfig(2,1).YLabel.String = 'amp'; hfig(5,2).XLabel.String = 'amp';
+        hfig(3,1).YLabel.String = 'dur'; hfig(5,3).XLabel.String = 'dur';
+        hfig(4,1).YLabel.String = 'pv'; hfig(5,4).XLabel.String = 'pv';
+        hfig(5,1).YLabel.String = 'rt'; hfig(5,5).XLabel.String = 'rt';
+        
+        scatter3(x1_pro,x2_pro,y_pro); 
+        hold on;
+        x1fit_pro = linspace(min(x1_pro),max(x1_pro),25); 
+        x2fit_pro = linspace(min(x2_pro),max(x2_pro),25);
+        [X1FIT_pro,X2FIT_pro] = meshgrid(x1fit_pro,x2fit_pro);
+        YFIT_pro = coeff_pro(1) + coeff_pro(2)*X1FIT_pro + coeff_pro(3)*X2FIT_pro + coeff_pro(4)*X1FIT_pro.*X2FIT_pro;
+        mesh(X1FIT_pro,X2FIT_pro,YFIT_pro);
+        
+        x1_anti = pop.anti.lateral.kin_all(:,1);
+        x2_anti = pop.anti.lateral.kin_all(:,2);
+        x3_anti = pop.anti.lateral.kin_all(:,3);
+        x4_anti = pop.anti.lateral.kin_all(:,4)*1000;
+        y_anti = pop.anti.lateral.r_all;
+        coeff_pro = pop.stats.sacc.anti.regress.lateral.coeff_anti;
+        
+        % stepwise([x1_anti x2_anti x3_anti x4_anti], y_anti)
+        % stepwiselm([x1_anti x2_anti x3_anti x4_anti], y_anti)
+        
+        [~,hfig] = plotmatrix([y_pro x1_pro x2_pro x3_pro x4_pro]);
+        hfig(1,1).YLabel.String = 'firing'; hfig(5,1).XLabel.String = 'firing';
+        hfig(2,1).YLabel.String = 'amp'; hfig(5,2).XLabel.String = 'amp';
+        hfig(3,1).YLabel.String = 'dur'; hfig(5,3).XLabel.String = 'dur';
+        hfig(4,1).YLabel.String = 'pv'; hfig(5,4).XLabel.String = 'pv';
+        hfig(5,1).YLabel.String = 'rt'; hfig(5,5).XLabel.String = 'rt';
+        
+        scatter3(x1_anti,x2_anti,y_anti);
+        hold on;
+        x1fit_anti = min(x1_anti):1:max(x1_anti);
+        x2fit_anti = min(x2_anti):1:max(x2_anti);
+        [X1FIT_anti,X2FIT_anti] = meshgrid(x1fit_anti,x2fit_anti);
+        YFIT_anti = coeff_anti(1) + coeff_anti(2)*X1FIT_anti + coeff_anti(3)*X2FIT_anti + coeff_anti(4)*X1FIT_anti.*X2FIT_anti;
+        mesh(X1FIT_anti,X2FIT_anti,YFIT_anti);
+   
         
     case 'raster_sacc'
         % saccade aligned
@@ -3598,6 +3701,9 @@ switch plotType
         end
         % plot(loc(:,1),loc(:,2), '.k', 'MarkerSize', loc(:,3));
         title('vermis')
+        
+        
+    
         
         
 end
