@@ -77,16 +77,21 @@ for cellNum = 1:length(cell_indx);
                 indx_trial_spks = spks>prs.tspk(1) & spks < units(cellNum).trial.behav(trialNum).reward+prs.tspk(2); % just pick 100 ms before trial starts to reward +200 ms
                 units(cellNum).trial.neural(trialNum).tspk_SS = spks(indx_trial_spks);
                 units(cellNum).trial.neural(trialNum).tspk_SS_align_sacc =  units(cellNum).trial.neural(trialNum).tspk_SS-units(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for CS aligned to sacc onset
+                units(cellNum).trial.neural(trialNum).tspk_SS_align_instrDir = units(cellNum).trial.neural(trialNum).tspk_SS - (units(cellNum).trial.behav(trialNum).goCueTime-0.1); 
                 units(cellNum).trial.neural(trialNum).ts_eye_sacc = units(cellNum).trial.behav(trialNum).eye_ts-units(cellNum).trial.behav(trialNum).saccadeOnset;
+                
+                
             elseif run_error_trials
                 
                 indx_trial_spks = spks>prs.tspk(1) & spks < units(cellNum).trial.behav(trialNum).goCueTime+0.5+prs.tspk(2); % just pick 100 ms before trial starts to reward +200 ms
                 units(cellNum).trial.neural(trialNum).tspk_SS = spks(indx_trial_spks);
                 units(cellNum).trial.neural(trialNum).tspk_SS_align_sacc =  units(cellNum).trial.neural(trialNum).tspk_SS-units(cellNum).trial.behav(trialNum).saccadeOnset; % contains spike times for CS aligned to sacc onset
+                units(cellNum).trial.neural(trialNum).tspk_SS_align_instrDir = units(cellNum).trial.neural(trialNum).tspk_SS - (units(cellNum).trial.behav(trialNum).goCueTime-0.1);
             else
                 %keyboard
                 units(cellNum).trial.neural(trialNum).tspk_SS = [];
                 units(cellNum).trial.neural(trialNum).tspk_SS_align_sacc = [];
+                units(cellNum).trial.neural(trialNum).tspk_SS_align_instrDir = [];
             end
             units(cellNum).id = 'SS';
             % select condition type Pro or Antisaccade
@@ -134,7 +139,7 @@ end
 clear cellNum trialNum %wholeNeuronResults
 
 %% Spike times to rate for pro and antisaccades and behav
-analyse_sacc_align = 0;
+analyse_sacc_align = 0; analyse_instrDir_align = 0;
 
 % throw out units with no error trials in pro or anti f
 if run_error_trials
@@ -168,24 +173,32 @@ for cellNum = 1:length(units)
     units(cellNum).pro.neural.trial = units(cellNum).trial.neural(units(cellNum).pro.indx_correctProTrials);
     %instr
     try
-        [units(cellNum).pro.neural.instr.rate_pst,units(cellNum).pro.neural.instr.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+        [units(cellNum).pro.neural.instr.rate_pst,units(cellNum).pro.neural.instr.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,prs.timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to trial onset
     catch
         keyboard
     end
     
     units(cellNum).pro.neural.instr.rate_pst = smooth_pst(units(cellNum).pro.neural.instr.rate_pst,prs.binwidth,prs.tsmooth);
+    
     % sacc aligned
     analyse_sacc_align=1;
-    [units(cellNum).pro.neural.sacc.rate_pst,units(cellNum).pro.neural.sacc.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to saccade onset
+    [units(cellNum).pro.neural.sacc.rate_pst,units(cellNum).pro.neural.sacc.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to saccade onset
     units(cellNum).pro.neural.sacc.rate_pst = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst,prs.binwidth,prs.tsmooth);
+    analyse_sacc_align=0;
     
+    % instr dir aligned
+    analyse_instrDir_align = 1; 
+    [units(cellNum).pro.neural.instrDir.rate_pst,units(cellNum).pro.neural.instrDir.ts_pst] = Spiketimes2Rate(units(cellNum).pro.neural.trial,prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to saccade onset
+    units(cellNum).pro.neural.instrDir.rate_pst = smooth_pst(units(cellNum).pro.neural.instrDir.rate_pst,prs.binwidth,prs.tsmooth);
+    analyse_instrDir_align = 0; 
     %% sanity check -- for every cell, randomize half of the trials and compute psth (5 times)
+    analyse_sacc_align=1;
     for j = 1:100;
     numtrials = []; pick_trials = []; 
     numtrials = length(units(cellNum).pro.neural.trial); % number of trials
     pick_trials = sort(randsample(numtrials, round(numtrials/2)));  % pick half of the trials randomly
     
-    [units(cellNum).pro.neural.sacc.rate_pst_rand(j,:),~] = Spiketimes2Rate(units(cellNum).pro.neural.trial((pick_trials)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to saccade onset
+    [units(cellNum).pro.neural.sacc.rate_pst_rand(j,:),~] = Spiketimes2Rate(units(cellNum).pro.neural.trial((pick_trials)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to saccade onset
     units(cellNum).pro.neural.sacc.rate_pst_rand(j,:) = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst_rand(j,:),prs.binwidth,prs.tsmooth);
     end
     analyse_sacc_align=0;
@@ -211,19 +224,25 @@ for cellNum = 1:length(units)
     %neural
     units(cellNum).anti.neural.trial = units(cellNum).trial.neural(units(cellNum).anti.indx_correctAntiTrials);
     % intr
-    [units(cellNum).anti.neural.instr.rate_pst,units(cellNum).anti.neural.instr.ts_pst] = Spiketimes2Rate(units(cellNum).anti.neural.trial,prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+    [units(cellNum).anti.neural.instr.rate_pst,units(cellNum).anti.neural.instr.ts_pst] = Spiketimes2Rate(units(cellNum).anti.neural.trial,prs.timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to trial onset
     units(cellNum).anti.neural.instr.rate_pst = smooth_pst(units(cellNum).anti.neural.instr.rate_pst,prs.binwidth,prs.tsmooth);
     % sacc aligned
     analyse_sacc_align=1;
-    [units(cellNum).anti.neural.sacc.rate_pst,units(cellNum).anti.neural.sacc.ts_pst] = Spiketimes2Rate(units(cellNum).anti.neural.trial,prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to saccade onset
+    [units(cellNum).anti.neural.sacc.rate_pst,units(cellNum).anti.neural.sacc.ts_pst] = Spiketimes2Rate(units(cellNum).anti.neural.trial,prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to saccade onset
     units(cellNum).anti.neural.sacc.rate_pst = smooth_pst(units(cellNum).anti.neural.sacc.rate_pst,prs.binwidth,prs.tsmooth);
+    
+    % instr dir aligned
+    analyse_instrDir_align = 1; 
+    [units(cellNum).anti.neural.instrDir.rate_pst,units(cellNum).anti.neural.instrDir.ts_pst] = Spiketimes2Rate(units(cellNum).anti.neural.trial,prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to saccade onset
+    units(cellNum).anti.neural.instrDir.rate_pst = smooth_pst(units(cellNum).anti.neural.instrDir.rate_pst,prs.binwidth,prs.tsmooth);
+    analyse_instrDir_align = 0; 
     
     %% sanity check -- for every cell, pick random half of the trials and compute psth
     for j = 1:100;
     numtrials = []; pick_trials = []; 
     numtrials = length(units(cellNum).anti.neural.trial); % number of trials
     pick_trials = sort(randsample(numtrials, round(numtrials/2)));  % pick half of the trials randomly
-    [units(cellNum).anti.neural.sacc.rate_pst_rand(j,:),~] = Spiketimes2Rate(units(cellNum).anti.neural.trial((pick_trials)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to saccade onset
+    [units(cellNum).anti.neural.sacc.rate_pst_rand(j,:),~] = Spiketimes2Rate(units(cellNum).anti.neural.trial((pick_trials)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to saccade onset
     units(cellNum).anti.neural.sacc.rate_pst_rand(j,:) = smooth_pst(units(cellNum).anti.neural.sacc.rate_pst_rand(j,:),prs.binwidth,prs.tsmooth);
     end
     analyse_sacc_align=0;
@@ -238,10 +257,13 @@ for cellNum = 1:length(units)
     % get spk counts
     for trialNum = 1:length(correctProTrials)
         
-        [units(cellNum).pro.neural.instr.spkCount(trialNum,:),units(cellNum).pro.neural.instr.ts_spkCount(trialNum,:)] = Spiketimes2CountTrial(units(cellNum).pro.neural.trial(trialNum),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id); % spk counts
+        [units(cellNum).pro.neural.instr.spkCount(trialNum,:),units(cellNum).pro.neural.instr.ts_spkCount(trialNum,:)] = Spiketimes2CountTrial(units(cellNum).pro.neural.trial(trialNum),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % spk counts
         analyse_sacc_align=1;
-        [units(cellNum).pro.neural.sacc.spkCount(trialNum,:),units(cellNum).pro.neural.sacc.ts_spkCount(trialNum,:)] = Spiketimes2CountTrial(units(cellNum).pro.neural.trial(trialNum),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+        [units(cellNum).pro.neural.sacc.spkCount(trialNum,:),units(cellNum).pro.neural.sacc.ts_spkCount(trialNum,:)] = Spiketimes2CountTrial(units(cellNum).pro.neural.trial(trialNum),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         analyse_sacc_align=0;
+        analyse_instrDir_align=1;
+        [units(cellNum).pro.neural.instrDir.spkCount(trialNum,:),units(cellNum).pro.neural.instrDir.ts_spkCount(trialNum,:)] = Spiketimes2CountTrial(units(cellNum).pro.neural.trial(trialNum),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
+        analyse_instrDir_align=0;
     end
     % Take out probability of spk in pro
     for i=1:length(units(cellNum).pro.neural.instr.spkCount(1,:))
@@ -259,10 +281,13 @@ for cellNum = 1:length(units)
     % anti trials
     correctAntiTrials = units(cellNum).anti.indx_correctAntiTrials;
     for trialNum = 1:length(correctAntiTrials)
-        [units(cellNum).anti.neural.instr.spkCount(trialNum,:),units(cellNum).anti.neural.instr.trial(trialNum).ts] = Spiketimes2CountTrial(units(cellNum).anti.neural.trial(trialNum),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id); % spk counts
+        [units(cellNum).anti.neural.instr.spkCount(trialNum,:),units(cellNum).anti.neural.instr.trial(trialNum).ts] = Spiketimes2CountTrial(units(cellNum).anti.neural.trial(trialNum),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % spk counts
         analyse_sacc_align=1;
-        [units(cellNum).anti.neural.sacc.spkCount(trialNum,:),units(cellNum).anti.neural.sacc.ts_spkCount(trialNum,:)] = Spiketimes2CountTrial(units(cellNum).anti.neural.trial(trialNum),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+        [units(cellNum).anti.neural.sacc.spkCount(trialNum,:),units(cellNum).anti.neural.sacc.ts_spkCount(trialNum,:)] = Spiketimes2CountTrial(units(cellNum).anti.neural.trial(trialNum),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         analyse_sacc_align=0;
+        analyse_instrDir_align=1;
+        [units(cellNum).anti.neural.instrDir.spkCount(trialNum,:),units(cellNum).anti.neural.instrDir.ts_spkCount(trialNum,:)] = Spiketimes2CountTrial(units(cellNum).anti.neural.trial(trialNum),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
+        analyse_instrDir_align=0;
         
     end
     
@@ -280,90 +305,141 @@ for cellNum = 1:length(units)
     end
     
     % nspk pro - all bins and windows per trial
-    units(cellNum).pro.neural.instr.tspk_all = []; units(cellNum).pro.neural.sacc.tspk_all = []; 
+    units(cellNum).pro.neural.instr.tspk_all = []; units(cellNum).pro.neural.sacc.tspk_all = []; units(cellNum).pro.neural.instrDir.tspk_all = []; 
     for trialNum = 1:length(correctProTrials)
         
         % timepoints_instr = -1:prs.binwidth:1; timepoints_sacc = -1:prs.binwidth:1;
         
-        % align to instr
-        [~,units(cellNum).pro.neural.instr.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).pro.neural.trial(trialNum).tspk_SS,prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+        %% align to instr
+        [~,units(cellNum).pro.neural.instr.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).pro.neural.trial(trialNum).tspk_SS,prs.timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         
         % win
         tspk_instr= units(cellNum).pro.neural.trial(trialNum).tspk_SS>prs.instruction_win(1) &units(cellNum).pro.neural.trial(trialNum).tspk_SS<prs.instruction_win(2);
         t_instr = prs.timepoints_instr > prs.instruction_win(1) & prs.timepoints_instr<prs.instruction_win(2); timepoints_instr = prs.timepoints_instr(t_instr);
         units(cellNum).pro.neural.instr.tspk{trialNum,:} = units(cellNum).pro.neural.trial(trialNum).tspk_SS(tspk_instr);
-        [units(cellNum).pro.neural.instr.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.instr.tspk(trialNum,:)),timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+        [units(cellNum).pro.neural.instr.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.instr.tspk(trialNum,:)),timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         
-        % align to sacc
+        %% align to sacc
         analyse_sacc_align = 1;
-        [~,units(cellNum).pro.neural.sacc.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc,prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+        [~,units(cellNum).pro.neural.sacc.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc,prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         
         % win
         tspk_sacc= units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc>prs.saccade_win(1) & units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc<prs.saccade_win(2);
         t_sacc = prs.timepoints_sacc > prs.saccade_win(1) & prs.timepoints_sacc<prs.saccade_win(2); timepoints_sacc = prs.timepoints_sacc(t_sacc);
         units(cellNum).pro.neural.sacc.tspk{trialNum,:} = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc(tspk_sacc);
-        [units(cellNum).pro.neural.sacc.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.sacc.tspk(trialNum,:)),timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+        [units(cellNum).pro.neural.sacc.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.sacc.tspk(trialNum,:)),timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
+        % presacc (for comparing exc and sup
+        tspk_presacc = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc>prs.presaccade_win(1) &units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc<prs.presaccade_win(2);
+        t_presacc = prs.timepoints_sacc > prs.presaccade_win(1) & prs.timepoints_sacc < prs.presaccade_win(2); timepoints_presacc = prs.timepoints_sacc(t_presacc);
+        units(cellNum).pro.neural.presacc.tspk{trialNum,:} = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc(tspk_presacc);
+        [units(cellNum).pro.neural.presacc.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.presacc.tspk(trialNum,:)),timepoints_presacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         analyse_sacc_align = 0;
+        
+        %% align to instr dir 
+        analyse_sacc_align = 1;
+        [~,units(cellNum).pro.neural.sacc.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_instrDir,prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
+        
+        % win
+        tspk_instrDir = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_instrDir>prs.instr_dir(1) & units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_instrDir<prs.instr_dir(2);
+        t_instrDir = prs.timepoints_instrDir > prs.instr_dir(1) & prs.timepoints_instrDir<prs.instr_dir(2); timepoints_instrDir = prs.timepoints_instrDir(t_instrDir);
+        units(cellNum).pro.neural.instrDir.tspk{trialNum,:} = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_instrDir(tspk_instrDir);
+        [units(cellNum).pro.neural.instrDir.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.instrDir.tspk(trialNum,:)),timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
+        analyse_sacc_align = 0;
+        
+        %% align to go cue
+        analyse_instrDir_align = 1; 
+        tspk_goCue = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_instrDir>prs.go_cue(1) & units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_instrDir<prs.go_cue(2);
+        t_goCue = prs.timepoints_instrDir > prs.go_cue(1) & prs.timepoints_instrDir<prs.go_cue(2); timepoints_goCue = prs.timepoints_instrDir(t_goCue);
+        units(cellNum).pro.neural.goCue.tspk{trialNum,:} = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_instrDir(tspk_goCue);
+        [units(cellNum).pro.neural.goCue.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.goCue.tspk(trialNum,:)),timepoints_goCue,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
+        analyse_instrDir_align=0;
         
         % concatenate tspk 
         units(cellNum).pro.neural.instr.tspk_all = [units(cellNum).pro.neural.instr.tspk_all ; units(cellNum).pro.neural.instr.tspk{trialNum,:}];
         units(cellNum).pro.neural.sacc.tspk_all = [units(cellNum).pro.neural.sacc.tspk_all ; units(cellNum).pro.neural.sacc.tspk{trialNum,:}];
+        units(cellNum).pro.neural.instrDir.tspk_all = [units(cellNum).pro.neural.instrDir.tspk_all ; units(cellNum).pro.neural.instrDir.tspk{trialNum,:}];
         
-        % baseline
+        %% baseline
         tspk_base = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc>prs.baseline_win(1) & units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc<prs.baseline_win(2);
         t_base = prs.timepoints_sacc >prs.baseline_win(1) & prs.timepoints_sacc<prs.baseline_win(2); timepoints_base = prs.timepoints_sacc(t_base);
         units(cellNum).pro.neural.base.tspk{trialNum,:} = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_sacc(tspk_base);
-        [units(cellNum).pro.neural.base.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.base.tspk(trialNum,:)),timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+        [units(cellNum).pro.neural.base.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.base.tspk(trialNum,:)),timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         analyse_sacc_align = 0;
         
         % baseline instr
         tspk_base_instr = units(cellNum).pro.neural.trial(trialNum).tspk_SS>prs.baseline_instr(1) & units(cellNum).pro.neural.trial(trialNum).tspk_SS<prs.baseline_instr(2);
-        t_base_instr = prs.timepoints_instr >prs.baseline_instr(1) & prs.timepoints_instr<prs.baseline_instr(2); timepoints_base_instr = prs.timepoints_instr(t_base_instr);
+        t_base_instr = prs.timepoints_instr > prs.baseline_instr(1) & prs.timepoints_instr<prs.baseline_instr(2); timepoints_base_instr = prs.timepoints_instr(t_base_instr);
         units(cellNum).pro.neural.base.tspk_instr{trialNum,:} = units(cellNum).pro.neural.trial(trialNum).tspk_SS(tspk_base_instr);
-        [units(cellNum).pro.neural.base.nspk_instr(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.base.tspk_instr(trialNum,:)),timepoints_base_instr,prs.binwidth,analyse_sacc_align,id);
+        [units(cellNum).pro.neural.base.nspk_instr(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).pro.neural.base.tspk_instr(trialNum,:)),timepoints_base_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         analyse_sacc_align = 0;
         
     end
     
     % nspk anti - windows per trial
-    units(cellNum).anti.neural.instr.tspk_all = []; units(cellNum).anti.neural.sacc.tspk_all = []; 
+    units(cellNum).anti.neural.instr.tspk_all = []; units(cellNum).anti.neural.sacc.tspk_all = []; units(cellNum).anti.neural.instrDir.tspk_all = []; 
     for trialNum = 1:length(correctAntiTrials)
-        % align to instr
-        [~,units(cellNum).anti.neural.instr.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).anti.neural.trial(trialNum).tspk_SS,prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+        %% align to instr
+        [~,units(cellNum).anti.neural.instr.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).anti.neural.trial(trialNum).tspk_SS,prs.timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         
         % win
         tspk_instr= units(cellNum).anti.neural.trial(trialNum).tspk_SS>prs.instruction_win(1) &units(cellNum).anti.neural.trial(trialNum).tspk_SS<prs.instruction_win(2);
         t_instr = prs.timepoints_instr > prs.instruction_win(1) & prs.timepoints_instr<prs.instruction_win(2); timepoints_instr = prs.timepoints_instr(t_instr);
         units(cellNum).anti.neural.instr.tspk{trialNum,:} = units(cellNum).anti.neural.trial(trialNum).tspk_SS(tspk_instr);
-        [units(cellNum).anti.neural.instr.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.instr.tspk(trialNum,:)),timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+        [units(cellNum).anti.neural.instr.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.instr.tspk(trialNum,:)),timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         
-        % align to sacc
+        %% align to sacc
         analyse_sacc_align = 1;
-        [~,units(cellNum).anti.neural.sacc.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc,prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+        [~,units(cellNum).anti.neural.sacc.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc,prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         
         % win
-        tspk_sacc= units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc>prs.saccade_win(1) &units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc<prs.saccade_win(2);
+        tspk_sacc = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc>prs.saccade_win(1) &units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc<prs.saccade_win(2);
         t_sacc = prs.timepoints_sacc > prs.saccade_win(1) & prs.timepoints_sacc < prs.saccade_win(2); timepoints_sacc = prs.timepoints_sacc(t_sacc);
         units(cellNum).anti.neural.sacc.tspk{trialNum,:} = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc(tspk_sacc);
-        [units(cellNum).anti.neural.sacc.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.sacc.tspk(trialNum,:)),timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+        [units(cellNum).anti.neural.sacc.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.sacc.tspk(trialNum,:)),timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
+        % presacc (for comparing exc and sup
+        tspk_presacc = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc>prs.presaccade_win(1) &units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc<prs.presaccade_win(2);
+        t_presacc = prs.timepoints_sacc > prs.presaccade_win(1) & prs.timepoints_sacc < prs.presaccade_win(2); timepoints_presacc = prs.timepoints_sacc(t_presacc);
+        units(cellNum).anti.neural.presacc.tspk{trialNum,:} = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc(tspk_presacc);
+        [units(cellNum).anti.neural.presacc.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.presacc.tspk(trialNum,:)),timepoints_presacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         analyse_sacc_align = 0;
+        
+        %% align to instr dir 
+        analyse_sacc_align = 1;
+        [~,units(cellNum).anti.neural.sacc.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_instrDir,prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
+        
+        % win
+        tspk_instrDir = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_instrDir>prs.instr_dir(1) & units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_instrDir<prs.instr_dir(2);
+        t_instrDir = prs.timepoints_instrDir > prs.instr_dir(1) & prs.timepoints_instrDir<prs.instr_dir(2); timepoints_instrDir = prs.timepoints_instrDir(t_instrDir);
+        units(cellNum).anti.neural.instrDir.tspk{trialNum,:} = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_instrDir(tspk_instrDir);
+        [units(cellNum).anti.neural.instrDir.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.instrDir.tspk(trialNum,:)),timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
+        analyse_sacc_align = 0;
+        
+        %% align to go cue
+        analyse_instrDir_align = 1; 
+        tspk_goCue = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_instrDir>prs.go_cue(1) & units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_instrDir<prs.go_cue(2);
+        t_goCue = prs.timepoints_instrDir > prs.go_cue(1) & prs.timepoints_instrDir<prs.go_cue(2); timepoints_goCue = prs.timepoints_instrDir(t_goCue);
+        units(cellNum).anti.neural.goCue.tspk{trialNum,:} = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_instrDir(tspk_goCue);
+        [units(cellNum).anti.neural.goCue.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.goCue.tspk(trialNum,:)),timepoints_goCue,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
+        analyse_instrDir_align=0;
+        
         
         % concatenate tspk 
         units(cellNum).anti.neural.instr.tspk_all = [units(cellNum).anti.neural.instr.tspk_all ; units(cellNum).anti.neural.instr.tspk{trialNum,:}];
         units(cellNum).anti.neural.sacc.tspk_all = [units(cellNum).anti.neural.sacc.tspk_all ; units(cellNum).anti.neural.sacc.tspk{trialNum,:}];
+        units(cellNum).anti.neural.instrDir.tspk_all = [units(cellNum).anti.neural.instrDir.tspk_all ; units(cellNum).anti.neural.instrDir.tspk{trialNum,:}]; 
         
         % baseline
         tspk_base = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc>prs.baseline_win(1) & units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc<prs.baseline_win(2);
         t_base = prs.timepoints_sacc >prs.baseline_win(1) & prs.timepoints_sacc<prs.baseline_win(2); timepoints_base = prs.timepoints_sacc(t_base);
         units(cellNum).anti.neural.base.tspk{trialNum,:} = units(cellNum).anti.neural.trial(trialNum).tspk_SS_align_sacc(tspk_base);
-        [units(cellNum).anti.neural.base.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.base.tspk(trialNum,:)),timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+        [units(cellNum).anti.neural.base.nspk(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.base.tspk(trialNum,:)),timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         analyse_sacc_align = 0;
         
         % baseline instr
         tspk_base_instr = units(cellNum).anti.neural.trial(trialNum).tspk_SS>prs.baseline_instr(1) & units(cellNum).anti.neural.trial(trialNum).tspk_SS<prs.baseline_instr(2);
         t_base_instr = prs.timepoints_instr >prs.baseline_instr(1) & prs.timepoints_instr<prs.baseline_instr(2); timepoints_base_instr = prs.timepoints_instr(t_base_instr);
         units(cellNum).anti.neural.base.tspk_instr{trialNum,:} = units(cellNum).anti.neural.trial(trialNum).tspk_SS(tspk_base_instr);
-        [units(cellNum).anti.neural.base.nspk_instr(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.base.tspk_instr(trialNum,:)),timepoints_base_instr,prs.binwidth,analyse_sacc_align,id);
+        [units(cellNum).anti.neural.base.nspk_instr(trialNum,:),~,~] = Spiketimes2RateTrial(cell2mat(units(cellNum).anti.neural.base.tspk_instr(trialNum,:)),timepoints_base_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         analyse_sacc_align = 0;
         
     end
@@ -460,18 +536,25 @@ for cellNum = 1:length(units)
     % windows
     instr_win = units(cellNum).pro.neural.instr.ts_pst > prs.instruction_win(1) & units(cellNum).pro.neural.instr.ts_pst <= prs.instruction_win(2);
     sacc_win = units(cellNum).pro.neural.sacc.ts_pst > prs.saccade_win(1) & units(cellNum).pro.neural.sacc.ts_pst <= prs.saccade_win(2);
+    instrDir_win = units(cellNum).pro.neural.instrDir.ts_pst > prs.instr_dir(1) & units(cellNum).pro.neural.instrDir.ts_pst <= prs.instr_dir(2); 
+    goCue_win = units(cellNum).pro.neural.instrDir.ts_pst > prs.go_cue(1) & units(cellNum).pro.neural.instrDir.ts_pst <= prs.go_cue(2); 
     base_win = units(cellNum).pro.neural.sacc.ts_pst > prs.baseline_win(1) & units(cellNum).pro.neural.sacc.ts_pst <= prs.baseline_win(2);
     base_instr = units(cellNum).pro.neural.instr.ts_pst > prs.baseline_instr(1) & units(cellNum).pro.neural.instr.ts_pst <= prs.baseline_instr(2);
     t_instr= units(cellNum).pro.neural.instr.ts_pst(instr_win); %time
     t_sacc = units(cellNum).pro.neural.sacc.ts_pst(sacc_win);
+    t_instrDir = units(cellNum).pro.neural.instrDir.ts_pst(instrDir_win); 
+    t_goCue = units(cellNum).pro.neural.instrDir.ts_pst(goCue_win);
     sacc_on = units(cellNum).pro.neural.sacc.ts_pst > 0 & units(cellNum).pro.neural.sacc.ts_pst <= prs.saccade_win(2);
-    sacc_pre = units(cellNum).pro.neural.sacc.ts_pst > prs.saccade_win(1) & units(cellNum).pro.neural.sacc.ts_pst <= -0.050;
+    % sacc_pre = units(cellNum).pro.neural.sacc.ts_pst > prs.saccade_win(1) & units(cellNum).pro.neural.sacc.ts_pst <= -0.050;
+    sacc_pre = units(cellNum).pro.neural.sacc.ts_pst > -0.150 & units(cellNum).pro.neural.sacc.ts_pst <= 0;
     
     %get spks pro
     instr_spks_pro = units(cellNum).pro.neural.instr.rate_pst(instr_win);
     sacc_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(sacc_win);
+    instrDir_spks_pro = units(cellNum).pro.neural.instrDir.rate_pst(instrDir_win);
+    goCue_spks_pro = units(cellNum).pro.neural.instrDir.rate_pst(goCue_win); 
     sacc_on_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(sacc_on);
-    sacc_pre_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(sacc_pre);
+    sacc_pre_spks_pro = units(cellNum).pro.neural.instr.rate_pst(sacc_pre); % changed to compare it to ITI
     base_spks_pro = units(cellNum).pro.neural.sacc.rate_pst(base_win);
     base_spks_instr = units(cellNum).pro.neural.instr.rate_pst(base_instr);
     
@@ -502,6 +585,32 @@ for cellNum = 1:length(units)
     [units(cellNum).pro.neural.sacc.min_resp, indx_min] = min(units(cellNum).pro.neural.sacc.rate_pst_win);
     units(cellNum).pro.neural.sacc.min_resp_time = t_sacc(indx_min);
     
+    % instr Dir
+    units(cellNum).pro.neural.instrDir.ts_pst_win = units(cellNum).pro.neural.instrDir.ts_pst(instrDir_win);
+    units(cellNum).pro.neural.instrDir.rate_pst_win = units(cellNum).pro.neural.instrDir.rate_pst(instrDir_win);
+    units(cellNum).pro.neural.instrDir.rate_mu = mean(instrDir_spks_pro);
+    units(cellNum).pro.neural.instrDir.rate_sig = std(instrDir_spks_pro)/sqrt(ntrls_pro);
+    units(cellNum).pro.neural.instrDir.rate_std = std(instrDir_spks_pro);
+    
+    [units(cellNum).pro.neural.instrDir.peak_resp, indx_max] = max(units(cellNum).pro.neural.instrDir.rate_pst_win);
+    units(cellNum).pro.neural.instrDir.peak_resp_time = t_instrDir(indx_max);
+    
+    [units(cellNum).pro.neural.instrDir.min_resp, indx_min] = min(units(cellNum).pro.neural.instrDir.rate_pst_win);
+    units(cellNum).pro.neural.instrDir.min_resp_time = t_instrDir(indx_min);
+    
+    % go Cue
+    units(cellNum).pro.neural.goCue.ts_pst_win = units(cellNum).pro.neural.instrDir.ts_pst(goCue_win); 
+    units(cellNum).pro.neural.goCue.rate_pst_win = units(cellNum).pro.neural.instrDir.rate_pst(goCue_win);
+    units(cellNum).pro.neural.goCue.rate_mu = mean(goCue_spks_pro);
+    units(cellNum).pro.neural.goCue.rate_sig = std(goCue_spks_pro)/sqrt(ntrls_pro);
+    units(cellNum).pro.neural.goCue.rate_std = std(goCue_spks_pro);
+    
+    [units(cellNum).pro.neural.goCue.peak_resp, indx_max] = max(units(cellNum).pro.neural.goCue.rate_pst_win);
+    units(cellNum).pro.neural.goCue.peak_resp_time = t_goCue(indx_max);
+    
+    [units(cellNum).pro.neural.goCue.min_resp, indx_min] = min(units(cellNum).pro.neural.goCue.rate_pst_win);
+    units(cellNum).pro.neural.goCue.min_resp_time = t_goCue(indx_min);
+    
     %base
     units(cellNum).pro.neural.base.ts_pst_win = units(cellNum).pro.neural.sacc.ts_pst(base_win);
     units(cellNum).pro.neural.base.rate_pst_win = units(cellNum).pro.neural.sacc.rate_pst(base_win);
@@ -518,25 +627,31 @@ for cellNum = 1:length(units)
     
     
     % sacc after 0 > or < than baseline
-    if mean(sacc_on_spks_pro) > mean(sacc_pre_spks_pro)
-    units(cellNum).pro.neural.exc = 1; units(cellNum).pro.neural.sup = 0; 
+    if mean(units(cellNum).pro.neural.sacc.nspk) > mean(units(cellNum).pro.neural.presacc.nspk)
+        units(cellNum).pro.neural.exc = 1; units(cellNum).pro.neural.sup = 0;
+%         [units(cellNum).pro.neural.exc_sup_pval, units(cellNum).pro.neural.exc_sup_flag] = ranksum(sacc_on_spks_pro,sacc_pre_spks_pro, 'alpha', 0.02);
     else
-         units(cellNum).pro.neural.exc = 0; units(cellNum).pro.neural.sup = 1; 
+        units(cellNum).pro.neural.exc = 0; units(cellNum).pro.neural.sup = 1;
+%         [units(cellNum).pro.neural.exc_sup_pval, units(cellNum).pro.neural.exc_sup_flag] = ranksum(sacc_on_spks_pro,sacc_pre_spks_pro,'alpha', 0.02);
     end
     
      % instr > or < than baseline
-    if mean(instr_spks_pro) > mean(base_spks_instr)
-    units(cellNum).pro.neural.exc_instr = 1; units(cellNum).pro.neural.sup_instr = 0; 
-    else
-         units(cellNum).pro.neural.exc_instr = 0; units(cellNum).pro.neural.sup_instr = 1; 
-    end
+     if mean(units(cellNum).pro.neural.instr.nspk) > mean(units(cellNum).pro.neural.base.nspk)
+         units(cellNum).pro.neural.exc_instr = 1; units(cellNum).pro.neural.sup_instr = 0;
+%          [units(cellNum).pro.neural.exc_sup_pval_instr, units(cellNum).pro.neural.exc_sup_flag_instr] = ranksum(instr_spks_pro,base_spks_instr,'alpha', 0.02);
+     else
+         units(cellNum).pro.neural.exc_instr = 0; units(cellNum).pro.neural.sup_instr = 1;
+%          [units(cellNum).pro.neural.exc_sup_pval_instr, units(cellNum).pro.neural.exc_sup_flag_instr] = ranksum(instr_spks_pro,base_spks_instr,'alpha', 0.02);
+     end
     
     %get spks anti
     instr_spks_anti = units(cellNum).anti.neural.instr.rate_pst(instr_win);
     sacc_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(sacc_win);
+    instrDir_spks_anti = units(cellNum).anti.neural.instrDir.rate_pst(instrDir_win);
+    goCue_spks_anti = units(cellNum).pro.neural.instrDir.rate_pst(goCue_win); 
     base_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(base_win);
     sacc_on_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(sacc_on);
-    sacc_pre_spks_anti = units(cellNum).anti.neural.sacc.rate_pst(sacc_pre);
+    sacc_pre_spks_anti = units(cellNum).anti.neural.instr.rate_pst(sacc_pre);
     base_spks_instr = units(cellNum).anti.neural.instr.rate_pst(base_instr);
     
     %pst, mean and sem
@@ -566,6 +681,32 @@ for cellNum = 1:length(units)
     [units(cellNum).anti.neural.sacc.min_resp, indx_min] = min(units(cellNum).anti.neural.sacc.rate_pst_win);
     units(cellNum).anti.neural.sacc.min_resp_time = t_sacc(indx_min);
     
+     % instr Dir
+    units(cellNum).anti.neural.instrDir.ts_pst_win = units(cellNum).anti.neural.instrDir.ts_pst(instrDir_win);
+    units(cellNum).anti.neural.instrDir.rate_pst_win = units(cellNum).anti.neural.instrDir.rate_pst(instrDir_win);
+    units(cellNum).anti.neural.instrDir.rate_mu = mean(instrDir_spks_anti);
+    units(cellNum).anti.neural.instrDir.rate_sig = std(instrDir_spks_anti)/sqrt(ntrls_anti);
+    units(cellNum).anti.neural.instrDir.rate_std = std(instrDir_spks_anti);
+    
+    [units(cellNum).anti.neural.instrDir.peak_resp, indx_max] = max(units(cellNum).anti.neural.instrDir.rate_pst_win);
+    units(cellNum).anti.neural.instrDir.peak_resp_time = t_instrDir(indx_max);
+    
+    [units(cellNum).anti.neural.instrDir.min_resp, indx_min] = min(units(cellNum).anti.neural.instrDir.rate_pst_win);
+    units(cellNum).anti.neural.instrDir.min_resp_time = t_instrDir(indx_min);
+    
+    % go Cue
+    units(cellNum).anti.neural.goCue.ts_pst_win = units(cellNum).anti.neural.instrDir.ts_pst(goCue_win); 
+    units(cellNum).anti.neural.goCue.rate_pst_win = units(cellNum).anti.neural.instrDir.rate_pst(goCue_win);
+    units(cellNum).anti.neural.goCue.rate_mu = mean(goCue_spks_anti);
+    units(cellNum).anti.neural.goCue.rate_sig = std(goCue_spks_anti)/sqrt(ntrls_anti);
+    units(cellNum).anti.neural.goCue.rate_std = std(goCue_spks_anti);
+    
+    [units(cellNum).anti.neural.goCue.peak_resp, indx_max] = max(units(cellNum).anti.neural.goCue.rate_pst_win);
+    units(cellNum).anti.neural.goCue.peak_resp_time = t_goCue(indx_max);
+    
+    [units(cellNum).anti.neural.goCue.min_resp, indx_min] = min(units(cellNum).anti.neural.goCue.rate_pst_win);
+    units(cellNum).anti.neural.goCue.min_resp_time = t_goCue(indx_min);
+    
     % base
     units(cellNum).anti.neural.base.ts_pst_win = units(cellNum).anti.neural.sacc.ts_pst(base_win);
     units(cellNum).anti.neural.base.rate_pst_win = units(cellNum).anti.neural.sacc.rate_pst(base_win);
@@ -573,35 +714,52 @@ for cellNum = 1:length(units)
     units(cellNum).anti.neural.base.rate_sig = std(base_spks_anti)/sqrt(ntrls_anti);
     units(cellNum).anti.neural.base.rate_std = std(base_spks_anti);
     
-    % base instr pro
+    % base instr
     units(cellNum).anti.neural.base.ts_pst_win_instr = units(cellNum).anti.neural.instr.ts_pst(base_instr);
     units(cellNum).anti.neural.base.rate_instr_pst_win = units(cellNum).anti.neural.instr.rate_pst(base_instr);
     units(cellNum).anti.neural.base.rate_instr_mu = mean(base_spks_instr);
     units(cellNum).anti.neural.base.rate_instr_sig = std(base_spks_instr)/sqrt(ntrls_anti);
     units(cellNum).anti.neural.base.rate_instr_std = std(base_spks_instr);
-    
-     % sacc after 0 > or < than baseline
-    if mean(sacc_on_spks_anti) > mean(sacc_pre_spks_anti)
-    units(cellNum).anti.neural.exc = 1; units(cellNum).anti.neural.sup = 0; 
+   
+    % sacc after 0 > or < than baseline
+    if  mean(units(cellNum).anti.neural.sacc.nspk) > mean(units(cellNum).anti.neural.presacc.nspk)
+        units(cellNum).anti.neural.exc = 1; units(cellNum).anti.neural.sup = 0;
+%         [units(cellNum).anti.neural.exc_sup_pval, units(cellNum).anti.neural.exc_sup_flag] = ranksum(sacc_on_spks_anti,sacc_pre_spks_anti);
     else
-         units(cellNum).anti.neural.exc = 0; units(cellNum).anti.neural.sup = 1; 
+        units(cellNum).anti.neural.exc = 0; units(cellNum).anti.neural.sup = 1;
+%         [units(cellNum).anti.neural.exc_sup_pval, units(cellNum).anti.neural.exc_sup_flag] = ranksum(sacc_on_spks_anti,sacc_pre_spks_anti);
     end
     
     % instr > or < than baseline
-    if mean(instr_spks_anti) > mean(base_spks_instr)
-    units(cellNum).anti.neural.exc_instr = 1; units(cellNum).anti.neural.sup_instr = 0; 
+    if mean(units(cellNum).anti.neural.instr.nspk) > mean(units(cellNum).anti.neural.base.nspk)
+        units(cellNum).anti.neural.exc_instr = 1; units(cellNum).anti.neural.sup_instr = 0;
+%         [units(cellNum).anti.neural.exc_sup_pval_instr, units(cellNum).anti.neural.exc_sup_flag_instr] = ranksum(instr_spks_anti,base_spks_instr);
     else
-         units(cellNum).anti.neural.exc_instr = 0; units(cellNum).anti.neural.sup_instr = 1; 
+        units(cellNum).anti.neural.exc_instr = 0; units(cellNum).anti.neural.sup_instr = 1;
+%         [units(cellNum).anti.neural.exc_sup_pval_instr, units(cellNum).anti.neural.exc_sup_flag_instr] = ranksum(instr_spks_anti,base_spks_instr);
     end
     
     %% compare windows against baseline activity for pro and anti - nspk
     % pro
     [units(cellNum).stats.pro.pval.instrVSbase_nspk, units(cellNum).stats.pro.flags.instrVSbase_nspk] = signrank(units(cellNum).pro.neural.instr.nspk,units(cellNum).pro.neural.base.nspk_instr);
-    [units(cellNum).stats.pro.pval.saccVSbase_nspk, units(cellNum).stats.pro.flags.saccVSbase_nspk] = signrank(units(cellNum).pro.neural.sacc.nspk,units(cellNum).pro.neural.base.nspk);
+    %[units(cellNum).stats.pro.pval.saccVSbase_nspk, units(cellNum).stats.pro.flags.saccVSbase_nspk] = signrank(units(cellNum).pro.neural.sacc.nspk,units(cellNum).pro.neural.base.nspk);
+    [units(cellNum).stats.pro.pval.saccVSbase_nspk, units(cellNum).stats.pro.flags.saccVSbase_nspk] = signrank(units(cellNum).pro.neural.sacc.nspk,units(cellNum).pro.neural.base.nspk_instr);
+    [units(cellNum).stats.pro.pval.saccVSinstrDir_nspk, units(cellNum).stats.pro.flags.saccVSinstrDir_nspk] = signrank(units(cellNum).pro.neural.sacc.nspk,units(cellNum).pro.neural.instrDir.nspk);
+    [units(cellNum).stats.pro.pval.instrDirVSinstr_nspk, units(cellNum).stats.pro.flags.instrDirVSinstr_nspk] = signrank(units(cellNum).pro.neural.instrDir.nspk,units(cellNum).pro.neural.instr.nspk);
+    [units(cellNum).stats.pro.pval.goCueVSinstrDir_nspk, units(cellNum).stats.pro.flags.goCueVSinstrDir_nspk] = signrank(units(cellNum).pro.neural.goCue.nspk,units(cellNum).pro.neural.instrDir.nspk);
+    
+    % stat for comparing exc and supp 
+    [units(cellNum).pro.neural.categ.flag, units(cellNum).pro.neural.categ.pval] = ttest2(units(cellNum).pro.neural.presacc.nspk, units(cellNum).pro.neural.sacc.nspk); 
     
     % anti
     [units(cellNum).stats.anti.pval.instrVSbase_nspk, units(cellNum).stats.anti.flags.instrVSbase_nspk] = signrank(units(cellNum).anti.neural.instr.nspk,units(cellNum).anti.neural.base.nspk_instr);
-    [units(cellNum).stats.anti.pval.saccVSbase_nspk, units(cellNum).stats.anti.flags.saccVSbase_nspk] = signrank(units(cellNum).anti.neural.sacc.nspk,units(cellNum).anti.neural.base.nspk);
+    % [units(cellNum).stats.anti.pval.saccVSbase_nspk, units(cellNum).stats.anti.flags.saccVSbase_nspk] = signrank(units(cellNum).anti.neural.sacc.nspk,units(cellNum).anti.neural.base.nspk);
+    [units(cellNum).stats.anti.pval.saccVSbase_nspk, units(cellNum).stats.anti.flags.saccVSbase_nspk] = signrank(units(cellNum).anti.neural.sacc.nspk,units(cellNum).anti.neural.base.nspk_instr);
+    [units(cellNum).stats.anti.pval.saccVSinstrDir_nspk, units(cellNum).stats.anti.flags.saccVSinstrDir_nspk] = signrank(units(cellNum).anti.neural.sacc.nspk,units(cellNum).anti.neural.instrDir.nspk);
+    [units(cellNum).stats.anti.pval.instrDirVSinstr_nspk, units(cellNum).stats.anti.flags.instrDirVSinstr_nspk] = signrank(units(cellNum).anti.neural.instrDir.nspk,units(cellNum).anti.neural.instr.nspk);
+    [units(cellNum).stats.anti.pval.goCueVSinstrDir_nspk, units(cellNum).stats.anti.flags.goCueVSinstrDir_nspk] = signrank(units(cellNum).anti.neural.goCue.nspk,units(cellNum).anti.neural.instrDir.nspk);
+    % stat for comparing exc and supp
+    [units(cellNum).anti.neural.categ.flag, units(cellNum).anti.neural.categ.pval] = ttest2(units(cellNum).anti.neural.presacc.nspk, units(cellNum).anti.neural.sacc.nspk); 
     
     %     %% compare windows against baseline activity for pro and anti - rate
     %     <--- stats should be done on nspks

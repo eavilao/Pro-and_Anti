@@ -1,4 +1,4 @@
-function [nspk,timepoints] = Spiketimes2Rate(thisTrial_spk,timepoints,binwidth,analyse_sacc_align,id)
+function [nspk,timepoints] = Spiketimes2Rate(thisTrial_spk,timepoints,binwidth,analyse_sacc_align,analyse_instrDir_align,id)
 
 ntrls = length(thisTrial_spk);
 timepoints = [timepoints(1)-binwidth timepoints timepoints(end)+binwidth];
@@ -7,6 +7,8 @@ if strcmp(id,'SS') % either SS or CS
     
     if analyse_sacc_align
         [nspk,~] = hist(cell2mat({thisTrial_spk.tspk_SS_align_sacc}'),timepoints);
+    elseif analyse_instrDir_align
+         [nspk,~] = hist(cell2mat({thisTrial_spk.tspk_SS_align_instrDir}'),timepoints);
     else
         [nspk,~] = hist(cell2mat({thisTrial_spk.tspk_SS}'),timepoints);
     end

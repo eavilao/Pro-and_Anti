@@ -13,7 +13,9 @@ function plot_ProAnti(units, pop, plotType, cellNum, recArea)
 % List of plots
 
 % 'eyeKin' : plot eye kinematics for all cells and trial
-% 'kin_regress' : plot eye kin multiple linear regression
+% 'kin_regress_cell' : plot eye kin multiple linear regression for each cell
+% 'kin_regress_vermis' : plot eye kin multiple linear regression for all together
+% 'kin_regress_lateral' : plot eye kin multiple linear regression for all together
 % 'raster_sacc': saccade aligned raster plot for the chosen cell
 % 'raster_sacc_single': plot raster for a single trial
 % 'raster_instr': instruction aligned raster plot for the chosen cell
@@ -146,6 +148,19 @@ switch plotType
         vline(mean(antiRT),'b'); % draw line on mean
         [p,h] = ranksum(proRT, antiRT);
         
+    case 'kin_regress_cell'
+        z=1; 
+        fprintf(['        >>> loading ' recArea ' cells <<< \n']);
+        for cellNum = 1:length(units)
+            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+        end
+        indx_area = find(indx_area);
+        
+        for i = 1:length(indx_area)
+            coeff(:,i) = units(indx_area(i)).stats.sacc.regress.coeff_pro; 
+        end
+        
+        
     case 'kin_regress_vermis'
         x1_pro = pop.pro.vermis.kin_all(:,1);
         x2_pro = pop.pro.vermis.kin_all(:,2);
@@ -205,7 +220,7 @@ switch plotType
         y_pro = pop.pro.lateral.r_all;
         coeff_pro = pop.stats.sacc.pro.regress.lateral.coeff_pro;
         
-        % stepwise([x1_pro x2_pro x3_pro x4_pro], y_pro)
+        stepwise([x1_pro x2_pro x3_pro x4_pro], y_pro)
         % stepwiselm([x1_pro x2_pro x3_pro x4_pro], y_pro)
         
         [~,hfig] = plotmatrix([y_pro x1_pro x2_pro x3_pro x4_pro]);
@@ -230,7 +245,7 @@ switch plotType
         y_anti = pop.anti.lateral.r_all;
         coeff_pro = pop.stats.sacc.anti.regress.lateral.coeff_anti;
         
-        % stepwise([x1_anti x2_anti x3_anti x4_anti], y_anti)
+         stepwise([x1_anti x2_anti x3_anti x4_anti], y_anti)
         % stepwiselm([x1_anti x2_anti x3_anti x4_anti], y_anti)
         
         [~,hfig] = plotmatrix([y_pro x1_pro x2_pro x3_pro x4_pro]);
