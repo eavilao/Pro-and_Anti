@@ -34,35 +34,36 @@ indx_sup_instr_pro(i) = units(indx_vermis(i)).pro.neural.sup_instr;
 indx_sup_instr_anti(i) = units(indx_vermis(i)).anti.neural.sup_instr;
 indx_sacc_pro_exc_sup_sign(i) = units(indx_vermis(i)).pro.neural.categ.flag;
 indx_sacc_anti_exc_sup_sign(i) = units(indx_vermis(i)).anti.neural.categ.flag;
-pval_sacc_pro_exc_sup_sign(i) = units(indx_vermis(i)).pro.neural.categ.pval<0.05;
-pval_sacc_anti_exc_sup_sign(i) = units(indx_vermis(i)).anti.neural.categ.pval<0.05;
+pval_sacc_pro_exc_sup_sign(i) = units(indx_vermis(i)).pro.neural.categ.pval;
+pval_sacc_anti_exc_sup_sign(i) = units(indx_vermis(i)).anti.neural.categ.pval;
 
 num_corr_pro(i) = length(units(i).pro.indx_correctProTrials);  % calculate total number of trials for pro and anti
 num_corr_anti(i) = length(units(i).anti.indx_correctAntiTrials);  
 end 
 
-pro_only_instr_omv = sum(indx_sign_instr_base_pro & ~indx_sign_instr_base_anti)
-anti_only_instr_omv = sum(indx_sign_instr_base_anti & ~indx_sign_instr_base_pro)
-pro_anti_omv = sum(indx_sign_instr_base_anti & indx_sign_instr_base_pro)
-pro_only_sacc_omv = sum(indx_sign_sacc_base_pro & ~indx_sign_sacc_base_anti)
+pro_only_instr_omv = sum(indx_sign_instr_base_pro & ~indx_sign_instr_base_anti);
+anti_only_instr_omv = sum(indx_sign_instr_base_anti & ~indx_sign_instr_base_pro);
+pro_anti_omv = sum(indx_sign_instr_base_anti & indx_sign_instr_base_pro);
+pro_only_sacc_omv = sum(indx_sign_sacc_base_pro & ~indx_sign_sacc_base_anti);
 % pro_only_sacc_exc_omv = sum(indx_exc_sacc_pro & ~indx_sign_sacc_base_anti & indx_sacc_pro_exc_sup_sign);  indx_pro_only_sacc_exc_omv = indx_exc_sacc_pro & ~indx_sign_sacc_base_anti & indx_sacc_pro_exc_sup_sign;
 % pro_only_sacc_sup_omv = sum(indx_sup_sacc_pro & ~indx_sign_sacc_base_anti  & indx_sacc_pro_exc_sup_sign);  indx_only_sacc_sup_omv = indx_sup_sacc_pro & ~indx_sign_sacc_base_anti  & indx_sacc_pro_exc_sup_sign;
-anti_only_sacc_omv = sum(indx_sign_sacc_base_anti & ~indx_sign_sacc_base_pro)
-pro_anti_sacc_omv = sum(indx_sign_sacc_base_anti & indx_sign_sacc_base_pro )
-pro_only_instrDir_omv = sum(indx_sign_instrDir_instr_pro & ~indx_sign_instrDir_instr_anti)
-anti_only_instrDir_omv = sum(indx_sign_instrDir_instr_anti & ~indx_sign_instrDir_instr_pro)
-pro_anti_instrDir_omv = sum(indx_sign_instrDir_instr_pro & indx_sign_instrDir_instr_anti)
-pro_only_goCue_omv = sum(indx_sign_goCue_instrDir_pro & ~indx_sign_goCue_instrDir_anti)
-anti_only_goCue_omv = sum(indx_sign_goCue_instrDir_anti & ~indx_sign_goCue_instrDir_pro)
-pro_anti_goCue_omv = sum(indx_sign_goCue_instrDir_pro & indx_sign_goCue_instrDir_anti)
+anti_only_sacc_omv = sum(indx_sign_sacc_base_anti & ~indx_sign_sacc_base_pro);
+pro_anti_sacc_omv = sum(indx_sign_sacc_base_anti & indx_sign_sacc_base_pro);
+pro_only_instrDir_omv = sum(indx_sign_instrDir_instr_pro & ~indx_sign_instrDir_instr_anti);
+anti_only_instrDir_omv = sum(indx_sign_instrDir_instr_anti & ~indx_sign_instrDir_instr_pro);
+pro_anti_instrDir_omv = sum(indx_sign_instrDir_instr_pro & indx_sign_instrDir_instr_anti);
+pro_only_goCue_omv = sum(indx_sign_goCue_instrDir_pro & ~indx_sign_goCue_instrDir_anti);
+anti_only_goCue_omv = sum(indx_sign_goCue_instrDir_anti & ~indx_sign_goCue_instrDir_pro);
+pro_anti_goCue_omv = sum(indx_sign_goCue_instrDir_pro & indx_sign_goCue_instrDir_anti);
 
+p_val = 0.05; 
 % pro_only_sacc_exc_omv = sum(indx_exc_sacc_pro & ~indx_sign_sacc_base_anti & indx_sacc_pro_exc_sup_sign);  indx_pro_only_sacc_exc_omv = indx_exc_sacc_pro & ~indx_sign_sacc_base_anti & indx_sacc_pro_exc_sup_sign;
-pro_only_sacc_exc_omv =  sum(pval_sacc_pro_exc_sup_sign & ~pval_sacc_anti_exc_sup_sign & ~indx_exc_sacc_anti);  indx_pro_only_sacc_exc_omv = pval_sacc_pro_exc_sup_sign & ~pval_sacc_anti_exc_sup_sign & ~indx_exc_sacc_anti;
-pro_only_sacc_sup_omv = sum(pval_sacc_pro_exc_sup_sign & ~pval_sacc_anti_exc_sup_sign & ~indx_sup_sacc_anti);  indx_only_sacc_sup_omv = pval_sacc_pro_exc_sup_sign & ~pval_sacc_anti_exc_sup_sign & ~indx_sup_sacc_anti;
-anti_only_sacc_exc_omv = sum(~pval_sacc_pro_exc_sup_sign & pval_sacc_anti_exc_sup_sign & ~indx_exc_sacc_pro);  indx_anti_only_sacc_exc_omv = ~pval_sacc_pro_exc_sup_sign & pval_sacc_anti_exc_sup_sign & ~indx_exc_sacc_pro;
-anti_only_sacc_sup_omv = sum(~pval_sacc_pro_exc_sup_sign & pval_sacc_anti_exc_sup_sign & ~indx_sup_sacc_pro);  indx_anti_only_sacc_sup_omv = ~pval_sacc_pro_exc_sup_sign & pval_sacc_anti_exc_sup_sign & ~indx_sup_sacc_pro;
-pro_anti_sacc_exc_omv = sum(pval_sacc_pro_exc_sup_sign & pval_sacc_anti_exc_sup_sign & indx_exc_sacc_pro & indx_exc_sacc_anti);  indx_pro_anti_sacc_exc_omv = pval_sacc_pro_exc_sup_sign & pval_sacc_anti_exc_sup_sign & indx_exc_sacc_pro & indx_exc_sacc_anti; 
-pro_anti_sacc_sup_omv = sum(pval_sacc_pro_exc_sup_sign & pval_sacc_anti_exc_sup_sign & indx_sup_sacc_pro & indx_sup_sacc_anti);  indx_pro_anti_sacc_sup_omv =pval_sacc_pro_exc_sup_sign & pval_sacc_anti_exc_sup_sign & indx_sup_sacc_pro & indx_sup_sacc_anti;   
+pro_only_sacc_exc_omv =  sum((pval_sacc_pro_exc_sup_sign<p_val) & ~(pval_sacc_anti_exc_sup_sign<p_val) & ~indx_sup_sacc_pro);  indx_pro_only_sacc_exc_omv = (pval_sacc_pro_exc_sup_sign<p_val) & ~(pval_sacc_anti_exc_sup_sign<p_val) & ~indx_sup_sacc_pro;
+pro_only_sacc_sup_omv = sum((pval_sacc_pro_exc_sup_sign<p_val) & ~(pval_sacc_anti_exc_sup_sign<p_val) & ~indx_exc_sacc_pro);  indx_pro_only_sacc_sup_omv = (pval_sacc_pro_exc_sup_sign<p_val) & ~(pval_sacc_anti_exc_sup_sign<p_val) & ~indx_exc_sacc_pro;
+anti_only_sacc_exc_omv = sum(~(pval_sacc_pro_exc_sup_sign<p_val) & (pval_sacc_anti_exc_sup_sign<p_val) & ~indx_sup_sacc_anti);  indx_anti_only_sacc_exc_omv = ~(pval_sacc_pro_exc_sup_sign<p_val) & (pval_sacc_anti_exc_sup_sign<p_val) & ~indx_sup_sacc_anti;
+anti_only_sacc_sup_omv = sum(~(pval_sacc_pro_exc_sup_sign<p_val) & (pval_sacc_anti_exc_sup_sign<p_val) & ~indx_exc_sacc_anti);  indx_anti_only_sacc_sup_omv = ~(pval_sacc_pro_exc_sup_sign<p_val) & (pval_sacc_anti_exc_sup_sign<p_val) & ~indx_exc_sacc_anti;
+pro_anti_sacc_exc_omv = sum(pval_sacc_pro_exc_sup_sign<p_val & (pval_sacc_anti_exc_sup_sign<p_val) & indx_exc_sacc_pro & ~indx_sup_sacc_anti);  indx_pro_anti_sacc_exc_omv = pval_sacc_pro_exc_sup_sign<p_val & (pval_sacc_anti_exc_sup_sign<p_val) & indx_exc_sacc_pro & ~indx_sup_sacc_anti; 
+pro_anti_sacc_sup_omv = sum(pval_sacc_pro_exc_sup_sign<p_val & (pval_sacc_anti_exc_sup_sign<p_val) & ~indx_exc_sacc_pro & indx_sup_sacc_anti);  indx_pro_anti_sacc_sup_omv = pval_sacc_pro_exc_sup_sign<p_val & (pval_sacc_anti_exc_sup_sign<p_val) & ~indx_exc_sacc_pro & indx_sup_sacc_anti;   
 
 
 % pro_sacc_instrDir_omv = sum(indx_sign_saccVSinstrDir_nspk_pro & ~indx_sign_saccVSinstrDir_nspk_anti)
