@@ -49,6 +49,7 @@ prs.min_trial = 10; % min amount of trials to have to extract a cell
  
 % Windows - Make them the same size to make fair comparisons. 
 prs.baseline_win = [-0.3 -0.150];  % before saccade onset
+prs.instr_back = [-0.299 0.001]; % for instruction period comparison, t(1) to instr direction.  
 prs.baseline_instr = [-0.450 -0.05];   % [-0.5 0]
 prs.instruction_win = [0.049 0.201];  % aligned to trial onset
 % prs.saccade_win = [-0.101 0.201];   % aligned to saccade << default
