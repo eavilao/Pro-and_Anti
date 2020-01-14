@@ -49,9 +49,9 @@ prs.min_trial = 10; % min amount of trials to have to extract a cell
  
 % Windows - Make them the same size to make fair comparisons. 
 prs.baseline_win = [-0.3 -0.150];  % before saccade onset
-prs.instr_back = [-0.299 0.001]; % for instruction period comparison, t(1) to instr direction.  
+prs.instr_back = [-0.301 0.001]; % for instruction period comparison, t(1) to instr direction.  
 prs.baseline_instr = [-0.450 -0.05];   % [-0.5 0]
-prs.instruction_win = [0.049 0.201];  % aligned to trial onset
+prs.instruction_win = [0.049 0.301]; % [0.049 0.201];  % aligned to trial onset
 % prs.saccade_win = [-0.101 0.201];   % aligned to saccade << default
 prs.saccade_win = [0 0.151]; %[0.1 0.201];   %[-0.050 0.150];
 prs.presaccade_win = [-0.149 0]; 
@@ -74,7 +74,7 @@ prs.timepoints_sacc = -0.8:prs.binwidth:0.3;
 prs.timepoints_instrDir = -0.5:prs.binwidth:0.6;
 
 % smoothing window for psth
-prs.tsmooth = 0.050;
+prs.tsmooth = 0.025;
 
 % probability of spk in pron and anti - bigger window (5 bins = 50 ms)
 prs.win_size = 5; % num of bins to take in window. 1 bin = 10 ms

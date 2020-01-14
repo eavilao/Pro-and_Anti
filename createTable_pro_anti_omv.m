@@ -77,12 +77,16 @@ pro_anti_sacc_exc_omv = sum(pval_sacc_pro_exc_sup_sign<p_val & (pval_sacc_anti_e
 pro_anti_sacc_sup_omv = sum(pval_sacc_pro_exc_sup_sign<p_val & (pval_sacc_anti_exc_sup_sign<p_val) & ~indx_exc_sacc_pro & indx_sup_sacc_anti);  indx_pro_anti_sacc_sup_omv = pval_sacc_pro_exc_sup_sign<p_val & (pval_sacc_anti_exc_sup_sign<p_val) & ~indx_exc_sacc_pro & indx_sup_sacc_anti;   
 both_anti_exc_sup_omv = sum(pval_sacc_pro_exc_sup_sign<p_val & (pval_sacc_anti_exc_sup_sign<p_val) & indx_exc_sacc_pro & indx_sup_sacc_anti);
 
-selected.sacc.pro_exc = indx_vermis(indx_pro_only_sacc_exc_omv); 
-selected.sacc.pro_sup = indx_vermis(indx_pro_only_sacc_sup_omv); 
-selected.sacc.anti_exc = indx_vermis(indx_anti_only_sacc_exc_omv);
-selected.sacc.anti_sup = indx_vermis(indx_anti_only_sacc_sup_omv);
-selected.sacc.both_exc = indx_vermis(indx_pro_anti_sacc_exc_omv);
-selected.sacc.both_sup = indx_vermis(indx_pro_anti_sacc_sup_omv);
+selected.sacc.pro.exc = indx_vermis(indx_pro_only_sacc_exc_omv); 
+selected.sacc.pro.sup = indx_vermis(indx_pro_only_sacc_sup_omv); 
+selected.sacc.anti.exc = indx_vermis(indx_anti_only_sacc_exc_omv);
+selected.sacc.anti.sup = indx_vermis(indx_anti_only_sacc_sup_omv);
+selected.sacc.both.exc = indx_vermis(indx_pro_anti_sacc_exc_omv);
+selected.sacc.both.sup = indx_vermis(indx_pro_anti_sacc_sup_omv);
+selected.sacc.all.pro.exc = indx_vermis(pval_sacc_pro_exc_sup_sign<p_val & ~indx_sup_sacc_pro); 
+selected.sacc.all.anti.exc = indx_vermis(pval_sacc_anti_exc_sup_sign<p_val & ~indx_sup_sacc_anti); 
+selected.sacc.all.pro.sup = indx_vermis(pval_sacc_pro_exc_sup_sign<p_val & ~indx_exc_sacc_pro); 
+selected.sacc.all.anti.sup = indx_vermis(pval_sacc_anti_exc_sup_sign<p_val & ~indx_exc_sacc_anti);
 
 
 %% instruction too
@@ -93,12 +97,29 @@ instr_anti_only_sacc_sup_omv = sum(indx_anti_only_sacc_sup_omv & indx_instr_back
 instr_pro_anti_sacc_exc_omv = sum(indx_pro_anti_sacc_exc_omv & indx_instr_back_pro & indx_instr_back_anti);
 instr_pro_anti_sacc_sup_omv = sum(indx_pro_anti_sacc_sup_omv & indx_instr_back_pro & indx_instr_back_anti);
 
-selected.instr.pro_exc = indx_vermis(indx_pro_only_sacc_exc_omv & indx_instr_back_pro); 
-selected.instr.pro_sup = indx_vermis(indx_pro_only_sacc_sup_omv & indx_instr_back_pro); 
-selected.instr.anti_exc = indx_vermis(indx_anti_only_sacc_exc_omv & indx_instr_back_anti);
-selected.instr.anti_sup = indx_vermis(indx_anti_only_sacc_sup_omv & indx_instr_back_anti);
-selected.instr.both_exc = indx_vermis(indx_pro_anti_sacc_exc_omv & indx_instr_back_pro & indx_instr_back_anti);
-selected.instr.both_sup = indx_vermis(indx_pro_anti_sacc_sup_omv & indx_instr_back_pro & indx_instr_back_anti);
+selected.instr_back.pro.exc = indx_vermis(indx_pro_only_sacc_exc_omv & indx_instr_back_pro); 
+selected.instr_back.pro.sup = indx_vermis(indx_pro_only_sacc_sup_omv & indx_instr_back_pro); 
+selected.instr_back.anti.exc = indx_vermis(indx_anti_only_sacc_exc_omv & indx_instr_back_anti);
+selected.instr_back.anti.sup = indx_vermis(indx_anti_only_sacc_sup_omv & indx_instr_back_anti);
+selected.instr_back.both.exc = indx_vermis(indx_pro_anti_sacc_exc_omv & indx_instr_back_pro & indx_instr_back_anti);
+selected.instr_back.both.sup = indx_vermis(indx_pro_anti_sacc_sup_omv & indx_instr_back_pro & indx_instr_back_anti);
+selected.instr_back.all.pro.exc = indx_vermis(pval_sacc_pro_exc_sup_sign<p_val & ~indx_sup_sacc_pro & indx_instr_back_pro);
+selected.instr_back.all.anti.exc = indx_vermis(pval_sacc_anti_exc_sup_sign<p_val & ~indx_sup_sacc_anti & indx_instr_back_anti);
+selected.instr_back.all.pro.sup = indx_vermis(pval_sacc_pro_exc_sup_sign<p_val & ~indx_exc_sacc_pro & indx_instr_back_pro); 
+selected.instr_back.all.anti.sup = indx_vermis(pval_sacc_anti_exc_sup_sign<p_val & ~indx_exc_sacc_anti & indx_instr_back_anti);
+
+
+selected.instr.pro.exc = indx_vermis(indx_pro_only_sacc_exc_omv & indx_instr_pro); 
+selected.instr.pro.sup = indx_vermis(indx_pro_only_sacc_sup_omv & indx_instr_pro); 
+selected.instr.anti.exc = indx_vermis(indx_anti_only_sacc_exc_omv & indx_instr_anti);
+selected.instr.anti.sup = indx_vermis(indx_anti_only_sacc_sup_omv & indx_instr_anti);
+selected.instr.both.exc = indx_vermis(indx_pro_anti_sacc_exc_omv & indx_instr_pro & indx_instr_anti);
+selected.instr.both.sup = indx_vermis(indx_pro_anti_sacc_sup_omv & indx_instr_pro & indx_instr_anti);
+selected.instr.all.pro.exc = indx_vermis(pval_sacc_pro_exc_sup_sign<p_val & ~indx_sup_sacc_pro & indx_instr_pro);
+selected.instr.all.anti.exc = indx_vermis(pval_sacc_anti_exc_sup_sign<p_val & ~indx_sup_sacc_anti & indx_instr_anti);
+selected.instr.all.pro.sup = indx_vermis(pval_sacc_pro_exc_sup_sign<p_val & ~indx_exc_sacc_pro & indx_instr_pro); 
+selected.instr.all.anti.sup = indx_vermis(pval_sacc_anti_exc_sup_sign<p_val & ~indx_exc_sacc_anti & indx_instr_anti);
+
 
 indx_vermis(~indx_pro_only_sacc_exc_omv & ~indx_pro_only_sacc_sup_omv & ~indx_anti_only_sacc_exc_omv & ~indx_anti_only_sacc_sup_omv & ~indx_pro_anti_sacc_exc_omv & ~indx_pro_anti_sacc_sup_omv & indx_instr_pro & indx_instr_anti);
 %% 
