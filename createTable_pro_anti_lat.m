@@ -9,7 +9,7 @@ total_lateral = length(indx_lateral); %%%%%%%%%%%%% to table
 
 for i=1:length(indx_lateral)
 indx_sign_sacc(i)= units(indx_lateral(i)).stats.sacc.flags.proVsAnti_sacc_ks_nspk; 
-indx_sign_instr(i)= units(indx_lateral(i)).stats.instr.flags.proVsAnti_instr_ks_nspk; 
+indx_sign_instr(i)= units(indx_lateral(i)).stats.instr_back.flags.proVsAnti_instr_ks_nspk; 
 indx_sign_sacc_base_pro(i)= units(indx_lateral(i)).stats.pro.flags.saccVSbase_nspk; 
 indx_sign_instr_base_pro(i)= units(indx_lateral(i)).stats.pro.flags.instrVSbase_nspk;
 indx_sign_sacc_base_anti(i)= units(indx_lateral(i)).stats.anti.flags.saccVSbase_nspk;
@@ -84,6 +84,11 @@ selected.sacc.all.pro.exc = indx_lateral(pval_sacc_pro_exc_sup_sign<p_val & ~ind
 selected.sacc.all.anti.exc = indx_lateral(pval_sacc_anti_exc_sup_sign<p_val & ~indx_sup_sacc_anti); 
 selected.sacc.all.pro.sup = indx_lateral(pval_sacc_pro_exc_sup_sign<p_val & ~indx_exc_sacc_pro); 
 selected.sacc.all.anti.sup = indx_lateral(pval_sacc_anti_exc_sup_sign<p_val & ~indx_exc_sacc_anti);
+selected.sacc.all.exc = indx_lateral(indx_pro_only_sacc_exc_lat | indx_anti_only_sacc_exc_lat | indx_pro_anti_sacc_exc_lat | indx_mixed);
+selected.sacc.all.sup = indx_lateral(indx_pro_only_sacc_sup_lat | indx_anti_only_sacc_sup_lat | indx_pro_anti_sacc_sup_lat | indx_mixed);
+selected.sacc.all.exc_signif = indx_lateral((indx_pro_only_sacc_exc_lat | indx_anti_only_sacc_exc_lat | indx_pro_anti_sacc_exc_lat | indx_mixed) & indx_sign_sacc);
+selected.sacc.all.sup_signif = indx_lateral((indx_pro_only_sacc_sup_lat | indx_anti_only_sacc_sup_lat | indx_pro_anti_sacc_sup_lat | indx_mixed) & indx_sign_sacc);
+selected.sacc.all.sacc_signif = indx_lateral(indx_sign_sacc);
 
 %% instruction too
 instr_pro_only_sacc_exc_lat = sum(indx_pro_only_sacc_exc_lat & indx_instr_back_pro); 
@@ -105,6 +110,12 @@ selected.instr_back.all.pro.exc = indx_lateral(pval_sacc_pro_exc_sup_sign<p_val 
 selected.instr_back.all.anti.exc = indx_lateral(pval_sacc_anti_exc_sup_sign<p_val & ~indx_sup_sacc_anti & indx_instr_back_anti);
 selected.instr_back.all.pro.sup = indx_lateral(pval_sacc_pro_exc_sup_sign<p_val & ~indx_exc_sacc_pro & indx_instr_back_pro); 
 selected.instr_back.all.anti.sup = indx_lateral(pval_sacc_anti_exc_sup_sign<p_val & ~indx_exc_sacc_anti & indx_instr_back_anti);
+selected.instr_back.all.exc = indx_lateral(indx_pro_only_sacc_exc_lat & indx_instr_back_pro | indx_anti_only_sacc_exc_lat & indx_instr_back_anti | indx_pro_anti_sacc_exc_lat & indx_instr_back_pro & indx_instr_back_anti);
+selected.instr_back.all.sup = indx_lateral(indx_pro_only_sacc_sup_lat & indx_instr_back_pro | indx_anti_only_sacc_sup_lat & indx_instr_back_anti | indx_pro_anti_sacc_sup_lat & indx_instr_back_pro & indx_instr_back_anti);
+selected.instr_back.all.exc_signif = indx_lateral((indx_pro_only_sacc_exc_lat & indx_instr_back_pro | indx_anti_only_sacc_exc_lat & indx_instr_back_anti | indx_pro_anti_sacc_exc_lat & indx_instr_back_pro & indx_instr_back_anti) & indx_sign_instr);
+selected.instr_back.all.sup_signif = indx_lateral((indx_pro_only_sacc_sup_lat & indx_instr_back_pro | indx_anti_only_sacc_sup_lat & indx_instr_back_anti | indx_pro_anti_sacc_sup_lat & indx_instr_back_pro & indx_instr_back_anti) & indx_sign_instr);
+
+% ADD MIXED TO INSTRUCTION
 
 selected.instr.pro.exc = indx_lateral(indx_pro_only_sacc_exc_lat & indx_instr_pro); 
 selected.instr.pro.sup = indx_lateral(indx_pro_only_sacc_sup_lat & indx_instr_pro); 

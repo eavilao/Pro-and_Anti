@@ -53,8 +53,8 @@ prs.instr_back = [-0.301 0.001]; % for instruction period comparison, t(1) to in
 prs.baseline_instr = [-0.450 -0.05];   % [-0.5 0]
 prs.instruction_win = [0.049 0.301]; % [0.049 0.201];  % aligned to trial onset
 % prs.saccade_win = [-0.101 0.201];   % aligned to saccade << default
-prs.saccade_win = [0 0.151]; %[0.1 0.201];   %[-0.050 0.150];
-prs.presaccade_win = [-0.149 0]; 
+prs.saccade_win = [0 0.151]; %[0 0.151];
+prs.presaccade_win = [-0.150 0]; % [-0.150 0]; 
 prs.instr_dir = [0 0.1]; % from instruction direction until go cue
 prs.go_cue = [0.101 0.201]; % from instruction direction onset. 
 prs.eye_win_sacc = [-0.5 0.5];
@@ -70,7 +70,7 @@ prs.antiConditions = [ 2 16 7 6 12 3 13 9 ];
  
 prs.binwidth = 0.01;
 prs.timepoints_instr = -2:prs.binwidth:1;
-prs.timepoints_sacc = -0.8:prs.binwidth:0.3;
+prs.timepoints_sacc = -0.8:prs.binwidth:0.6;  % ORIGINAL prs.timepoints_sacc = -0.8:prs.binwidth:0.3;
 prs.timepoints_instrDir = -0.5:prs.binwidth:0.6;
 
 % smoothing window for psth

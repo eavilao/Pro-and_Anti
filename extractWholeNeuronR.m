@@ -272,19 +272,26 @@ for cellNum = 1:length(units)
         units(cellNum).pro.neural.instr.pbDist(1,i)= sum(units(cellNum).pro.neural.instr.spkCount(:,i))/length(correctProTrials); % compute probability of spk instr onset
         units(cellNum).pro.neural.instr.pbDist_sem = sqrt(units(cellNum).pro.neural.instr.pbDist(1,i)*(1-units(cellNum).pro.neural.instr.pbDist(1,i))/length(correctProTrials));
     end
+    
+    for i=1:length(units(cellNum).pro.neural.instr_back.spkCount(1,:))
+        % instr aligned
+        units(cellNum).pro.neural.instr_back.pbDist(1,i)= sum(units(cellNum).pro.neural.instr_back.spkCount(:,i))/length(correctProTrials); % compute probability of spk instr onset
+        units(cellNum).pro.neural.instr_back.pbDist_sem = sqrt(units(cellNum).pro.neural.instr_back.pbDist(1,i)*(1-units(cellNum).pro.neural.instr_back.pbDist(1,i))/length(correctProTrials));
+    end
+    
     for i=1:length(units(cellNum).pro.neural.sacc.spkCount(1,:))
         % sacc aligned
         units(cellNum).pro.neural.sacc.pbDist(1,i)= sum(units(cellNum).pro.neural.sacc.spkCount(:,i))/length(correctProTrials); % compute probability of spk sacc aligned
         units(cellNum).pro.neural.sacc.pbDist_sem = sqrt(units(cellNum).pro.neural.sacc.pbDist(1,i)*(1-units(cellNum).pro.neural.sacc.pbDist(1,i))/length(correctProTrials));
     end
-    for i = 1:length(units(cellNum).pro.neural.instrDir.spkCount(1,:))
-        units(cellNum).pro.neural.instrDir.pbDist(1,i)= sum(units(cellNum).pro.neural.instrDir.spkCount(:,i))/length(correctProTrials); % compute probability of spk instr onset
-        units(cellNum).pro.neural.instrDir.pbDist_sem = sqrt(units(cellNum).pro.neural.instrDir.pbDist(1,i)*(1-units(cellNum).pro.neural.instrDir.pbDist(1,i))/length(correctProTrials));
-    
-        units(cellNum).pro.neural.instr_back.pbDist(1,i)= sum(units(cellNum).pro.neural.instr_back.spkCount(:,i))/length(correctProTrials); % compute probability of spk instr onset
-        units(cellNum).pro.neural.instr_back.pbDist_sem = sqrt(units(cellNum).pro.neural.instr_back.pbDist(1,i)*(1-units(cellNum).pro.neural.instr_back.pbDist(1,i))/length(correctProTrials));
-    
-    end
+%     for i = 1:length(units(cellNum).pro.neural.instrDir.spkCount(1,:))
+%         units(cellNum).pro.neural.instrDir.pbDist(1,i)= sum(units(cellNum).pro.neural.instrDir.spkCount(:,i))/length(correctProTrials); % compute probability of spk instr onset
+%         units(cellNum).pro.neural.instrDir.pbDist_sem = sqrt(units(cellNum).pro.neural.instrDir.pbDist(1,i)*(1-units(cellNum).pro.neural.instrDir.pbDist(1,i))/length(correctProTrials));
+%     
+%         units(cellNum).pro.neural.instr_back.pbDist(1,i)= sum(units(cellNum).pro.neural.instr_back.spkCount(:,i))/length(correctProTrials); % compute probability of spk instr onset
+%         units(cellNum).pro.neural.instr_back.pbDist_sem = sqrt(units(cellNum).pro.neural.instr_back.pbDist(1,i)*(1-units(cellNum).pro.neural.instr_back.pbDist(1,i))/length(correctProTrials));
+%     
+%     end
     
     % anti trials
     correctAntiTrials = units(cellNum).anti.indx_correctAntiTrials;
@@ -305,6 +312,12 @@ for cellNum = 1:length(units)
         % instr aligned
         units(cellNum).anti.neural.instr.pbDist(1,i)= sum(units(cellNum).anti.neural.instr.spkCount(:,i))/length(correctAntiTrials); % compute probability of spk instr onset
         units(cellNum).anti.neural.instr.pbDist_sem = sqrt(units(cellNum).pro.neural.instr.pbDist(1,i)*(1-units(cellNum).anti.neural.instr.pbDist(1,i))/length(correctAntiTrials));
+    end
+    
+     for i=1:length(units(cellNum).anti.neural.instr_back.spkCount(1,:))
+        % instr aligned
+        units(cellNum).anti.neural.instr_back.pbDist(1,i)= sum(units(cellNum).anti.neural.instr_back.spkCount(:,i))/length(correctAntiTrials); % compute probability of spk instr onset
+        units(cellNum).anti.neural.instr_back.pbDist_sem = sqrt(units(cellNum).anti.neural.instr_back.pbDist(1,i)*(1-units(cellNum).anti.neural.instr_back.pbDist(1,i))/length(correctAntiTrials));
     end
         
      for i=1:length(units(cellNum).anti.neural.sacc.spkCount(1,:))
@@ -346,7 +359,7 @@ for cellNum = 1:length(units)
         
         %% align to instr dir 
         analyse_instrDir_align = 1;
-        [~,units(cellNum).pro.neural.sacc.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_instrDir,prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
+        [~,units(cellNum).pro.neural.instr_dir.nspkCount(trialNum,:),~] = Spiketimes2RateTrial(units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_instrDir,prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
         
         % win
         tspk_instrDir = units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_instrDir>prs.instr_dir(1) & units(cellNum).pro.neural.trial(trialNum).tspk_SS_align_instrDir<prs.instr_dir(2);
@@ -1012,13 +1025,24 @@ for cellNum = 1:length(units)
     ntrls_anti = length(correctAntiTrials);
     
     % instr
-    for i=1:length(units(cellNum).pro.neural.instr_back.spkCount(1,:))
+    for i=1:length(units(cellNum).pro.neural.instr.spkCount(1,:))
         p=(ntrls_pro*units(cellNum).pro.neural.instr.pbDist(i)+ntrls_anti*units(cellNum).anti.neural.instr.pbDist(i))/(ntrls_pro+ntrls_anti);
         units(cellNum).stats.instr.pval.pbDist_testStat(i) = (units(cellNum).pro.neural.instr.pbDist(1,i)-units(cellNum).anti.neural.instr.pbDist(1,i))/(sqrt(p*(1-p)*(1/ntrls_pro + 1/ntrls_anti)));
         if units(cellNum).stats.instr.pval.pbDist_testStat(i) > prs.signif_criteria | units(cellNum).stats.instr.pval.pbDist_testStat(i) < -prs.signif_criteria
             units(cellNum).stats.instr.flags.pbDist(i) = 1;
         else
             units(cellNum).stats.instr.flags.pbDist(i) = 0;
+        end
+    end
+    
+     % instr back
+    for i=1:length(units(cellNum).pro.neural.instr_back.spkCount(1,:))
+        p=(ntrls_pro*units(cellNum).pro.neural.instr_back.pbDist(i)+ntrls_anti*units(cellNum).anti.neural.instr_back.pbDist(i))/(ntrls_pro+ntrls_anti);
+        units(cellNum).stats.instr_back.pval.pbDist_testStat(i) = (units(cellNum).pro.neural.instr_back.pbDist(1,i)-units(cellNum).anti.neural.instr_back.pbDist(1,i))/(sqrt(p*(1-p)*(1/ntrls_pro + 1/ntrls_anti)));
+        if units(cellNum).stats.instr_back.pval.pbDist_testStat(i) > prs.signif_criteria | units(cellNum).stats.instr_back.pval.pbDist_testStat(i) < -prs.signif_criteria
+            units(cellNum).stats.instr_back.flags.pbDist(i) = 1;
+        else
+            units(cellNum).stats.instr_back.flags.pbDist(i) = 0;
         end
     end
     
