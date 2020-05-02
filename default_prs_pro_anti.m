@@ -70,7 +70,7 @@ prs.antiConditions = [ 2 16 7 6 12 3 13 9 ];
  
 prs.binwidth = 0.01;
 prs.timepoints_instr = -2:prs.binwidth:1;
-prs.timepoints_sacc = -0.8:prs.binwidth:0.6;  % ORIGINAL prs.timepoints_sacc = -0.8:prs.binwidth:0.3;
+prs.timepoints_sacc = -0.8:prs.binwidth:0.3;  % -0.8:prs.binwidth:0.6;  % ORIGINAL prs.timepoints_sacc = -0.8:prs.binwidth:0.3;
 prs.timepoints_instrDir = -0.5:prs.binwidth:0.6;
 
 % smoothing window for psth

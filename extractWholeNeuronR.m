@@ -1169,7 +1169,7 @@ end
 
 
 
-%% Compute comparison of FR for all neurons using nspk instr
+%% Compute comparison of FR for all neurons using nspk instr (this doesnt make sense, it needs to be divided by area)
 spks_pro = []; spks_anti = []; 
 for cellNum = 1:length(units)
     spks_pro = [spks_pro ; units(cellNum).pro.neural.instr.nspk];
@@ -1380,8 +1380,78 @@ for cellNum = 1:length(units)
     
 end
 
-%% Select neurons
-
+%%
 pop.indx_sel.vermis = createTable_pro_anti_omv(units); 
 pop.indx_sel.lateral = createTable_pro_anti_lat(units); 
+
+%% Compute kstest on pro vs anti on all exc and sup neurons
+% r_exc_pro = []; r_sup_pro = [];  r_exc_anti = []; r_sup_anti = [];
+% 
+% cnt_exc=1; cnt_sup=1;
+% for cellNum = 1:length(units)
+%     if strcmp(units(cellNum).area, 'vermis') && units(cellNum).pro.neural.exc==1
+%         indx_exc(cnt_exc) = cellNum; cnt_exc=cnt_exc+1;
+%     elseif strcmp(units(cellNum).area,  'vermis') && units(cellNum).pro.neural.sup==1
+%         indx_sup(cnt_sup) = cellNum; cnt_sup=cnt_sup+1;
+%     end
+% end
+% 
+% for i = 1:length(indx_exc_pro), r_exc_pro = [r_exc_pro; units(indx_exc_pro(i)).pro.neural.sacc.nspk]; end
+% for i = 1:length(indx_sup_pro), r_sup_pro = [r_sup_pro; units(indx_sup_pro(i)).pro.neural.sacc.nspk]; end
+% for i = 1:length(indx_exc_anti), r_exc_anti = [r_exc_anti; units(indx_exc_anti(i)).anti.neural.sacc.nspk]; end
+% for i = 1:length(indx_sup_anti), r_sup_anti = [r_sup_anti; units(indx_sup_anti(i)).anti.neural.sacc.nspk]; end
+% 
+% [pop.stats.sacc.vermis.pro_anti_exc.flag, pop.stats.sacc.vermis.pro_anti_exc.pVal] = kstest2(r_exc_pro, r_exc_anti); 
+% [pop.stats.sacc.vermis.pro_anti_sup.flag, pop.stats.sacc.vermis.pro_anti_sup.pVal] = kstest2(r_sup_pro, r_sup_anti); 
+% 
+% % lateral
+% cnt_exc=1; cnt_sup=1;
+% for cellNum = 1:length(units)
+%     if strcmp(units(cellNum).area, 'lateral') && units(cellNum).pro.neural.exc==1
+%         indx_exc(cnt_exc) = cellNum; cnt_exc=cnt_exc+1;
+%     elseif strcmp(units(cellNum).area,  'lateral') && units(cellNum).pro.neural.sup==1
+%         indx_sup(cnt_sup) = cellNum; cnt_sup=cnt_sup+1;
+%     end
+% end
+% 
+% for i = 1:length(indx_exc_pro), r_exc_pro = [r_exc_pro; units(indx_exc_pro(i)).pro.neural.sacc.nspk]; end
+% for i = 1:length(indx_sup_pro), r_sup_pro = [r_sup_pro; units(indx_sup_pro(i)).pro.neural.sacc.nspk]; end
+% for i = 1:length(indx_exc_anti), r_exc_anti = [r_exc_anti; units(indx_exc_anti(i)).anti.neural.sacc.nspk]; end
+% for i = 1:length(indx_sup_anti), r_sup_anti = [r_sup_anti; units(indx_sup_anti(i)).anti.neural.sacc.nspk]; end
+% 
+% [pop.stats.sacc.lateral.pro_anti_exc.flag, pop.stats.sacc.lateral.pro_anti_exc.pVal] = kstest2(r_exc_pro, r_exc_anti); 
+% [pop.stats.sacc.lateral.pro_anti_sup.flag, pop.stats.sacc.lateral.pro_anti_sup.pVal] = kstest2(r_sup_pro, r_sup_anti); 
+
+%% Compute kstest on pro vs anti on selected neurons
+r_exc_pro = []; r_sup_pro = [];  r_exc_anti = []; r_sup_anti = [];
+
+% vermis
+indx_exc_pro = pop.indx_sel.vermis.sacc.all.pro.exc;
+indx_sup_pro = pop.indx_sel.vermis.sacc.all.pro.sup;
+indx_exc_anti = pop.indx_sel.vermis.sacc.all.anti.exc;
+indx_sup_anti = pop.indx_sel.vermis.sacc.all.anti.sup;
+
+for i = 1:length(indx_exc_pro), r_exc_pro = [r_exc_pro; units(indx_exc_pro(i)).pro.neural.sacc.nspk]; end
+for i = 1:length(indx_sup_pro), r_sup_pro = [r_sup_pro; units(indx_sup_pro(i)).pro.neural.sacc.nspk]; end
+for i = 1:length(indx_exc_anti), r_exc_anti = [r_exc_anti; units(indx_exc_anti(i)).anti.neural.sacc.nspk]; end
+for i = 1:length(indx_sup_anti), r_sup_anti = [r_sup_anti; units(indx_sup_anti(i)).anti.neural.sacc.nspk]; end
+
+[pop.stats.sacc.vermis.pro_anti_exc_sel.flag, pop.stats.sacc.vermis.pro_anti_exc_sel.pVal] = kstest2(r_exc_pro, r_exc_anti); 
+[pop.stats.sacc.vermis.pro_anti_sup_sel.flag, pop.stats.sacc.vermis.pro_anti_sup_sel.pVal] = kstest2(r_sup_pro, r_sup_anti); 
+
+% lateral
+r_exc_pro = []; r_sup_pro = [];  r_exc_anti = []; r_sup_anti = [];
+indx_exc_pro = pop.indx_sel.lateral.sacc.all.pro.exc;
+indx_sup_pro = pop.indx_sel.lateral.sacc.all.pro.sup;
+indx_exc_anti = pop.indx_sel.lateral.sacc.all.anti.exc;
+indx_sup_anti = pop.indx_sel.lateral.sacc.all.anti.sup;
+
+for i = 1:length(indx_exc_pro), r_exc_pro = [r_exc_pro; units(indx_exc_pro(i)).pro.neural.sacc.nspk]; end
+for i = 1:length(indx_sup_pro), r_sup_pro = [r_sup_pro; units(indx_sup_pro(i)).pro.neural.sacc.nspk]; end
+for i = 1:length(indx_exc_anti), r_exc_anti = [r_exc_anti; units(indx_exc_anti(i)).anti.neural.sacc.nspk]; end
+for i = 1:length(indx_sup_anti), r_sup_anti = [r_sup_anti; units(indx_sup_anti(i)).anti.neural.sacc.nspk]; end
+
+[pop.stats.sacc.lateral.pro_anti_exc_sel.flag, pop.stats.sacc.lateral.pro_anti_exc_sel.pVal] = kstest2(r_exc_pro, r_exc_anti); 
+[pop.stats.sacc.lateral.pro_anti_sup_sel.flag, pop.stats.sacc.lateral.pro_anti_sup_sel.pVal] = kstest2(r_sup_pro, r_sup_anti); 
+
 

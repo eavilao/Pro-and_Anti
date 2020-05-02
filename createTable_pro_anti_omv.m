@@ -9,6 +9,7 @@ end
 indx_vermis = find(indx_area);
 total_vermis = length(indx_vermis); %%%%%%%%%%%%% to table
 
+
 % how many significant diff for pro vs anti and base vs windows
 
 for i=1:length(indx_vermis)
@@ -228,16 +229,26 @@ end
 pro_mu = nanmean(r_pro); pro_std = nanstd(r_pro);
 anti_mu = nanmean(r_anti); anti_std = nanstd(r_anti);
 
+
 %% lateral 
-% lat = units(indx_lateral);
-% clear r_pro r_anti
-% %get fr for all neurons
-% for i = 1:length(lat)
-%     r_pro(i) = lat(i).pro.neural.sacc.rate_mu; 
-%     r_anti(i) = lat(i).anti.neural.sacc.rate_mu;
-% end 
-% pro_mu = nanmean(r_pro); pro_std = nanstd(r_pro);
-% anti_mu = nanmean(r_anti); anti_std = nanstd(r_anti);
+clear indx_area
+for cellNum = 1:length(units)
+    indx_area(cellNum) = strcmp(units(cellNum).area, 'lateral');
+end
+indx_lateral = find(indx_area);
+total_lateral = length(indx_lateral); %%%%%%%%%%%%% to table
+
+lat = units(indx_lateral);
+clear r_pro r_anti
+%get fr for all neurons
+for i = 1:length(lat)
+    r_pro(i) = lat(i).pro.neural.sacc.rate_mu; 
+    r_anti(i) = lat(i).anti.neural.sacc.rate_mu;
+end 
+pro_mu = nanmean(r_pro); pro_std = nanstd(r_pro);
+anti_mu = nanmean(r_anti); anti_std = nanstd(r_anti);
+
+z=1; 
 
 %% Plot
 % 

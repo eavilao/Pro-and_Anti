@@ -51,7 +51,7 @@ for cellNum = 1:length(indx_area)
     instr(cellNum).units_t_hist.nspk_1_min2 = []; instr(cellNum).units_t_hist.nspk_2_min2 = []; instr(cellNum).units_t_hist.nspk_3_min2 = []; instr(cellNum).units_t_hist.nspk_4_min2 = [];
     instr(cellNum).units_t_hist.nspk_5_min2 = []; instr(cellNum).units_t_hist.nspk_6_min2 = []; instr(cellNum).units_t_hist.nspk_7_min2 = []; instr(cellNum).units_t_hist.nspk_8_min2 = [];
     
-    instr(cellNum).units_t_hist.rate_pst = NaN(8,301); instr(cellNum).units_t_hist.rate_pst_min1 = NaN(8,301); instr(cellNum).units_t_hist.rate_pst_min2 = NaN(8,301); 
+    instr(cellNum).units_t_hist.rate_pst = NaN(8,111); instr(cellNum).units_t_hist.rate_pst_min1 = NaN(8,111); instr(cellNum).units_t_hist.rate_pst_min2 = NaN(8,111); 
     
     % sacc
     sacc(cellNum).units_t_hist.nspk_1 = []; sacc(cellNum).units_t_hist.nspk_2 = []; sacc(cellNum).units_t_hist.nspk_3 = []; sacc(cellNum).units_t_hist.nspk_4 = [];
@@ -88,393 +88,404 @@ for cellNum = 1:length(indx_area)
         if trial_hist(ii) ~= 0
             id = 'SS'; analyse_sacc_align=0;
             cond = trial_hist(ii); instr(cellNum).unique_cond = unique(trial_hist);
-            t_instr = prs.timepoints_instr > prs.instruction_win(1) & prs.timepoints_instr<prs.instruction_win(2); timepoints_instr = prs.timepoints_instr(t_instr);
+            t_instr = prs.timepoints_instrDir > prs.instr_back(1) & prs.timepoints_instrDir < prs.instr_back(2); timepoints_instr = prs.timepoints_instrDir(t_instr);
             t_sacc = prs.timepoints_sacc > prs.saccade_win(1) & prs.timepoints_sacc<prs.saccade_win(2); timepoints_sacc = prs.timepoints_sacc(t_sacc);
             
             %%
             if cond == 1
                 % instr
                 clear cond_trl
+                analyse_instrDir_align=1;
                 %nspk
                 cond_trl = find(trial_hist==cond); if length(cond_trl) < 9, continue; end
                 
                 for j = 1:length(cond_trl)
-                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS>prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS < prs.instruction_win(2);
-                    t_instr = prs.timepoints_instr > prs.instruction_win(1) & prs.timepoints_instr<prs.instruction_win(2); timepoints_instr = prs.timepoints_instr(t_instr);
-                    tspk_instr_1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir>prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir < prs.instr_back(2);
+                    t_instr = prs.timepoints_instrDir > prs.instr_back(1) & prs.timepoints_instrDir<prs.instr_back(2); timepoints_instr = prs.timepoints_instrDir(t_instr);
+                    tspk_instr_1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min1
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_1_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_1_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_1_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_1_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_1_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_1_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_1_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_1_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_1_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_1_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_1_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_1_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 %psth
-                [instr(cellNum).units_t_hist.rate_pst(cond,:), instr(cellNum).units_t_hist.ts] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+                [instr(cellNum).units_t_hist.rate_pst(cond,:), instr(cellNum).units_t_hist.ts] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to trial onset
                 instr(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
                 
                 % extract n-1 and n-2 trials
-                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
+                analyse_instrDir_align=0;
                 
-                % sacc
+                %% sacc
                 analyse_sacc_align=1;
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.saccade_win(2);
                     t_sacc = prs.timepoints_sacc > prs.saccade_win(1) & prs.timepoints_sacc<prs.saccade_win(2); timepoints_sacc = prs.timepoints_sacc(t_sacc);
                     tspk_sacc_1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min1
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_1_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_1_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_1_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_1_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_1_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_1_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_1_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_1_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_1_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_1_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 %psth
-                [sacc(cellNum).units_t_hist.rate_pst(cond,:), sacc(cellNum).units_t_hist.ts] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+                [sacc(cellNum).units_t_hist.rate_pst(cond,:), sacc(cellNum).units_t_hist.ts] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to trial onset
                 sacc(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
 
                 % extract n-1 and n-2 trials
-                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
                 analyse_sacc_align=0;
                 
                 %%
             elseif cond == 2
                 clear cond_trl
+                analyse_instrDir_align=1;
                 %nspk
                 cond_trl = find(trial_hist==cond); if length(cond_trl) < 9, continue; end
                 
                 for j = 1:length(cond_trl)
-                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS>prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS < prs.instruction_win(2);
-                    t_instr = prs.timepoints_instr > prs.instruction_win(1) & prs.timepoints_instr<prs.instruction_win(2); timepoints_instr = prs.timepoints_instr(t_instr);
-                    tspk_instr_2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir>prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir < prs.instr_back(2);
+                    t_instr = prs.timepoints_instrDir > prs.instr_back(1) & prs.timepoints_instrDir<prs.instr_back(2); timepoints_instr = prs.timepoints_instrDir(t_instr);
+                    tspk_instr_2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min1
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_2_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_2_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_2_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_2_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_2_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_2_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_2_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_2_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_2_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_2_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_2_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_2_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % psth
-                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==2)),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==2)),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
                 
                 % extract n-1 and n-2 trials
-                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
+                analyse_instrDir_align=0;
                 
-                % sacc
+                %% sacc
                 analyse_sacc_align=1;
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.saccade_win(2);
                     t_sacc = prs.timepoints_sacc > prs.saccade_win(1) & prs.timepoints_sacc<prs.saccade_win(2); timepoints_sacc = prs.timepoints_sacc(t_sacc);
                     tspk_sacc_2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min1
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_2_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_2_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_2_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_2_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_2_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_2_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_2_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_2_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_2_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_2_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 %psth
-                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to trial onset
                 sacc(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
 
                 % extract n-1 and n-2 trials
-                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
                 analyse_sacc_align=0;
                 
                 %%
             elseif cond == 3
                 clear cond_trl
+                analyse_instrDir_align=1;
                 % nspk
                 cond_trl = find(trial_hist==cond); if length(cond_trl) < 9, continue; end
                 
                 for j = 1:length(cond_trl)
-                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS>prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS < prs.instruction_win(2);
-                    t_instr = prs.timepoints_instr > prs.instruction_win(1) & prs.timepoints_instr<prs.instruction_win(2); timepoints_instr = prs.timepoints_instr(t_instr);
-                    tspk_instr_3{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_3(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_3{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir>prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir < prs.instr_back(2);
+                    t_instr = prs.timepoints_instrDir > prs.instr_back(1) & prs.timepoints_instrDir<prs.instr_back(2); timepoints_instr = prs.timepoints_instrDir(t_instr);
+                    tspk_instr_3{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_3(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_3{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min1
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_3_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_3_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_3_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_3_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_3_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_3_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_3_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_3_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_3_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_3_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_3_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_3_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % psth
-                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==3)),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==3)),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
                
                 % extract n-1 and n-2 trials
-                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
+                analyse_instrDir_align=0;
                 
-                % sacc
+                %% sacc
                 analyse_sacc_align=1;
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.saccade_win(2);
                     t_sacc = prs.timepoints_sacc > prs.saccade_win(1) & prs.timepoints_sacc<prs.saccade_win(2); timepoints_sacc = prs.timepoints_sacc(t_sacc);
                     tspk_sacc_3{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_3(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_3{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_3(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_3{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min1
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_3_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_3_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_3_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_3_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_3_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_3_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_3_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_3_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_3_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_3_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 
                 %psth
-                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to trial onset
                 sacc(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
 
                 % extract n-1 and n-2 trials
-                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
                 analyse_sacc_align=0;
                 
                 %%
             elseif cond == 4
                 clear cond_trl
+                analyse_instrDir_align=1;
                 %nspk
-                cond_trl = find(trial_hist==cond); if length(cond_trl) < 9, continue; end
+                 cond_trl = find(trial_hist==cond); if length(cond_trl) < 9, continue; end
                 
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS>prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS < prs.instruction_win(2);
-                    t_instr = prs.timepoints_instr > prs.instruction_win(1) & prs.timepoints_instr<prs.instruction_win(2); timepoints_instr = prs.timepoints_instr(t_instr);
-                    tspk_instr_4{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_4(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_4{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir>prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir < prs.instr_back(2);
+                    t_instr = prs.timepoints_instrDir > prs.instr_back(1) & prs.timepoints_instrDir<prs.instr_back(2); timepoints_instr = prs.timepoints_instrDir(t_instr);
+                    tspk_instr_4{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_4(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_4{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min1
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_4_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_4_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_4_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_4_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_4_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_4_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_4_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_4_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_4_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_4_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_4_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_4_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 %psth
-                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==4)),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==4)),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
                 
                 % extract n-1 and n-2 trials
-                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
                 
-                % sacc
+                analyse_instrDir_align=0;
+                
+                %% sacc
                 analyse_sacc_align=1;
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.saccade_win(2);
                     t_sacc = prs.timepoints_sacc > prs.saccade_win(1) & prs.timepoints_sacc<prs.saccade_win(2); timepoints_sacc = prs.timepoints_sacc(t_sacc);
                     tspk_sacc_4{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_4(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_4{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_4(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_4{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min1
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_4_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_4_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_4_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_4_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_4_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_4_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_4_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_4_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_4_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_4_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 %psth
-                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to trial onset
                 sacc(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
 
                 % extract n-1 and n-2 trials
-                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
                 analyse_sacc_align=0;
                 
                 %%
             elseif cond == 5
                 clear cond_trl
+                analyse_instrDir_align=1;
                 % nspk
                 cond_trl = find(trial_hist==cond); if length(cond_trl) < 9, continue; end
                 
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS>prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS < prs.instruction_win(2);
-                    t_instr = prs.timepoints_instr > prs.instruction_win(1) & prs.timepoints_instr<prs.instruction_win(2); timepoints_instr = prs.timepoints_instr(t_instr);
-                    tspk_instr_5{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_5(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_5{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir>prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir < prs.instr_back(2);
+                    t_instr = prs.timepoints_instrDir > prs.instr_back(1) & prs.timepoints_instrDir<prs.instr_back(2); timepoints_instr = prs.timepoints_instrDir(t_instr);
+                    tspk_instr_5{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_5(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_5{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min1
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_5_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_5_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_5_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_5_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_5_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_5_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_5_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_5_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_5_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_5_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_5_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_5_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % psth
-                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
                 
                 % extract n-1 and n-2 trials
-                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
+                analyse_instrDir_align=0;
                 
-                % sacc
+                %% sacc
                 analyse_sacc_align=1;
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.saccade_win(2);
                     t_sacc = prs.timepoints_sacc > prs.saccade_win(1) & prs.timepoints_sacc<prs.saccade_win(2); timepoints_sacc = prs.timepoints_sacc(t_sacc);
                     tspk_sacc_5{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_5(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_5{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_5(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_5{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min1
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_5_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_5_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_5_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_5_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_5_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_5_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_5_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_5_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_5_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_5_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 %psth
-                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to trial onset
                 sacc(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
 
                 % extract n-1 and n-2 trials
-                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
                 
                 analyse_sacc_align=0;
@@ -482,231 +493,237 @@ for cellNum = 1:length(indx_area)
                 %%
             elseif cond == 6
                 clear cond_trl
+                analyse_instrDir_align=1;
                 % nspk
                 cond_trl = find(trial_hist==cond); if length(cond_trl) < 9, continue; end
                 
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS>prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS < prs.instruction_win(2);
-                    t_instr = prs.timepoints_instr > prs.instruction_win(1) & prs.timepoints_instr<prs.instruction_win(2); timepoints_instr = prs.timepoints_instr(t_instr);
-                    tspk_instr_6{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_6(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_6{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir>prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir < prs.instr_back(2);
+                    t_instr = prs.timepoints_instrDir > prs.instr_back(1) & prs.timepoints_instrDir<prs.instr_back(2); timepoints_instr = prs.timepoints_instrDir(t_instr);
+                    tspk_instr_6{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_6(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_6{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min1
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_6_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_6_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_6_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_6_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_6_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_6_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_6_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_6_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_6_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_6_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_6_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_6_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % psth
-                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
                 
                 % extract n-1 and n-2 trials
-                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
+                analyse_instrDir_align=0;
                 
-                 % sacc
+                %% sacc
                 analyse_sacc_align=1;
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.saccade_win(2);
                     t_sacc = prs.timepoints_sacc > prs.saccade_win(1) & prs.timepoints_sacc<prs.saccade_win(2); timepoints_sacc = prs.timepoints_sacc(t_sacc);
                     tspk_sacc_6{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_6(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_6{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_6(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_6{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
 
                  % min1
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_6_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_6_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_6_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_6_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_6_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_6_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_6_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_6_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_6_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_6_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 %psth
-                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to trial onset
                 sacc(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
 
                 % extract n-1 and n-2 trials
-                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
                 analyse_sacc_align=0;
                 
                 %%
             elseif cond == 7
                 clear cond_trl
+                analyse_instrDir_align=1;
                 %nspk
                 cond_trl = find(trial_hist==cond); if length(cond_trl) < 9, continue; end
                 
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS>prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS < prs.instruction_win(2);
-                    t_instr = prs.timepoints_instr > prs.instruction_win(1) & prs.timepoints_instr<prs.instruction_win(2); timepoints_instr = prs.timepoints_instr(t_instr);
-                    tspk_instr_7{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_7(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_7{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir>prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir < prs.instr_back(2);
+                    t_instr = prs.timepoints_instrDir > prs.instr_back(1) & prs.timepoints_instrDir<prs.instr_back(2); timepoints_instr = prs.timepoints_instrDir(t_instr);
+                    tspk_instr_7{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_7(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_7{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                  % min1
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_7_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_7_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_7_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_7_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_7_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_7_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_7_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_7_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_7_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_7_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_7_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_7_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 %psth
-                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
             
                 % extract n-1 and n-2 trials
-                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
+                analyse_instrDir_align=0;
                 
-                 % sacc
+                %% sacc
                 analyse_sacc_align=1;
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.saccade_win(2);
                     t_sacc = prs.timepoints_sacc > prs.saccade_win(1) & prs.timepoints_sacc<prs.saccade_win(2); timepoints_sacc = prs.timepoints_sacc(t_sacc);
                     tspk_sacc_7{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_7(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_7{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_7(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_7{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                  % min1
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_7_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_7_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_7_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_7_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_7_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_7_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_7_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_7_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_7_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_7_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 %psth
-                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to trial onset
                 sacc(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
 
                 % extract n-1 and n-2 trials
-                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
                 analyse_sacc_align=0;
                 
                 %%
             else
                 clear cond_trl
+                analyse_instrDir_align=1;
                 % nspk
                 cond_trl = find(trial_hist==cond); if length(cond_trl) < 9, continue; end
                 
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS>prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS < prs.instruction_win(2);
-                    t_instr = prs.timepoints_instr > prs.instruction_win(1) & prs.timepoints_instr<prs.instruction_win(2); timepoints_instr = prs.timepoints_instr(t_instr);
-                    tspk_instr_8{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_8(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_8{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir>prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir < prs.instr_back(2);
+                    t_instr = prs.timepoints_instrDir > prs.instr_back(1) & prs.timepoints_instrDir<prs.instr_back(2); timepoints_instr = prs.timepoints_instrDir(t_instr);
+                    tspk_instr_8{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_8(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_8{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                  % min1
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_8_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_8_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_8_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_8_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_8_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_8_min1{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_instr
                 for j = 1:length(cond_trl)
-                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS < prs.instruction_win(2);
-                    tspk_instr_8_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS(tspk_instr);
-                    [instr(cellNum).units_t_hist.nspk_8_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_8_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                    tspk_instr= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir > prs.instr_back(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir < prs.instr_back(2);
+                    tspk_instr_8_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_instrDir(tspk_instr);
+                    [instr(cellNum).units_t_hist.nspk_8_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_instr_8_min2{j,:},timepoints_instr,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 %psth
-                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
               
                 % extract n-1 and n-2 trials
-                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instr,prs.binwidth,analyse_sacc_align,id);
+                [instr(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_instrDir,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 instr(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(instr(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
+                analyse_instrDir_align=0;
                 
-                 % sacc
+                %% sacc
                 analyse_sacc_align=1;
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc < prs.saccade_win(2);
                     t_sacc = prs.timepoints_sacc > prs.saccade_win(1) & prs.timepoints_sacc<prs.saccade_win(2); timepoints_sacc = prs.timepoints_sacc(t_sacc);
                     tspk_sacc_8{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_8(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_8{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_8(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_8{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                  % min1
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_8_min1{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-1).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_8_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_8_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_8_min1(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_8_min1{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 % min2
                 clear tspk_sacc
                 for j = 1:length(cond_trl)
-                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.instruction_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.instruction_win(2);
+                    tspk_sacc= units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc > prs.saccade_win(1) & units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc < prs.saccade_win(2);
                     tspk_sacc_8_min2{j,:} = units(indx_area(cellNum)).trial.neural(cond_trl(j)-2).tspk_SS_align_sacc(tspk_sacc);
-                    [sacc(cellNum).units_t_hist.nspk_8_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_8_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                    [sacc(cellNum).units_t_hist.nspk_8_min2(j,:),~,~] = Spiketimes2RateTrial(tspk_sacc_8_min2{j,:},timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 end
                 
                 %psth
-                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id); % aligned to trial onset
+                [sacc(cellNum).units_t_hist.rate_pst(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to trial onset
                 sacc(cellNum).units_t_hist.rate_pst(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst(cond,:),prs.binwidth,prs.tsmooth);
 
                 % extract n-1 and n-2 trials
-                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min1(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-1),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min1(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min1(cond,:),prs.binwidth,prs.tsmooth);
                 
-                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,id);
+                [sacc(cellNum).units_t_hist.rate_pst_min2(cond,:), ~] = Spiketimes2Rate(units(indx_area(cellNum)).trial.neural(find(trial_hist==cond)-2),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id);
                 sacc(cellNum).units_t_hist.rate_pst_min2(cond,:) = smooth_pst(sacc(cellNum).units_t_hist.rate_pst_min2(cond,:),prs.binwidth,prs.tsmooth);
                 analyse_sacc_align=0;
                 
@@ -738,7 +755,7 @@ conds = [nanmean(cond_1_abs)' nanmean(cond_2_abs)' nanmean(cond_3_abs)' nanmean(
  figure; hold on; 
  plot(ts,nanmean(cond_1_abs)', 'Color', [0 0 0.125]); plot(ts,nanmean(cond_2_abs)','Color', [0 0 0.250]); plot(ts,nanmean(cond_3_abs)','Color', [0 0 0.375]); plot(ts,nanmean(cond_4_abs)','Color', [0 0 0.5]); 
  plot(ts,nanmean(cond_5_abs)','Color', [0 0 0.625]); plot(ts,nanmean(cond_6_abs)','Color', [0 0 0.750]); plot(ts,nanmean(cond_7_abs)','Color', [0 0 0.875]); plot(ts,nanmean(cond_8_abs),'Color', [0 0 1]); 
- set(gca,'xlim', [-0 0.355], 'FontSize', 22, 'TickDir', 'out');  title('Instr min1')
+ set(gca,'xlim', [-0.3 0.1], 'FontSize', 22, 'TickDir', 'out');  title('Instr min1')
  
 
 %  figure; hold on; 
@@ -754,7 +771,7 @@ conds = [nanmean(cond_1_abs)' nanmean(cond_2_abs)' nanmean(cond_3_abs)' nanmean(
  figure; set(gcf,'Position',[100 200 300 300]);
  hold on; colormap(winter);
  imagesc(ts,1:ncond,r,[0,15]); 
- set(gca,'xlim',[0 0.350],'ylim',[1 ncond(end)],'TickDir','Out','Fontsize',18);
+ set(gca,'xlim',[-0.3 0.1],'ylim',[1 ncond(end)],'TickDir','Out','Fontsize',18);
  xlabel('Time (s)'); ylabel('cond');
  title('Instr min1')
  
@@ -779,7 +796,8 @@ for cellNum = 1:length(instr)
 end
 
 conds_nspk1 = [cond_1_nspk' cond_2_nspk' cond_3_nspk' cond_4_nspk' cond_5_nspk' cond_6_nspk' cond_7_nspk' cond_8_nspk'];
-[p_instr_min1,~,stats] = kruskalwallis(conds_nspk1);
+[p_instr_min1,~,stats_instr1] = kruskalwallis(conds_nspk1);
+c = multcompare(stats_instr1); 
 
 figure; hold on;
 plot(1,cond_1_nspk, '.k','MarkerSize', 10); plot(1,nanmean(cond_1_nspk), '.g', 'MarkerSize', 30);
@@ -790,7 +808,7 @@ plot(5,cond_5_nspk, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_nspk), '.g', '
 plot(6,cond_6_nspk, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_nspk), '.g', 'MarkerSize', 30);
 plot(7,cond_7_nspk, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_nspk), '.g', 'MarkerSize', 30);
 plot(8,cond_8_nspk, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_nspk), '.g', 'MarkerSize', 30);
-set(gca, 'ylim', [0 35],'xlim',[0.5 8.5], 'yTick', [0 35], 'TickDir', 'out', 'FontSize', 22); box off
+set(gca, 'ylim', [0 62],'xlim',[0.5 8.5], 'yTick', [0 60], 'TickDir', 'out', 'FontSize', 22); box off
 title('instr min1')
 
 blue       = [0.2235    0.3255    0.6431];
@@ -860,7 +878,7 @@ end
 figure; hold on; 
  plot(ts,nanmean(cond_1_abs_min2)', 'Color', [0 0 0.125]); plot(ts,nanmean(cond_2_abs_min2)','Color', [0 0 0.250]); plot(ts,nanmean(cond_3_abs_min2)','Color', [0 0 0.375]); plot(ts,nanmean(cond_4_abs_min2)','Color', [0 0 0.5]); 
  plot(ts,nanmean(cond_5_abs_min2)','Color', [0 0 0.625]); plot(ts,nanmean(cond_6_abs_min2)','Color', [0 0 0.750]); plot(ts,nanmean(cond_7_abs_min2)','Color', [0 0 0.875]); plot(ts,nanmean(cond_8_abs_min2),'Color', [0 0 1]); 
- set(gca,'xlim', [-0 0.355], 'FontSize', 22, 'TickDir', 'out'); title('instr min2')
+ set(gca,'xlim', [-0.3 0.1], 'FontSize', 22, 'TickDir', 'out'); title('instr min2')
  
 %  figure; hold on; 
 %  plot(ts,cond_1_abs_min2', 'Color', [0 0 0.125]); plot(ts,cond_2_abs_min2','Color', [0 0 0.250]); plot(ts,cond_3_abs_min2','Color', [0 0 0.375]); plot(ts,cond_4_abs_min2','Color', [0 0 0.5]); 
@@ -873,7 +891,7 @@ figure; hold on;
  figure; set(gcf,'Position',[100 200 300 300]);
  hold on; colormap(winter);
  imagesc(ts,1:ncond,r_min2,[0,15]);
- set(gca,'xlim',[0 0.350],'ylim',[1 ncond(end)],'TickDir','Out','Fontsize',18);
+ set(gca,'xlim',[-0.3 0.1],'ylim',[1 ncond(end)],'TickDir','Out','Fontsize',18);
  xlabel('Time (s)'); ylabel('cond');
  title('Instr min2')
  
@@ -892,6 +910,8 @@ end
 
 conds_nspk2 = [cond_1_nspk' cond_2_nspk' cond_3_nspk' cond_4_nspk' cond_5_nspk' cond_6_nspk' cond_7_nspk' cond_8_nspk'];
 p_instr_min2 = kruskalwallis(conds_nspk2);
+[p_instr2,~,stats_instr2] = kruskalwallis(conds_nspk2);
+c = multcompare(stats_instr2);
 
 figure; hold on;
 plot(1,cond_1_nspk2, '.k','MarkerSize', 10); plot(1,nanmean(cond_1_nspk2), '.g', 'MarkerSize', 30);
@@ -902,7 +922,7 @@ plot(5,cond_5_nspk2, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_nspk2), '.g',
 plot(6,cond_6_nspk2, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_nspk2), '.g', 'MarkerSize', 30);
 plot(7,cond_7_nspk2, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_nspk2), '.g', 'MarkerSize', 30);
 plot(8,cond_8_nspk2, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_nspk2), '.g', 'MarkerSize', 30);
-set(gca, 'ylim', [0 35],'xlim',[0.5 8.5],'yTick',[0 35], 'TickDir', 'out', 'FontSize', 22); box off
+set(gca, 'ylim', [0 60],'xlim',[0.5 8.5],'yTick',[0 62], 'TickDir', 'out', 'FontSize', 22); box off
 title('instr min2')
 
 blue       = [0.2235    0.3255    0.6431];   
@@ -1019,7 +1039,7 @@ plot(5,cond_5_nspk_sacc, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_nspk_sacc
 plot(6,cond_6_nspk_sacc, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_nspk_sacc), '.g', 'MarkerSize', 30);
 plot(7,cond_7_nspk_sacc, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_nspk_sacc), '.g', 'MarkerSize', 30);
 plot(8,cond_8_nspk_sacc, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_nspk_sacc), '.g', 'MarkerSize', 30);
-set(gca, 'ylim', [0 35],'xlim',[0.5 8.5], 'yTick', [0 35], 'TickDir', 'out', 'FontSize', 22); box off
+set(gca, 'ylim', [0 62],'xlim',[0.5 8.5], 'yTick', [0 60], 'TickDir', 'out', 'FontSize', 22); box off
 title('sacc min1')
 
  ax=gca;
@@ -1118,7 +1138,7 @@ plot(6,cond_6_nspk_sacc2, '.k', 'MarkerSize', 10); plot(6,nanmean(cond_6_nspk_sa
 plot(7,cond_7_nspk_sacc2, '.k', 'MarkerSize', 10); plot(7,nanmean(cond_7_nspk_sacc2), '.g', 'MarkerSize', 30);
 plot(8,cond_8_nspk_sacc2, '.k', 'MarkerSize', 10); plot(8,nanmean(cond_8_nspk_sacc2), '.g', 'MarkerSize', 30);
 hline(0,'--k');
-set(gca, 'ylim', [0 35],'xlim',[0.5 8.5],'yTick', [0 35], 'TickDir', 'out', 'FontSize', 22); box off
+set(gca, 'ylim', [0 62],'xlim',[0.5 8.5],'yTick', [0 60], 'TickDir', 'out', 'FontSize', 22); box off
 title('sacc min2')
 
 
@@ -1127,35 +1147,35 @@ title('sacc min2')
  ax.XTickLabel = (xlabels(1:8)); % with these labels
  ax.XTickLabelRotation = 45;
 
- p=numSubplots(length(sacc));
- for cellNum = 1:length(sacc)
-     
-     cond_1_min2 = abs(sacc(cellNum).units_t_hist.nspk_1-sacc(cellNum).units_t_hist.nspk_1_min2);
-     cond_2_min2 = abs(sacc(cellNum).units_t_hist.nspk_2-sacc(cellNum).units_t_hist.nspk_2_min2);
-     cond_3_min2 = abs(sacc(cellNum).units_t_hist.nspk_3-sacc(cellNum).units_t_hist.nspk_3_min2);
-     cond_4_min2 = abs(sacc(cellNum).units_t_hist.nspk_4-sacc(cellNum).units_t_hist.nspk_4_min2);
-     cond_5_min2 = abs(sacc(cellNum).units_t_hist.nspk_5-sacc(cellNum).units_t_hist.nspk_5_min2);
-     cond_6_min2 = abs(sacc(cellNum).units_t_hist.nspk_6-sacc(cellNum).units_t_hist.nspk_6_min2);
-     cond_7_min2 = abs(sacc(cellNum).units_t_hist.nspk_7-sacc(cellNum).units_t_hist.nspk_7_min2);
-     cond_8_min2 = abs(sacc(cellNum).units_t_hist.nspk_8-sacc(cellNum).units_t_hist.nspk_8_min2);
-     
-     
-     figure(1); subplot(p(1),p(2),cellNum); hold on; 
-     if ~isempty(cond_1_min2), plot(1,cond_1_min2, '.k','MarkerSize', 10); plot(1,nanmean(cond_1_min2), '.g', 'MarkerSize', 30); end
-     if ~isempty(cond_2_min2), plot(2,cond_2_min2, '.k','MarkerSize', 10); plot(2,nanmean(cond_2_min2), '.g', 'MarkerSize', 30); end
-     if ~isempty(cond_3_min2), plot(3,cond_3_min2, '.k','MarkerSize', 10); plot(3,nanmean(cond_3_min2), '.g', 'MarkerSize', 30); end
-     if ~isempty(cond_4_min2), plot(4,cond_4_min2, '.k','MarkerSize', 10); plot(4,nanmean(cond_4_min2), '.g', 'MarkerSize', 30); end
-     if ~isempty(cond_5_min2), plot(5,cond_5_min2, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_min2), '.g', 'MarkerSize', 30); end
-     if ~isempty(cond_6_min2), plot(6,cond_6_min2, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_min2), '.g', 'MarkerSize', 30); end
-     if ~isempty(cond_7_min2), plot(7,cond_7_min2, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_min2), '.g', 'MarkerSize', 30); end
-     if ~isempty(cond_8_min2), plot(8,cond_8_min2, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_min2), '.g', 'MarkerSize', 30); ...
-     set(gca, 'ylim', [0 max([cond_1_min2 ; cond_2_min2 ; cond_3_min2 ; cond_4_min2 ; cond_5_min2 ; cond_6_min2 ; cond_7_min2 ; cond_8_min2])],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 14); box off; end
-     title(['min2 cell ' num2str(cellNum)]);
- end
-     ax=gca;
-     ax.XTick = [1:8]; %
-     ax.XTickLabel = (xlabels(1:8)); % with these labels
-     ax.XTickLabelRotation = 45;
+%  p=numSubplots(length(sacc));
+%  for cellNum = 1:length(sacc)
+%      
+%      cond_1_min2 = abs(sacc(cellNum).units_t_hist.nspk_1-sacc(cellNum).units_t_hist.nspk_1_min2);
+%      cond_2_min2 = abs(sacc(cellNum).units_t_hist.nspk_2-sacc(cellNum).units_t_hist.nspk_2_min2);
+%      cond_3_min2 = abs(sacc(cellNum).units_t_hist.nspk_3-sacc(cellNum).units_t_hist.nspk_3_min2);
+%      cond_4_min2 = abs(sacc(cellNum).units_t_hist.nspk_4-sacc(cellNum).units_t_hist.nspk_4_min2);
+%      cond_5_min2 = abs(sacc(cellNum).units_t_hist.nspk_5-sacc(cellNum).units_t_hist.nspk_5_min2);
+%      cond_6_min2 = abs(sacc(cellNum).units_t_hist.nspk_6-sacc(cellNum).units_t_hist.nspk_6_min2);
+%      cond_7_min2 = abs(sacc(cellNum).units_t_hist.nspk_7-sacc(cellNum).units_t_hist.nspk_7_min2);
+%      cond_8_min2 = abs(sacc(cellNum).units_t_hist.nspk_8-sacc(cellNum).units_t_hist.nspk_8_min2);
+%      
+%      
+%      figure(1); subplot(p(1),p(2),cellNum); hold on; 
+%      if ~isempty(cond_1_min2), plot(1,cond_1_min2, '.k','MarkerSize', 10); plot(1,nanmean(cond_1_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_2_min2), plot(2,cond_2_min2, '.k','MarkerSize', 10); plot(2,nanmean(cond_2_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_3_min2), plot(3,cond_3_min2, '.k','MarkerSize', 10); plot(3,nanmean(cond_3_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_4_min2), plot(4,cond_4_min2, '.k','MarkerSize', 10); plot(4,nanmean(cond_4_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_5_min2), plot(5,cond_5_min2, '.k','MarkerSize', 10); plot(5,nanmean(cond_5_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_6_min2), plot(6,cond_6_min2, '.k','MarkerSize', 10); plot(6,nanmean(cond_6_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_7_min2), plot(7,cond_7_min2, '.k','MarkerSize', 10); plot(7,nanmean(cond_7_min2), '.g', 'MarkerSize', 30); end
+%      if ~isempty(cond_8_min2), plot(8,cond_8_min2, '.k','MarkerSize', 10); plot(8,nanmean(cond_8_min2), '.g', 'MarkerSize', 30); ...
+%      set(gca, 'ylim', [0 max([cond_1_min2 ; cond_2_min2 ; cond_3_min2 ; cond_4_min2 ; cond_5_min2 ; cond_6_min2 ; cond_7_min2 ; cond_8_min2])],'xlim',[0.5 8.5], 'TickDir', 'out', 'FontSize', 14); box off; end
+%      title(['min2 cell ' num2str(cellNum)]);
+%  end
+%      ax=gca;
+%      ax.XTick = [1:8]; %
+%      ax.XTickLabel = (xlabels(1:8)); % with these labels
+%      ax.XTickLabelRotation = 45;
 
 
 

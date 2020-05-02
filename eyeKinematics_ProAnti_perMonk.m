@@ -1,17 +1,20 @@
 function eyeKin = eyeKinematics_ProAnti_perMonk(units)
 
 recArea = 'lateral'; 
-monkey = 'mickey'; %'moshe';
+monkey = 'moshe'; %'moshe'; 'mickey'
 
-for cell = 1:length(units)
-    n_area(cell) = strcmp(units(cell).area, recArea);
-    %monk(cell) = strcmp(units(cell).monk, monkey);
+%%
+for cell = 1:length(units)   % PICK 
+    %n_area(cell) = strcmp(units(cell).area, recArea);
+    monk(cell) = strcmp(units(cell).monk, monkey);
 end
 
+%% PICK 
 %indx_monk = find(n_area & monk); % recArea and monk
-%indx_monk = find(monk); % significantly diff and monk
-indx_monk = find(n_area); % recArea and monk
+indx_monk = find(monk); %  monk
+%indx_monk = find(n_area); % recArea and monk
 
+%%
 for cellNum = 1:length(indx_monk)
     %prosacc
     for trialNum = 1:length([units(indx_monk(cellNum)).pro.behav.trial.saccAmplitude])

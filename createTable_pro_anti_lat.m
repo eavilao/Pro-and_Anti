@@ -202,3 +202,14 @@ lat_diff_saccVSinstrDir_nspk_anti = sum(indx_sign_saccVSinstrDir_nspk_anti); %%%
 % disp(['Sign diff base vs instrDir anti = ' num2str(lateral_diff_instrDir_base_anti)]);
 % disp(['Sign diff instrDir vs goCue pro = ' num2str(lateral_diff_goCue_instrDir_pro)]);
 % disp(['Sign diff instrDir vs goCue anti = ' num2str(lateral_diff_goCue_instrDir_anti)]);
+
+%% Table with FRs and kinematics
+lat = units(indx_lateral);
+clear r_pro r_anti
+%get fr for all neurons
+for i = 1:length(lat)
+    r_pro(i) = lat(i).pro.neural.sacc.rate_mu; 
+    r_anti(i) = lat(i).anti.neural.sacc.rate_mu;
+end 
+pro_mu = nanmean(r_pro); pro_std = nanstd(r_pro);
+anti_mu = nanmean(r_anti); anti_std = nanstd(r_anti);
