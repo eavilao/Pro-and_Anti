@@ -1165,9 +1165,6 @@ for cellNum = 1:length(units)
     
 end
 
-%% compute spontaneous firing rate using ITI 
-
-
 
 %% Compute comparison of FR for all neurons using nspk instr (this doesnt make sense, it needs to be divided by area)
 spks_pro = []; spks_anti = []; 
@@ -1293,6 +1290,7 @@ pop.anti.lateral.r_all = r_all_anti; pop.anti.lateral.kin_all = kin_all_anti;  p
 
 
 %% regress activity to saccade kinematics per cell
+% Reaction time is extra, but not eye kinematic.
     
 for i = 1:length(units)
     r_pro = []; amp_pro = []; dur_pro = []; pv_pro = []; rt_pro = [];  r_anti = []; amp_anti = []; dur_anti = []; pv_anti = []; rt_anti = [];
@@ -1304,21 +1302,23 @@ for i = 1:length(units)
         amp_pro(:,j) = units(i).pro.behav.trial(j).saccAmplitude;
         dur_pro(:,j) = units(i).pro.behav.trial(j).saccDuration;
         pv_pro(:,j) = units(i).pro.behav.trial(j).saccPeakVel;
-        rt_pro(:,j) = units(i).pro.behav.trial(j).reactionTime;
+        % rt_pro(:,j) = units(i).pro.behav.trial(j).reactionTime;
     end
     for j = 1:length(units(i).anti.behav.trial)
-        r_anti(:,j) = units(i).anti.neural.sacc.nspk(j);
+        r_anti(:,j) = units(i).anti.neural.sacc.nspk(j); 
         amp_anti(:,j) = units(i).anti.behav.trial(j).saccAmplitude;
         dur_anti(:,j) = units(i).anti.behav.trial(j).saccDuration;
         pv_anti(:,j) = units(i).anti.behav.trial(j).saccPeakVel;
-        rt_anti(:,j) = units(i).anti.behav.trial(j).reactionTime;
+        % rt_anti(:,j) = units(i).anti.behav.trial(j).reactionTime;
     end
     
     r_all_pro = [ r_all_pro ; r_pro' ];
-    kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' rt_pro' ones(size(amp_pro,2),1)];
+    % kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' rt_pro' ones(size(amp_pro,2),1)];
+    kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' ones(size(amp_pro,2),1)];
     
     r_all_anti = [ r_all_anti ; r_anti' ];
-    kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' rt_anti' ones(size(amp_anti,2),1)];
+    % kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' rt_anti' ones(size(amp_anti,2),1)];
+    kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' ones(size(amp_anti,2),1)];
     
     % save all r and eye kinmeatics
     pop.kin(i).pro.r_all_pro = r_all_pro; pop.kin(i).pro.kin_all_pro = kin_all_pro; 
@@ -1329,8 +1329,16 @@ for i = 1:length(units)
     
     [units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
         regress(r_all_anti,kin_all_anti); 
+
     
+% Compute Modulation sensitivity (De Zeeuw et al. 1995) 		
+% Magnitude sensitivity = sqrt (SS firing rate in pro)^2 + (Pro regress coefficient amplitude)^2 + (Pro regress coefficient duration)^2 + (Pro regress coefficient peak velocity)^2 )
+					
+pop.stats.sacc.pro.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_pro(2)^2) + (units(i).stats.sacc.regress.coeff_pro(3)^2) + (units(i).stats.sacc.regress.coeff_pro(4)^2)); 
+pop.stats.sacc.anti.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_anti(2)^2) + (units(i).stats.sacc.regress.coeff_anti(3)^2) + (units(i).stats.sacc.regress.coeff_anti(4)^2)); 
+
 end
+
 
 %% Modulation ratio
 for cellNum = 1:length(units)
