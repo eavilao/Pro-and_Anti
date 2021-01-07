@@ -84,7 +84,9 @@ function plot_ProAnti(units, pop, plotType, cellNum, recArea)
 % 'sorted_colormap_sacc_rand' (cosine sim plots here)
 % 'sorted_colormap_sacc_rand_selected_exc'
 % 'sorted_colormap_sacc_rand_selected_sup'
-% 'mod_sensitivity'
+% 'latencies'
+% 'mag_sensitivity_per_area'
+% 'mag_sensitivity'
 % 'rec_location'
 
 
@@ -1066,9 +1068,25 @@ switch plotType
         ranksum(exc_all_omv, exc_all_lat)
         ranksum(sup_all_omv, sup_all_lat)
         ranksum([exc_all_omv' ; exc_all_lat'], [sup_all_omv' ; sup_all_lat'])
+        ranksum([exc_all_omv' ; exc_all_lat'], [sup_all_omv' ; sup_all_lat'], 'Tail', 'left')
         % 
         ranksum(exc_all_omv, sup_all_omv, 'Tail', 'left')
         ranksum(exc_all_lat, sup_all_lat,'Tail', 'left')
+        
+        %% compare baseline firing rate vs max firing rate
+        % extract max FR 
+        for i = 1:length(indx_exc_omv), r_exc_pro_omv_peak(i,:) = units(indx_exc_omv(i)).pro.neural.sacc.peak_resp; end
+        for i = 1:length(indx_exc_lat), r_exc_pro_lat_peak(i,:) = units(indx_exc_lat(i)).pro.neural.sacc.peak_resp; end
+        for i = 1:length(indx_sup_omv), r_sup_pro_omv_peak(i,:) = units(indx_sup_omv(i)).pro.neural.sacc.peak_resp; end
+        for i = 1:length(indx_sup_lat), r_sup_pro_lat_peak(i,:) = units(indx_sup_lat(i)).pro.neural.sacc.peak_resp; end
+        
+        % plot
+        subplot(1,4,1); hold on; plot(r_exc_pro_omv,r_exc_pro_omv_peak, '.k', 'MarkerSize', 20); plot([0 160], [0 160]); set(gca, 'xlim', [0 160], 'ylim', [0 160], 'xTick',[0 160],'yTick',[0 160]); axis square; title('Fac Medial');
+        subplot(1,4,2); hold on; plot(r_exc_pro_lat,r_exc_pro_lat_peak, '.k','MarkerSize', 20); plot([0 180], [0 180]); set(gca, 'xlim', [0 180], 'ylim', [0 180], 'xTick',[0 180],'yTick',[0 180]); axis square; title('Fac Lateral');
+        subplot(1,4,3); hold on; plot(r_sup_pro_omv,r_sup_pro_omv_peak, '.k','MarkerSize', 20); plot([0 120], [0 120]); set(gca, 'xlim', [0 120], 'ylim', [0 120], 'xTick',[0 120],'yTick',[0 120]); axis square; title('Sup Medial');
+        subplot(1,4,4); hold on; plot(r_sup_pro_lat,r_sup_pro_lat_peak, '.k','MarkerSize', 20); plot([0 180], [0 180]); set(gca, 'xlim', [0 180], 'ylim', [0 180], 'xTick',[0 180],'yTick',[0 180]); axis square; title('Sup Lateral');
+        xlabel('Mean baseline firing (spks/s)'); ylabel('Peak firing rate (spsk/s)')
+        
         
     case 'delta_rate_mean' % for exc and sup separately
         
@@ -1561,6 +1579,32 @@ switch plotType
         ylabel('Change in firing rate (spk/s)'); xlabel('Time (s)')
         axis square; hline(0,'k'); title(recArea); 
         
+        % anti - pro plotted with abs values for both
+        figure; hold on; 
+        plot(t_win,(mean(r_exc_anti))-(mean(r_exc_pro)), 'k','LineWidth',2);
+        plot(t_win,(mean(abs(r_sup_anti))-(mean(abs(r_sup_pro)))), '--k','LineWidth',2);
+        set(gca,'xlim', [-0.3 0],'xTick',[-0.3 -0.2 -0.1 0], 'ylim', [-10 20], 'ytick', [-10 0 20],'TickDir', 'out', 'FontSize', 18);
+        ylabel('Abs change in firing rate (spk/s)'); xlabel('Time (s)')
+        axis square; hline(0,'k'); title(recArea);
+        
+        % test if change in fr is higher in facilitation than in suppression
+        [h,p] = ranksum(mean(r_exc_anti)-mean(r_exc_pro),mean(abs(r_sup_anti))-(mean(abs(r_sup_pro))))
+        
+        early_instr_exc = mean(r_exc_anti(:,t_win>-0.31 & t_win<-0.19))-mean(r_exc_pro(:,t_win>-0.31 & t_win<-0.19));
+        late_instr_exc = mean(r_exc_anti(:,t_win>-0.1 & t_win<=0))-mean(r_exc_pro(:,t_win>-0.1 & t_win<=0));
+        
+        early_instr_sup = mean(r_sup_anti(:,t_win>-0.31 & t_win<-0.19))-mean(r_sup_pro(:,t_win>-0.31 & t_win<-0.19));
+        late_instr_sup = mean(abs(r_sup_anti(:,t_win>-0.1 & t_win<=0)))-mean(abs(r_sup_pro(:,t_win>-0.1 & t_win<=0)));
+        
+        %% test if fac is diff from supp at the end 
+        exc_ch = (mean(r_exc_anti))-(mean(r_exc_pro)); 
+        exc_ch_end = exc_ch(21:31); 
+        
+        sup_ch = (mean(abs(r_sup_anti))-(mean(abs(r_sup_pro)))); 
+        sup_ch_end = sup_ch(21:31); 
+        
+        kstest2(exc_ch_end,sup_ch_end)
+        
     case 'max_abs_change_fr'
         % vermis
         indx_exc_pro = pop.indx_sel.vermis.sacc.all.pro.exc;
@@ -1727,10 +1771,17 @@ switch plotType
         end
         
     case 'max_change_instr_sacc_selected'
-        indx_exc_pro = pop.indx_sel.(recArea).instr_back.all.pro.exc;
-        indx_sup_pro = pop.indx_sel.(recArea).instr_back.all.pro.sup;
-        indx_exc_anti = pop.indx_sel.(recArea).instr_back.all.anti.exc;
-        indx_sup_anti = pop.indx_sel.(recArea).instr_back.all.anti.sup;
+%         indx_exc_pro = pop.indx_sel.(recArea).instr_back.all.pro.exc;
+%         indx_sup_pro = pop.indx_sel.(recArea).instr_back.all.pro.sup;
+%         indx_exc_anti = pop.indx_sel.(recArea).instr_back.all.anti.exc;
+%         indx_sup_anti = pop.indx_sel.(recArea).instr_back.all.anti.sup;
+        
+        indx_exc_pro = pop.indx_sel.(recArea).sacc.all.pro.exc;
+        indx_sup_pro = pop.indx_sel.(recArea).sacc.all.pro.sup;
+        indx_exc_anti = pop.indx_sel.(recArea).sacc.all.anti.exc;
+        indx_sup_anti = pop.indx_sel.(recArea).sacc.all.anti.sup;
+        
+        % try it with fac y supp in sacc sel cells
         
         t = units(1).pro.neural.sacc.ts_pst; t_win = t(t>=0 & t<=0.150);
         % sacc .... psth during sacc window - mean of activity before sacc onset 
@@ -1758,9 +1809,9 @@ switch plotType
             %plot vermis
             figure; hold on;
             plot(max_exc_pro, max_exc_pro_instr, '.m', 'MarkerSize', 30);
-            plot(max_sup_pro, max_sup_pro_instr, '.m', 'MarkerSize', 30);
+            plot(max_sup_pro, max_sup_pro_instr, 'om', 'MarkerSize', 10);
             plot(max_exc_anti, max_exc_anti_instr, '.b', 'MarkerSize', 30);
-            plot(max_sup_anti, max_sup_anti_instr, '.b', 'MarkerSize', 30);
+            plot(max_sup_anti, max_sup_anti_instr, 'ob', 'MarkerSize', 10);
             plot([0 90], [0 90], 'k')
             set(gca,'xlim', [0 90],'xTick',[0 90], 'ylim', [0 90], 'ytick', [0 90],'TickDir', 'out', 'FontSize', 18);
             xlabel('Max change in firing -- Saccade'); ylabel('Max change in firing -- Instruction'); axis square;
@@ -1768,14 +1819,47 @@ switch plotType
             
             [~,pro_pval] = ttest2([max_exc_pro' ; max_sup_pro'],[max_exc_pro_instr' ; max_sup_pro_instr'])
             [~,anti_pval] = ttest2([max_exc_anti' ; max_sup_anti'],[max_exc_anti_instr' ; max_sup_anti_instr'])
+            fac_pro
             
+            
+            % see if change in firing is more in pro vs anti from fac or supp
+            fac_pro = max_exc_pro'-max_exc_pro_instr';
+            fac_anti = max_exc_anti'-max_exc_anti_instr'; fac_anti(6)=NaN;
+            sup_pro = max_sup_pro'-max_sup_pro_instr';
+            sup_anti = max_sup_anti'-max_sup_anti_instr';
+            
+            figure; boxplot(fac_pro); ylim([-30 46]); 
+            set(gca,'TickDir', 'out', 'FontSize', 18);
+            ylabel('Saccade-Instr'); box off; axis square;
+            title('facilitation pro'); hline(0, '--k')
+            
+            figure; boxplot(fac_anti); ylim([-30 46]); 
+            set(gca,'TickDir', 'out', 'FontSize', 18);
+            ylabel('Saccade-Instr'); box off; axis square;
+            title('facilitation anti'); hline(0, '--k')
+                        
+            figure; boxplot(sup_pro); ylim([-30 46]); 
+            set(gca,'TickDir', 'out', 'FontSize', 18);
+            ylabel('Saccade-Instr'); box off; axis square;
+            title('suppression pro'); hline(0, '--k')
+            
+            figure; boxplot(sup_anti); ylim([-30 46]); 
+            set(gca,'TickDir', 'out', 'FontSize', 18);
+            ylabel('Saccade-Instr'); box off; axis square;
+            title('suppression anti'); hline(0, '--k')
+
+            ranksum(fac_pro,fac_anti)
+            ranksum(sup_pro,sup_anti)
+            ranksum(fac_pro, sup_pro)
+            ranksum(fac_anti, sup_anti)
+
         else
             %plot lateral
             figure; hold on;
             plot(max_exc_pro, max_exc_pro_instr, '.m', 'MarkerSize', 30);
-            plot(max_sup_pro, max_sup_pro_instr, '.m', 'MarkerSize', 30);
+            plot(max_sup_pro, max_sup_pro_instr, 'om', 'MarkerSize', 10);
             plot(max_exc_anti, max_exc_anti_instr, '.b', 'MarkerSize', 30);
-            plot(max_sup_anti, max_sup_anti_instr, '.b', 'MarkerSize', 30);
+            plot(max_sup_anti, max_sup_anti_instr, 'ob', 'MarkerSize', 10);
             plot([0 83], [0 83], 'k')
             set(gca,'xlim', [0 83],'xTick',[0 80], 'ylim', [0 83], 'ytick', [0 80],'TickDir', 'out', 'FontSize', 18);
             xlabel('Max change in firing -- Saccade'); ylabel('Max change in firing -- Instruction'); axis square;
@@ -1783,7 +1867,40 @@ switch plotType
             
             [~,pro_pval] = ttest2([max_exc_pro' ; max_sup_pro'],[max_exc_pro_instr' ; max_sup_pro_instr'])
             [~,anti_pval] = ttest2([max_exc_anti' ; max_sup_anti'],[max_exc_anti_instr' ; max_sup_anti_instr'])
+            
+            fac_pro = max_exc_pro'-max_exc_pro_instr';
+            fac_anti = max_exc_anti'-max_exc_anti_instr';
+            sup_pro = max_sup_pro'-max_sup_pro_instr';
+            sup_anti = max_sup_anti'-max_sup_anti_instr';
+            
+            figure; boxplot(fac_pro); ylim([-30 46]); 
+            set(gca,'TickDir', 'out', 'FontSize', 18);
+            ylabel('Saccade-Instr'); box off; axis square;
+            title('facilitation pro'); hline(0, '--k')
+            
+            figure; boxplot(fac_anti); ylim([-30 46]); 
+            set(gca,'TickDir', 'out', 'FontSize', 18);
+            ylabel('Saccade-Instr'); box off; axis square;
+            title('facilitation anti'); hline(0, '--k')
+                        
+            figure; boxplot(sup_pro); ylim([-30 46]); 
+            set(gca,'TickDir', 'out', 'FontSize', 18);
+            ylabel('Saccade-Instr'); box off; axis square;
+            title('suppression pro'); hline(0, '--k')
+            
+            figure; boxplot(sup_anti); ylim([-30 46]);
+            set(gca,'TickDir', 'out', 'FontSize', 18);
+            ylabel('Saccade-Instr'); box off; axis square;
+            title('suppression anti'); hline(0, '--k')
+            
+            ranksum(fac_pro,fac_anti)
+            ranksum(sup_pro,sup_anti)
+            ranksum(fac_pro, sup_pro)
+            ranksum(fac_anti, sup_anti)
         end
+        
+        
+        
     case 'change_anti-pro'
         % gather indx
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
@@ -4167,13 +4284,15 @@ switch plotType
         plot(x_v,y1_v,'-k','linewidth',2);
         xlabel('Modulation ratio'); axis square; box off;
         
-        [f_v,x_l] = ksdensity(mod_exc_lat_mu);
-        y1_v = cumsum(f_v); y1_v = y1_v./max(y1_v);
+        [f_l,x_l] = ksdensity(mod_exc_lat_mu);
+        y1_v = cumsum(f_l); y1_v = y1_v./max(y1_v);
         plot(x_l,y1_v,'--k','linewidth',2);
         set(gca, 'xlim',[0.2 1.52],'xTick', [0.25 0.5 1], 'ylim', [0 1], 'ytick', [0 0.5 1],'TickDir', 'out', 'FontSize', 18);
         title('mod ratio pro/anti exc omv vs lat'); vline(1,'k')
         
         [~,p_exc] = kstest2(x_v, x_l)
+%         histogram(mod_exc_omv_mu,25); hold on
+%         histogram(mod_exc_lat_mu,25);
         
          % cdf sup
         figure; hold on;
@@ -4182,13 +4301,15 @@ switch plotType
         plot(x_v,y1_v,'-k','linewidth',2);
         xlabel('Modulation ratio'); axis square; box off;
         
-        [f_v,x_l] = ksdensity(mod_sup_lat_mu);
-        y1_l = cumsum(f_v); y1_l = y1_l./max(y1_l);
+        [f_l,x_l] = ksdensity(mod_sup_lat_mu);
+        y1_l = cumsum(f_l); y1_l = y1_l./max(y1_l);
         plot(x_l,y1_l,'--k','linewidth',2);
         set(gca, 'xlim',[0.5 1.62],'xTick', [0.5 1 1.62], 'ylim', [0 1], 'ytick', [0 0.5 1],'TickDir', 'out', 'FontSize', 18);
         title('mod ratio pro/anti sup omv vs lat'); vline(1,'k')
         
         [~,p_sup] = kstest2(x_v, x_l)
+         histogram(mod_sup_omv_mu,25); hold on
+         histogram(mod_sup_lat_mu,25);
         
     case 'sorted_colormap_sacc'
         % get area
@@ -4360,7 +4481,7 @@ switch plotType
         figure; hold on;
         plot(t_win(max_pos_pro), 'm', 'LineWidth',2);
         plot(t_win(max_pos_anti), 'b', 'LineWidth',2);
-        set(gca,'ylim',[0 0.250],'xlim', [1 length(max_pos_pro)], 'TickDir', 'out', 'FontSize', 18); box off;
+        set(gca,'ylim',[0 0.250],'xlim', [1 length(max_pos_anti)], 'TickDir', 'out', 'FontSize', 18); box off;
         ylabel('time (s)'); xlabel('neuron'); axis square; title(['Pro Anti exc ' recArea]);
         axis square;
         
@@ -4747,22 +4868,27 @@ switch plotType
         case 'sorted_colormap_sacc_selected_both_instr'
         % get selected
         
-        indx_exc = pop.indx_sel.(recArea).instr_back.both.exc;
-        indx_sup = pop.indx_sel.(recArea).instr_back.both.sup;
+        indx_exc_pro = pop.indx_sel.(recArea).sacc.all.pro.exc;
+        indx_exc_anti = pop.indx_sel.(recArea).sacc.all.anti.exc;
+        indx_sup_pro = pop.indx_sel.(recArea).sacc.all.pro.sup;
+        indx_sup_anti = pop.indx_sel.(recArea).sacc.all.anti.sup;
         
-        win = [-0.301 0];
-        t_win = units(1).pro.neural.instr_back.ts_pst_win;
+        shared_exc = intersect(indx_exc_pro, indx_exc_anti); shared_sup = intersect(indx_sup_pro, indx_sup_anti);
+        shared_exc_pro = ismember(indx_exc_pro, shared_exc); shared_exc_anti = ismember(indx_exc_anti, shared_exc);
+        shared_sup_pro = ismember(indx_sup_pro, shared_sup); shared_sup_anti = ismember(indx_sup_anti, shared_sup);
+        
+%         indx_exc = pop.indx_sel.(recArea).instr_back.both.exc;
+%         indx_sup = pop.indx_sel.(recArea).instr_back.both.sup;
+        
+        win = [-0.301 0.1];
+        t_win = units(1).pro.neural.instrDir.ts_pst;
         
         
-        for j=1:length(indx_exc)
-            r_pro_exc(j,:) = units(indx_exc(j)).pro.neural.instr_back.rate_pst_win;
-            r_anti_exc(j,:) = units(indx_exc(j)).anti.neural.instr_back.rate_pst_win;
-        end
+        for j=1:length(indx_exc_pro), r_pro_exc(j,:) = units(indx_exc_pro(j)).pro.neural.instrDir.rate_pst(t_win>=win(1) & t_win<=win(2)); end
+        for j=1:length(indx_exc_anti), r_anti_exc(j,:) = units(indx_exc_anti(j)).anti.neural.instrDir.rate_pst(t_win>=win(1) & t_win<=win(2)); end
         
-        for j=1:length(indx_sup)
-            r_pro_sup(j,:) = units(indx_sup(j)).pro.neural.instr_back.rate_pst_win;
-            r_anti_sup(j,:) = units(indx_sup(j)).anti.neural.instr_back.rate_pst_win;
-        end
+        for j=1:length(indx_sup_pro), r_pro_sup(j,:) = units(indx_sup_pro(j)).pro.neural.instrDir.rate_pst(t_win>=win(1) & t_win<=win(2));end
+        for j=1:length(indx_sup_anti), r_anti_sup(j,:) = units(indx_sup_anti(j)).anti.neural.instrDir.rate_pst(t_win>=win(1) & t_win<=win(2)); end
 
 
         % pro exc
@@ -4781,7 +4907,7 @@ switch plotType
         %pro
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
         scatterhist(t_win(max_pos_pro),1:size(r_pro_exc,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','k','NBins',31);
-        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_exc)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
+        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_exc_pro)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         title('Pro exc');
         
         % anti exc
@@ -4799,10 +4925,10 @@ switch plotType
         scatter(t_win(max_pos_anti),1:size(r_anti_sorted_exc,1),40,'k','filled');
         set(gca,'xlim',[win(1) win(2)],'yTick',[], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
         vline(0, '--k'); ylabel('Neuron'); box off; title(['Instr selected Anti both ' recArea])
-        %pro
+        %anti
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
         scatterhist(t_win(max_pos_anti),1:size(r_anti_exc,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','k','NBins',31);
-        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_exc)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
+        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_exc_anti)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         title('Anti exc');
         
         % plot anti with pro sorting
@@ -4859,7 +4985,7 @@ switch plotType
        
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
         scatterhist(t_win(min_pos_pro),1:size(r_pro_sup,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','k','NBins',31);
-        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_sup)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
+        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_sup_pro)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         title('Pro sup');
         
         % anti sup
@@ -4878,7 +5004,7 @@ switch plotType
         %pro
         figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
         scatterhist(t_win(min_pos_anti),1:size(r_anti_sup,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','k','NBins',31);
-        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_sup)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
+        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_sup_anti)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
         title('Anti sup');
         
         % plot pro and anti sequences on top of each other
@@ -5722,11 +5848,11 @@ switch plotType
         % get flag for position
         win_indx_pro_3 = zeros(length(indx_pro),8);
         for cell = 1:length(indx_pro)
-            if t_win(pos_max_pro_3(cell)) >=-0.151 & t_win(pos_max_pro_3(cell)) <= -0.075;
+            if t_win(pos_max_pro_3(cell)) >=-0.151 & t_win(pos_max_pro_3(cell)) <= -0.075
                 win_indx_pro_3(cell,2) = 1;
-            elseif t_win(pos_max_pro_3(cell)) > -0.075 & t_win(pos_max_pro_3(cell)) <= 0;
+            elseif t_win(pos_max_pro_3(cell)) > -0.075 & t_win(pos_max_pro_3(cell)) <= 0
                 win_indx_pro_3(cell,4) = 1;
-            elseif t_win(pos_max_pro_3(cell)) > 0 & t_win(pos_max_pro_3(cell))<= 0.075;
+            elseif t_win(pos_max_pro_3(cell)) > 0 & t_win(pos_max_pro_3(cell))<= 0.075
                 win_indx_pro_3(cell,6) = 1;
             else
                 win_indx_pro_3(cell,8) = 1;
@@ -5735,7 +5861,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_pro)
-            if t_win(pos_max_pro_3(cell)) >=-0.151 & t_win(pos_max_pro_3(cell)) <= 0;
+            if t_win(pos_max_pro_3(cell)) >=-0.151 & t_win(pos_max_pro_3(cell)) <= 0
                 comparison_indx_pro_3(cell,2) = 1;
             else
                 comparison_indx_pro_3(cell,4) = 1;
@@ -5757,11 +5883,11 @@ switch plotType
         % get flag for position
         win_indx_anti_3 = zeros(length(indx_anti),8);
         for cell = 1:length(indx_anti)
-            if t_win(pos_max_anti_3(cell)) >=-0.151 & t_win(pos_max_anti_3(cell)) <= -0.075;
+            if t_win(pos_max_anti_3(cell)) >=-0.151 & t_win(pos_max_anti_3(cell)) <= -0.075
                 win_indx_anti_3(cell,2) = 1;
-            elseif t_win(pos_max_anti_3(cell)) > -0.075 & t_win(pos_max_anti_3(cell)) <= 0;
+            elseif t_win(pos_max_anti_3(cell)) > -0.075 & t_win(pos_max_anti_3(cell)) <= 0
                 win_indx_anti_3(cell,4) = 1;
-            elseif t_win(pos_max_anti_3(cell)) > 0 & t_win(pos_max_anti_3(cell))<= 0.075;
+            elseif t_win(pos_max_anti_3(cell)) > 0 & t_win(pos_max_anti_3(cell))<= 0.075
                 win_indx_anti_3(cell,6) = 1;
             else
                 win_indx_anti_3(cell,8) = 1;
@@ -5770,7 +5896,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_anti)
-            if t_win(pos_max_anti_3(cell)) >=-0.151 & t_win(pos_max_anti_3(cell)) <= 0;
+            if t_win(pos_max_anti_3(cell)) >=-0.151 & t_win(pos_max_anti_3(cell)) <= 0
                 comparison_indx_anti_3(cell,2) = 1;
             else
                 comparison_indx_anti_3(cell,4) = 1;
@@ -5840,11 +5966,11 @@ switch plotType
         % get flag for position
         win_indx_pro = zeros(length(indx_pro),8);
         for cell = 1:length(indx_pro)
-            if t_win(pos_max_pro(cell)) >=-0.151 & t_win(pos_max_pro(cell)) <= -0.075;
+            if t_win(pos_max_pro(cell)) >=-0.151 & t_win(pos_max_pro(cell)) <= -0.075
                 win_indx_pro(cell,1) = 1;
-            elseif t_win(pos_max_pro(cell)) > -0.075 & t_win(pos_max_pro(cell)) <= 0;
+            elseif t_win(pos_max_pro(cell)) > -0.075 & t_win(pos_max_pro(cell)) <= 0
                 win_indx_pro(cell,3) = 1;
-            elseif t_win(pos_max_pro(cell)) > 0 & t_win(pos_max_pro(cell))<= 0.075;
+            elseif t_win(pos_max_pro(cell)) > 0 & t_win(pos_max_pro(cell))<= 0.075
                 win_indx_pro(cell,5) = 1;
             else
                 win_indx_pro(cell,7) = 1;
@@ -5853,7 +5979,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_pro)
-            if t_win(pos_max_pro(cell)) >=-0.151 & t_win(pos_max_pro(cell)) <= 0;
+            if t_win(pos_max_pro(cell)) >=-0.151 & t_win(pos_max_pro(cell)) <= 0
                 comparison_indx_pro(cell,1) = 1;
             else
                 comparison_indx_pro(cell,3) = 1;
@@ -5870,11 +5996,11 @@ switch plotType
             % get flag for position
             win_indx_pro_rnd = zeros(length(indx_pro),8);
             for cell = 1:length(indx_pro)
-                if t_win(pos_max_pro_rnd(cell)) >=-0.151 & t_win(pos_max_pro_rnd(cell)) <= -0.075;
+                if t_win(pos_max_pro_rnd(cell)) >=-0.151 & t_win(pos_max_pro_rnd(cell)) <= -0.075
                     win_indx_pro_rnd(cell,2) = 1;
-                elseif t_win(pos_max_pro_rnd(cell)) > -0.075 & t_win(pos_max_pro_rnd(cell)) <= 0;
+                elseif t_win(pos_max_pro_rnd(cell)) > -0.075 & t_win(pos_max_pro_rnd(cell)) <= 0
                     win_indx_pro_rnd(cell,4) = 1;
-                elseif t_win(pos_max_pro_rnd(cell)) > 0 & t_win(pos_max_pro_rnd(cell))<= 0.075;
+                elseif t_win(pos_max_pro_rnd(cell)) > 0 & t_win(pos_max_pro_rnd(cell))<= 0.075
                     win_indx_pro_rnd(cell,6) = 1;
                 else
                     win_indx_pro_rnd(cell,8) = 1;
@@ -5883,7 +6009,7 @@ switch plotType
             
             % two window comparison
             for cell = 1:length(indx_pro)
-                if t_win(pos_max_pro_rnd(cell)) >=win(1) & t_win(pos_max_pro_rnd(cell)) <= 0;
+                if t_win(pos_max_pro_rnd(cell)) >=win(1) & t_win(pos_max_pro_rnd(cell)) <= 0
                     comparison_indx_pro_rnd(cell,2) = 1;
                 else
                     comparison_indx_pro_rnd(cell,4) = 1;
@@ -5926,11 +6052,11 @@ switch plotType
         % get flag for position
         win_indx_anti = zeros(length(indx_anti),8);
         for cell = 1:length(indx_anti)
-            if t_win(pos_max_anti(cell)) >=-0.151 & t_win(pos_max_anti(cell)) <= -0.075;
+            if t_win(pos_max_anti(cell)) >=-0.151 & t_win(pos_max_anti(cell)) <= -0.075
                 win_indx_anti(cell,1) = 1;
-            elseif t_win(pos_max_anti(cell)) > -0.075 & t_win(pos_max_anti(cell)) <= 0;
+            elseif t_win(pos_max_anti(cell)) > -0.075 & t_win(pos_max_anti(cell)) <= 0
                 win_indx_anti(cell,3) = 1;
-            elseif t_win(pos_max_anti(cell)) > 0 & t_win(pos_max_anti(cell))<= 0.075;
+            elseif t_win(pos_max_anti(cell)) > 0 & t_win(pos_max_anti(cell))<= 0.075
                 win_indx_anti(cell,5) = 1;
             else
                 win_indx_anti(cell,7) = 1;
@@ -5939,7 +6065,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_anti)
-            if t_win(pos_max_anti(cell)) >=-0.151 & t_win(pos_max_anti(cell)) <= 0;
+            if t_win(pos_max_anti(cell)) >=-0.151 & t_win(pos_max_anti(cell)) <= 0
                 comparison_indx_anti(cell,1) = 1;
             else
                 comparison_indx_anti(cell,3) = 1;
@@ -5956,11 +6082,11 @@ switch plotType
             % get flag for position
             win_indx_pro_rnd = zeros(length(indx_anti),8);
             for cell = 1:length(indx_anti)
-                if t_win(pos_max_anti_rnd(cell)) >=-0.151 & t_win(pos_max_anti_rnd(cell)) <= -0.075;
+                if t_win(pos_max_anti_rnd(cell)) >=-0.151 & t_win(pos_max_anti_rnd(cell)) <= -0.075
                     win_indx_anti_rnd(cell,2) = 1;
-                elseif t_win(pos_max_anti_rnd(cell)) > -0.075 & t_win(pos_max_anti_rnd(cell)) <= 0;
+                elseif t_win(pos_max_anti_rnd(cell)) > -0.075 & t_win(pos_max_anti_rnd(cell)) <= 0
                     win_indx_anti_rnd(cell,4) = 1;
-                elseif t_win(pos_max_anti_rnd(cell)) > 0 & t_win(pos_max_anti_rnd(cell))<= 0.075;
+                elseif t_win(pos_max_anti_rnd(cell)) > 0 & t_win(pos_max_anti_rnd(cell))<= 0.075
                     win_indx_anti_rnd(cell,6) = 1;
                 else
                     win_indx_anti_rnd(cell,8) = 1;
@@ -5969,7 +6095,7 @@ switch plotType
             
             % two window comparison
             for cell = 1:length(indx_anti)
-                if t_win(pos_max_anti_rnd(cell)) >=-0.151 & t_win(pos_max_anti_rnd(cell)) <= 0;
+                if t_win(pos_max_anti_rnd(cell)) >=-0.151 & t_win(pos_max_anti_rnd(cell)) <= 0
                     comparison_indx_anti_rnd(cell,2) = 1;
                 else
                     comparison_indx_anti_rnd(cell,4) = 1;
@@ -6040,11 +6166,11 @@ switch plotType
         % get flag for position
         win_indx_pro = zeros(length(indx_pro),8);
         for cell = 1:length(indx_pro)
-            if t_win(pos_min_pro(cell)) >=-0.151 & t_win(pos_min_pro(cell)) <= -0.075;
+            if t_win(pos_min_pro(cell)) >=-0.151 & t_win(pos_min_pro(cell)) <= -0.075
                 win_indx_pro(cell,1) = 1;
-            elseif t_win(pos_min_pro(cell)) > -0.075 & t_win(pos_min_pro(cell)) <= 0;
+            elseif t_win(pos_min_pro(cell)) > -0.075 & t_win(pos_min_pro(cell)) <= 0
                 win_indx_pro(cell,3) = 1;
-            elseif t_win(pos_min_pro(cell)) > 0 & t_win(pos_min_pro(cell))<= 0.075;
+            elseif t_win(pos_min_pro(cell)) > 0 & t_win(pos_min_pro(cell))<= 0.075
                 win_indx_pro(cell,5) = 1;
             else
                 win_indx_pro(cell,7) = 1;
@@ -6053,7 +6179,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_pro)
-            if t_win(pos_min_pro(cell)) >=-0.151 & t_win(pos_min_pro(cell)) <= 0;
+            if t_win(pos_min_pro(cell)) >=-0.151 & t_win(pos_min_pro(cell)) <= 0
                 comparison_indx_pro(cell,1) = 1;
             else
                 comparison_indx_pro(cell,3) = 1;
@@ -6073,11 +6199,11 @@ switch plotType
         % get flag for position
         win_indx_anti = zeros(length(indx_anti),8);
         for cell = 1:length(indx_anti)
-            if t_win(pos_min_anti(cell)) >=-0.151 & t_win(pos_min_anti(cell)) <= -0.075;
+            if t_win(pos_min_anti(cell)) >=-0.151 & t_win(pos_min_anti(cell)) <= -0.075
                 win_indx_anti(cell,1) = 1;
-            elseif t_win(pos_min_anti(cell)) > -0.075 & t_win(pos_min_anti(cell)) <= 0;
+            elseif t_win(pos_min_anti(cell)) > -0.075 & t_win(pos_min_anti(cell)) <= 0
                 win_indx_anti(cell,3) = 1;
-            elseif t_win(pos_min_anti(cell)) > 0 & t_win(pos_min_anti(cell))<= 0.075;
+            elseif t_win(pos_min_anti(cell)) > 0 & t_win(pos_min_anti(cell))<= 0.075
                 win_indx_anti(cell,5) = 1;
             else
                 win_indx_anti(cell,7) = 1;
@@ -6086,7 +6212,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_anti)
-            if t_win(pos_min_anti(cell)) >=-0.151 & t_win(pos_min_anti(cell)) <= 0;
+            if t_win(pos_min_anti(cell)) >=-0.151 & t_win(pos_min_anti(cell)) <= 0
                 comparison_indx_anti(cell,1) = 1;
             else
                 comparison_indx_anti(cell,3) = 1;
@@ -6109,11 +6235,11 @@ switch plotType
         % get flag for position
         win_indx_pro_1 = zeros(length(indx_pro),8);
         for cell = 1:length(indx_pro)
-            if t_win(pos_min_pro_1(cell)) >=-0.151 & t_win(pos_min_pro_1(cell)) <= -0.075;
+            if t_win(pos_min_pro_1(cell)) >=-0.151 & t_win(pos_min_pro_1(cell)) <= -0.075
                 win_indx_pro_1(cell,2) = 1;
-            elseif t_win(pos_min_pro_1(cell)) > -0.075 & t_win(pos_min_pro_1(cell)) <= 0;
+            elseif t_win(pos_min_pro_1(cell)) > -0.075 & t_win(pos_min_pro_1(cell)) <= 0
                 win_indx_pro_1(cell,4) = 1;
-            elseif t_win(pos_min_pro_1(cell)) > 0 & t_win(pos_min_pro_1(cell))<= 0.075;
+            elseif t_win(pos_min_pro_1(cell)) > 0 & t_win(pos_min_pro_1(cell))<= 0.075
                 win_indx_pro_1(cell,6) = 1;
             else
                 win_indx_pro_1(cell,8) = 1;
@@ -6141,11 +6267,11 @@ switch plotType
         % get flag for position
         win_indx_anti_1 = zeros(length(indx_anti),8);
         for cell = 1:length(indx_anti)
-            if t_win(pos_min_anti_1(cell)) >=-0.151 & t_win(pos_min_anti_1(cell)) <= -0.075;
+            if t_win(pos_min_anti_1(cell)) >=-0.151 & t_win(pos_min_anti_1(cell)) <= -0.075
                 win_indx_anti_1(cell,2) = 1;
-            elseif t_win(pos_min_anti_1(cell)) > -0.075 & t_win(pos_min_anti_1(cell)) <= 0;
+            elseif t_win(pos_min_anti_1(cell)) > -0.075 & t_win(pos_min_anti_1(cell)) <= 0
                 win_indx_anti_1(cell,4) = 1;
-            elseif t_win(pos_min_anti_1(cell)) > 0 & t_win(pos_min_anti_1(cell))<= 0.075;
+            elseif t_win(pos_min_anti_1(cell)) > 0 & t_win(pos_min_anti_1(cell))<= 0.075
                 win_indx_anti_1(cell,6) = 1;
             else
                 win_indx_anti_1(cell,8) = 1;
@@ -6154,7 +6280,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_anti)
-            if t_win(pos_min_anti_1(cell)) >=-0.151 & t_win(pos_min_anti_1(cell)) <= 0;
+            if t_win(pos_min_anti_1(cell)) >=-0.151 & t_win(pos_min_anti_1(cell)) <= 0
                 comparison_indx_anti_1(cell,2) = 1;
             else
                 comparison_indx_anti_1(cell,4) = 1;
@@ -6177,11 +6303,11 @@ switch plotType
         % get flag for position
         win_indx_pro_2 = zeros(length(indx_pro),8);
         for cell = 1:length(indx_pro)
-            if t_win(pos_min_pro_2(cell)) >=-0.151 & t_win(pos_min_pro_2(cell)) <= -0.075;
+            if t_win(pos_min_pro_2(cell)) >=-0.151 & t_win(pos_min_pro_2(cell)) <= -0.075
                 win_indx_pro_2(cell,2) = 1;
-            elseif t_win(pos_min_pro_2(cell)) > -0.075 & t_win(pos_min_pro_2(cell)) <= 0;
+            elseif t_win(pos_min_pro_2(cell)) > -0.075 & t_win(pos_min_pro_2(cell)) <= 0
                 win_indx_pro_2(cell,4) = 1;
-            elseif t_win(pos_min_pro_2(cell)) > 0 & t_win(pos_min_pro_2(cell))<= 0.075;
+            elseif t_win(pos_min_pro_2(cell)) > 0 & t_win(pos_min_pro_2(cell))<= 0.075
                 win_indx_pro_2(cell,6) = 1;
             else
                 win_indx_pro_2(cell,8) = 1;
@@ -6190,7 +6316,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_pro)
-            if t_win(pos_min_pro_2(cell)) >=-0.151 & t_win(pos_min_pro_2(cell)) <= 0;
+            if t_win(pos_min_pro_2(cell)) >=-0.151 & t_win(pos_min_pro_2(cell)) <= 0
                 comparison_indx_pro_2(cell,2) = 1;
             else
                 comparison_indx_pro_2(cell,4) = 1;
@@ -6209,11 +6335,11 @@ switch plotType
         % get flag for position
         win_indx_anti_2 = zeros(length(indx_anti),8);
         for cell = 1:length(indx_anti)
-            if t_win(pos_min_anti_2(cell)) >=-0.151 & t_win(pos_min_anti_2(cell)) <= -0.075;
+            if t_win(pos_min_anti_2(cell)) >=-0.151 & t_win(pos_min_anti_2(cell)) <= -0.075
                 win_indx_anti_2(cell,2) = 1;
-            elseif t_win(pos_min_anti_2(cell)) > -0.075 & t_win(pos_min_anti_2(cell)) <= 0;
+            elseif t_win(pos_min_anti_2(cell)) > -0.075 & t_win(pos_min_anti_2(cell)) <= 0
                 win_indx_anti_2(cell,4) = 1;
-            elseif t_win(pos_min_anti_2(cell)) > 0 & t_win(pos_min_anti_2(cell))<= 0.075;
+            elseif t_win(pos_min_anti_2(cell)) > 0 & t_win(pos_min_anti_2(cell))<= 0.075
                 win_indx_anti_2(cell,6) = 1;
             else
                 win_indx_anti_2(cell,8) = 1;
@@ -6222,7 +6348,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_anti)
-            if t_win(pos_min_anti_2(cell)) >=-0.151 & t_win(pos_min_anti_2(cell)) <= 0;
+            if t_win(pos_min_anti_2(cell)) >=-0.151 & t_win(pos_min_anti_2(cell)) <= 0
                 comparison_indx_anti_2(cell,2) = 1;
             else
                 comparison_indx_anti_2(cell,4) = 1;
@@ -6247,11 +6373,11 @@ switch plotType
         % get flag for position
         win_indx_pro_3 = zeros(length(indx_pro),8);
         for cell = 1:length(indx_pro)
-            if t_win(pos_min_pro_3(cell)) >=-0.151 & t_win(pos_min_pro_3(cell)) <= -0.075;
+            if t_win(pos_min_pro_3(cell)) >=-0.151 & t_win(pos_min_pro_3(cell)) <= -0.075
                 win_indx_pro_3(cell,2) = 1;
-            elseif t_win(pos_min_pro_3(cell)) > -0.075 & t_win(pos_min_pro_3(cell)) <= 0;
+            elseif t_win(pos_min_pro_3(cell)) > -0.075 & t_win(pos_min_pro_3(cell)) <= 0
                 win_indx_pro_3(cell,4) = 1;
-            elseif t_win(pos_min_pro_3(cell)) > 0 & t_win(pos_min_pro_3(cell))<= 0.075;
+            elseif t_win(pos_min_pro_3(cell)) > 0 & t_win(pos_min_pro_3(cell))<= 0.075
                 win_indx_pro_3(cell,6) = 1;
             else
                 win_indx_pro_3(cell,8) = 1;
@@ -6260,7 +6386,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_pro)
-            if t_win(pos_min_pro_3(cell)) >=-0.151 & t_win(pos_min_pro_3(cell)) <= 0;
+            if t_win(pos_min_pro_3(cell)) >=-0.151 & t_win(pos_min_pro_3(cell)) <= 0
                 comparison_indx_pro_3(cell,2) = 1;
             else
                 comparison_indx_pro_3(cell,4) = 1;
@@ -6281,11 +6407,11 @@ switch plotType
         % get flag for position
         win_indx_anti_3 = zeros(length(indx_anti),8);
         for cell = 1:length(indx_anti)
-            if t_win(pos_min_anti_3(cell)) >=-0.151 & t_win(pos_min_anti_3(cell)) <= -0.075;
+            if t_win(pos_min_anti_3(cell)) >=-0.151 & t_win(pos_min_anti_3(cell)) <= -0.075
                 win_indx_anti_3(cell,2) = 1;
-            elseif t_win(pos_min_anti_3(cell)) > -0.075 & t_win(pos_min_anti_3(cell)) <= 0;
+            elseif t_win(pos_min_anti_3(cell)) > -0.075 & t_win(pos_min_anti_3(cell)) <= 0
                 win_indx_anti_3(cell,4) = 1;
-            elseif t_win(pos_min_anti_3(cell)) > 0 & t_win(pos_min_anti_3(cell))<= 0.075;
+            elseif t_win(pos_min_anti_3(cell)) > 0 & t_win(pos_min_anti_3(cell))<= 0.075
                 win_indx_anti_3(cell,6) = 1;
             else
                 win_indx_anti_3(cell,8) = 1;
@@ -6294,7 +6420,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_anti)
-            if t_win(pos_min_anti_3(cell)) >=-0.151 & t_win(pos_min_anti_3(cell)) <= 0;
+            if t_win(pos_min_anti_3(cell)) >=-0.151 & t_win(pos_min_anti_3(cell)) <= 0
                 comparison_indx_anti_3(cell,2) = 1;
             else
                 comparison_indx_anti_3(cell,4) = 1;
@@ -6364,11 +6490,11 @@ switch plotType
         % get flag for position
         win_indx_pro = zeros(length(indx_pro),8);
         for cell = 1:length(indx_pro)
-            if t_win(pos_min_pro(cell)) >=-0.151 & t_win(pos_min_pro(cell)) <= -0.075;
+            if t_win(pos_min_pro(cell)) >=-0.151 & t_win(pos_min_pro(cell)) <= -0.075
                 win_indx_pro(cell,1) = 1;
-            elseif t_win(pos_min_pro(cell)) > -0.075 & t_win(pos_min_pro(cell)) <= 0;
+            elseif t_win(pos_min_pro(cell)) > -0.075 & t_win(pos_min_pro(cell)) <= 0
                 win_indx_pro(cell,3) = 1;
-            elseif t_win(pos_min_pro(cell)) > 0 & t_win(pos_min_pro(cell))<= 0.075;
+            elseif t_win(pos_min_pro(cell)) > 0 & t_win(pos_min_pro(cell))<= 0.075
                 win_indx_pro(cell,5) = 1;
             else
                 win_indx_pro(cell,7) = 1;
@@ -6377,7 +6503,7 @@ switch plotType
         
         % two window comparison
         for cell = 1:length(indx_pro)
-            if t_win(pos_min_pro(cell)) >=-0.151 & t_win(pos_min_pro(cell)) <= 0;
+            if t_win(pos_min_pro(cell)) >=-0.151 & t_win(pos_min_pro(cell)) <= 0
                 comparison_indx_pro(cell,1) = 1;
             else
                 comparison_indx_pro(cell,3) = 1;
@@ -6394,11 +6520,11 @@ switch plotType
             % get flag for position
             win_indx_pro_rnd = zeros(length(indx_pro),8);
             for cell = 1:length(indx_pro)
-                if t_win(pos_min_pro_rnd(cell)) >=-0.151 & t_win(pos_min_pro_rnd(cell)) <= -0.075;
+                if t_win(pos_min_pro_rnd(cell)) >=-0.151 & t_win(pos_min_pro_rnd(cell)) <= -0.075
                     win_indx_pro_rnd(cell,2) = 1;
-                elseif t_win(pos_min_pro_rnd(cell)) > -0.075 & t_win(pos_min_pro_rnd(cell)) <= 0;
+                elseif t_win(pos_min_pro_rnd(cell)) > -0.075 & t_win(pos_min_pro_rnd(cell)) <= 0
                     win_indx_pro_rnd(cell,4) = 1;
-                elseif t_win(pos_min_pro_rnd(cell)) > 0 & t_win(pos_min_pro_rnd(cell))<= 0.075;
+                elseif t_win(pos_min_pro_rnd(cell)) > 0 & t_win(pos_min_pro_rnd(cell))<= 0.075
                     win_indx_pro_rnd(cell,6) = 1;
                 else
                     win_indx_pro_rnd(cell,8) = 1;
@@ -6407,7 +6533,7 @@ switch plotType
             
             % two window comparison
             for cell = 1:length(indx_pro)
-                if t_win(pos_min_pro_rnd(cell)) >=win(1) & t_win(pos_min_pro_rnd(cell)) <= 0;
+                if t_win(pos_min_pro_rnd(cell)) >=win(1) & t_win(pos_min_pro_rnd(cell)) <= 0
                     comparison_indx_pro_rnd(cell,2) = 1;
                 else
                     comparison_indx_pro_rnd(cell,4) = 1;
@@ -6546,78 +6672,111 @@ switch plotType
         
         % omv
         for j=1:length(indx_exc_pro_omv), pro_exc_omv(j,:) = units(indx_exc_pro_omv(j)).pro.neural.sacc.peak_resp_time; end
-        for j=1:length(indx_exc_anti_omv), anti_exc_omv(j,:) = units(indx_exc_anti_omv(j)).anti.neural.sacc.peak_resp_time; end
+        for j=1:length(indx_exc_anti_omv), anti_exc_omv(j,:) = units(indx_exc_anti_omv(j)).anti.neural.sacc.peak_resp_time; end 
         
-        for j=1:length(indx_sup_pro_omv), pro_sup_omv(j,:) = units(indx_sup_pro_omv(j)).pro.neural.sacc.min_resp_time; end
-        for j=1:length(indx_sup_anti_omv), anti_sup_omv(j,:) = units(indx_sup_anti_omv(j)).anti.neural.sacc.min_resp_time; end
+        for j=1:length(indx_sup_pro_omv), pro_sup_omv(j,:) = units(indx_sup_pro_omv(j)).pro.neural.sacc.peak_resp_time; end  % the psths are flipped in extractWholeNeuronR
+        for j=1:length(indx_sup_anti_omv), anti_sup_omv(j,:) = units(indx_sup_anti_omv(j)).anti.neural.sacc.peak_resp_time; end  % the psths are flipped in extractWholeNeuronR
         
         % lateral
         for j=1:length(indx_exc_pro_lat), pro_exc_lat(j,:) = units(indx_exc_pro_lat(j)).pro.neural.sacc.peak_resp_time; end
         for j=1:length(indx_exc_anti_lat), anti_exc_lat(j,:) = units(indx_exc_anti_lat(j)).anti.neural.sacc.peak_resp_time; end
         
-        for j=1:length(indx_sup_pro_lat), pro_sup_lat(j,:) = units(indx_sup_pro_lat(j)).pro.neural.sacc.min_resp_time; end
-        for j=1:length(indx_sup_anti_lat), anti_sup_lat(j,:) = units(indx_sup_anti_lat(j)).anti.neural.sacc.min_resp_time; end
+        for j=1:length(indx_sup_pro_lat), pro_sup_lat(j,:) = units(indx_sup_pro_lat(j)).pro.neural.sacc.peak_resp_time; end  % the psths are flipped in extractWholeNeuronR
+        for j=1:length(indx_sup_anti_lat), anti_sup_lat(j,:) = units(indx_sup_anti_lat(j)).anti.neural.sacc.peak_resp_time; end % the psths are flipped in extractWholeNeuronR
         
         % plot exc medial vs lateral Anti         
-        figure; boxplot(pro_exc_omv); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); xlabel('Medial'); box off; axis square;
-        figure; boxplot(pro_exc_lat); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); xlabel('Lateral'); box off; axis square;
+%         figure; boxplot(pro_exc_omv); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); xlabel('Medial'); box off; axis square;
+%         figure; boxplot(pro_exc_lat); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); xlabel('Lateral'); box off; axis square;
+        figure; hold on;
+        plot(1,pro_exc_omv,'.k','MarkerSize',12); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); box off; axis square; plot(1,mean(pro_exc_omv),'sr','MarkerSize',12);
+        plot(2,pro_exc_lat,'.k','MarkerSize',12); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); box off; axis square; plot(2,mean(pro_exc_lat),'sr','MarkerSize',12);
         ranksum(pro_exc_omv, pro_exc_lat)
         
-         % plot sup medial vs lateral Anti         
-        figure; boxplot(pro_sup_omv); set (gca, 'yLim',[-0.02 0.15], 'TickDir', 'out','FontSize', 22); xlabel('Medial');box off; axis square;
-        figure; boxplot(pro_sup_lat); set (gca, 'yLim',[-0.02 0.15], 'TickDir', 'out','FontSize', 22); xlabel('Lateral'); box off; axis square;
+        % plot sup medial vs lateral Anti
+        %         figure; boxplot(pro_sup_omv); set (gca, 'yLim',[-0.02 0.15], 'TickDir', 'out','FontSize', 22); xlabel('Medial');box off; axis square;
+        %         figure; boxplot(pro_sup_lat); set (gca, 'yLim',[-0.02 0.15], 'TickDir', 'out','FontSize', 22); xlabel('Lateral'); box off; axis square;
+        plot(3,pro_sup_omv,'.k','MarkerSize',12); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); box off; axis square; plot(3,mean(pro_sup_omv),'sr','MarkerSize',12);
+        plot(4,pro_sup_lat,'.k','MarkerSize',12); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); box off; axis square; plot(4,mean(pro_sup_lat),'sr','MarkerSize',12);
         ranksum(pro_sup_omv, pro_sup_lat)
         
-        % plot exc medial vs lateral Anti         
-        figure; boxplot(anti_exc_omv); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); xlabel('Medial');box off; axis square;
-        figure; boxplot(anti_exc_lat); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); xlabel('Lateral');box off; axis square;
+        % plot exc medial vs lateral Anti
+        %         figure; boxplot(anti_exc_omv); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); xlabel('Medial');box off; axis square;
+        %         figure; boxplot(anti_exc_lat); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); xlabel('Lateral');box off; axis square;
+        plot(5,anti_exc_omv,'.k','MarkerSize',12); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); box off; axis square; plot(5,mean(anti_exc_omv),'sr','MarkerSize',12);
+        plot(6,anti_exc_lat,'.k','MarkerSize',12); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); box off; axis square; plot(6,mean(anti_exc_lat),'sr','MarkerSize',12);
         ranksum(anti_exc_omv, anti_exc_lat)
         
-         % plot sup medial vs lateral Anti         
-        figure; boxplot(anti_sup_omv); set (gca, 'yLim',[-0.02 0.15], 'TickDir', 'out','FontSize', 22); xlabel('Medial');box off; axis square;
-        figure; boxplot(anti_sup_lat); set (gca, 'yLim',[-0.02 0.15], 'TickDir', 'out','FontSize', 22); xlabel('Lateral');box off; axis square;
-        ranksum(anti_sup_omv, pro_sup_lat)
+        % plot sup medial vs lateral Anti
+        %         figure; boxplot(anti_sup_omv); set (gca, 'yLim',[-0.02 0.15], 'TickDir', 'out','FontSize', 22); xlabel('Medial');box off; axis square;
+        %         figure; boxplot(anti_sup_lat); set (gca, 'yLim',[-0.02 0.15], 'TickDir', 'out','FontSize', 22); xlabel('Lateral');box off; axis square;
+        plot(7,anti_sup_omv,'.k','MarkerSize',12); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); box off; axis square; plot(7,mean(anti_sup_omv),'sr','MarkerSize',12);
+        plot(8,anti_sup_lat,'.k','MarkerSize',12); set (gca, 'yLim',[0 0.16], 'TickDir', 'out','FontSize', 22); box off; axis square; plot(8,mean(anti_sup_lat),'sr','MarkerSize',12);
+        ranksum(anti_sup_omv, anti_sup_lat)
         
+        ranksum(anti_exc_lat,anti_sup_lat)
+        ranksum([pro_sup_omv ; anti_sup_omv],[pro_sup_lat ; anti_sup_lat])
+        ranksum(pro_exc_omv,pro_sup_omv) ; ranksum(anti_exc_omv,anti_sup_omv) 
+        ranksum(pro_exc_lat,pro_sup_lat) ; ranksum(anti_exc_lat,anti_sup_lat) 
         
-    case 'mod_sensitivity_per_area' %%% CHECK INDEXING! 
-        fprintf(['        >>> loading ' recArea ' cells <<< \n']);
-        for cellNum = 1:length(units)
-            indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
-        end
-        indx_area = find(indx_area);
+    case 'mag_sensitivity_per_area' 
+        % If calculating medial and lateral separately
+
+% Where do the files originate from...
+% mag_sens_pro = pop.stats.sacc.pro.mag_sensitivity(indx_area);
+% mag_sens_anti = pop.stats.sacc.anti.mag_sensitivity(indx_area);
+% save('mag_sens_omv', 'mag_sens_pro', 'mag_sens_anti');
+
+medial = load('mag_sens_omv')
+lateral = load('mag_sens_lat')
+
+medial_mag = [medial.mag_sens_pro medial.mag_sens_anti]; 
+lateral_mag = [lateral.mag_sens_pro lateral.mag_sens_anti];
+
+[h,p] = ttest2(medial.mag_sens_pro,lateral.mag_sens_pro, 'Tail', 'left')
+[h,p] = ttest2(medial.mag_sens_anti,lateral.mag_sens_anti, 'Tail', 'left')
         
-        indx_exc_pro = pop.indx_sel.(recArea).sacc.all.pro.exc; indx_exc_anti = pop.indx_sel.(recArea).sacc.all.anti.exc;
-        indx_sup_pro = pop.indx_sel.(recArea).sacc.all.pro.sup; indx_sup_anti = pop.indx_sel.(recArea).sacc.all.anti.sup;
-        indx_pro = [indx_exc_pro indx_sup_pro];
-        indx_anti = [indx_exc_anti indx_sup_anti];
+
+
         
-        % plot
-        figure; hold on; 
-        plot(pop.stats.sacc.pro.mag_sensitivity(indx_area),pop.stats.sacc.anti.mag_sensitivity(indx_area), '.k', 'MarkerSize', 18)
-        set(gca,'FontSize', 22, 'TickDir', 'out'); xlabel('Mag sensitivity Pro (spks/sec)'); ylabel('Mag sensitivity Anti (spks/sec)')
-        xlim([0 250]); ylim([0 250]);
-        plot([0 250],[0 250],'k'); axis square;
-        % mark the ones significantly different
-        plot(pop.stats.sacc.pro.mag_sensitivity(indx_pro),pop.stats.sacc.anti.mag_sensitivity(indx_pro), '.c', 'MarkerSize', 18);
-        plot(pop.stats.sacc.pro.mag_sensitivity(indx_anti),pop.stats.sacc.anti.mag_sensitivity(indx_anti), '.c', 'MarkerSize', 18);
-        title(['Magnitude sensitivity ' recArea]); axis square;
-        
-        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_area)', pop.stats.sacc.anti.mag_sensitivity(indx_area)')
-        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_pro)', pop.stats.sacc.anti.mag_sensitivity(indx_pro)')
-        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_anti)', pop.stats.sacc.anti.mag_sensitivity(indx_anti)')
-        
-        kstest2(pop.stats.sacc.pro.mag_sensitivity(indx_area)', pop.stats.sacc.anti.mag_sensitivity(indx_area)')
-        kstest2(pop.stats.sacc.pro.mag_sensitivity(indx_pro)', pop.stats.sacc.anti.mag_sensitivity(indx_pro)')
-        kstest2(pop.stats.sacc.pro.mag_sensitivity(indx_anti)', pop.stats.sacc.anti.mag_sensitivity(indx_anti)')
-        
-        mag_sens_pro = pop.stats.sacc.pro.mag_sensitivity(indx_area);
-        mag_sens_anti = pop.stats.sacc.anti.mag_sensitivity(indx_area);
-        
+        %% Check indexing
+%         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
+%         for cellNum = 1:length(units)
+%             indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+%         end
+%         indx_area = find(indx_area);
+%         
+%         indx_exc_pro = pop.indx_sel.(recArea).sacc.all.pro.exc; indx_exc_anti = pop.indx_sel.(recArea).sacc.all.anti.exc;
+%         indx_sup_pro = pop.indx_sel.(recArea).sacc.all.pro.sup; indx_sup_anti = pop.indx_sel.(recArea).sacc.all.anti.sup;
+%         indx_pro = [indx_exc_pro indx_sup_pro];
+%         indx_anti = [indx_exc_anti indx_sup_anti];
+%         
+%         % plot
+%         figure; hold on; 
+%         plot(pop.stats.sacc.pro.mag_sensitivity(indx_area),pop.stats.sacc.anti.mag_sensitivity(indx_area), '.k', 'MarkerSize', 18)
+%         set(gca,'FontSize', 22, 'TickDir', 'out'); xlabel('Mag sensitivity Pro (spks/sec)'); ylabel('Mag sensitivity Anti (spks/sec)')
+%         xlim([0 250]); ylim([0 250]);
+%         plot([0 250],[0 250],'k'); axis square;
+%         % mark the ones significantly different
+%         plot(pop.stats.sacc.pro.mag_sensitivity(indx_pro),pop.stats.sacc.anti.mag_sensitivity(indx_pro), '.c', 'MarkerSize', 18);
+%         plot(pop.stats.sacc.pro.mag_sensitivity(indx_anti),pop.stats.sacc.anti.mag_sensitivity(indx_anti), '.c', 'MarkerSize', 18);
+%         title(['Magnitude sensitivity ' recArea]); axis square;
+%         
+%         ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_area)', pop.stats.sacc.anti.mag_sensitivity(indx_area)')
+%         ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_pro)', pop.stats.sacc.anti.mag_sensitivity(indx_pro)')
+%         ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_anti)', pop.stats.sacc.anti.mag_sensitivity(indx_anti)')
+%         
+%         kstest2(pop.stats.sacc.pro.mag_sensitivity(indx_area)', pop.stats.sacc.anti.mag_sensitivity(indx_area)')
+%         kstest2(pop.stats.sacc.pro.mag_sensitivity(indx_pro)', pop.stats.sacc.anti.mag_sensitivity(indx_pro)')
+%         kstest2(pop.stats.sacc.pro.mag_sensitivity(indx_anti)', pop.stats.sacc.anti.mag_sensitivity(indx_anti)')
+%         
+%         mag_sens_pro = pop.stats.sacc.pro.mag_sensitivity(indx_area);
+%         mag_sens_anti = pop.stats.sacc.anti.mag_sensitivity(indx_area);
+%         
 %         save('mag_sens_omv', 'mag_sens_pro', 'mag_sens_anti');
 %         medial = load('mag_sens_omv')
 %         lateral = load('mag_sens_lat')
         
-    case 'mod_sensitivity'
+    case 'mag_sensitivity'
 
         indx_exc_pro_omv = pop.indx_sel.vermis.sacc.all.pro.exc; indx_exc_anti_omv = pop.indx_sel.vermis.sacc.all.anti.exc;
         indx_sup_pro_omv = pop.indx_sel.vermis.sacc.all.pro.sup; indx_sup_anti_omv = pop.indx_sel.vermis.sacc.all.anti.sup;
@@ -6632,30 +6791,76 @@ switch plotType
  
         indx_pro_lat = [indx_exc_pro_lat indx_sup_pro_lat];
         indx_anti_lat = [indx_exc_anti_lat indx_sup_anti_lat];
-        indx_lat = [indx_pro_lat indx_anti_lat]
+        indx_lat = [indx_pro_lat indx_anti_lat]; 
         
         % plot
         figure; hold on;
         plot(pop.stats.sacc.pro.mag_sensitivity(indx_omv),pop.stats.sacc.anti.mag_sensitivity(indx_omv), '.k', 'MarkerSize', 18)
-        set(gca,'FontSize', 22, 'TickDir', 'out'); xlabel('Mag sensitivity Pro (spks/sec)'); ylabel('Mag sensitivity Anti (spks/sec)')
+        set(gca,'FontSize', 22, 'TickDir', 'out'); xlabel('Mag sensitivity Pro (spks/sec/deg)'); ylabel('Mag sensitivity Anti (spks/sec)')
         xlim([0 250]); ylim([0 250]);
         plot([0 250],[0 250],'k'); axis square;
+        % diagonal histogram 
+        figure;
+        [hscatter,hbar,ax] = scatterDiagHist(pop.stats.sacc.pro.mag_sensitivity(indx_omv),pop.stats.sacc.anti.mag_sensitivity(indx_omv), 50);
+        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 200 400], 'yTick', [0 200 400]); %xlim([0 400]); ylim([0 400]);
+        hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
+        hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square; 
         
         figure; hold on;
         plot(pop.stats.sacc.pro.mag_sensitivity(indx_lat),pop.stats.sacc.anti.mag_sensitivity(indx_lat), '.k', 'MarkerSize', 18)
-        set(gca,'FontSize', 22, 'TickDir', 'out'); xlabel('Mag sensitivity Pro (spks/sec)'); ylabel('Mag sensitivity Anti (spks/sec)')
+        set(gca,'FontSize', 22, 'TickDir', 'out'); xlabel('Mag sensitivity Pro (spks/sec/deg)'); ylabel('Mag sensitivity Anti (spks/sec)');
         xlim([0 250]); ylim([0 250]);
         plot([0 250],[0 250],'k'); axis square;
+        % diagonal histogram
+        figure;
+        [hscatter,hbar,ax] = scatterDiagHist(pop.stats.sacc.pro.mag_sensitivity(indx_lat),pop.stats.sacc.anti.mag_sensitivity(indx_lat), 50);
+        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 200 400], 'yTick', [0 200 400]); xlim([0 400]); ylim([0 400]);
+        hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
+        hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square; 
+        
+        % comparison pro vs anti per area
+        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_pro_omv)', pop.stats.sacc.anti.mag_sensitivity(indx_pro_omv)')
+        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_anti_omv)', pop.stats.sacc.anti.mag_sensitivity(indx_anti_omv)')
+        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_pro_lat)', pop.stats.sacc.anti.mag_sensitivity(indx_pro_lat)')
+        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_anti_lat)', pop.stats.sacc.anti.mag_sensitivity(indx_anti_lat)')
+        
+        % Fac vs Supp per area
+        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_omv)',pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_omv)')
+        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_exc_anti_omv)',pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_omv)')
+        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_lat)',pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_lat)')
+        ranksum(pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_lat)',pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_lat)')
+        
+        % Fac vs Supp per area one tailed
+        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_omv)',pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_omv)','tail', 'right')
+        ranksum(pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_omv)',pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_omv)','tail', 'right')
+        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_lat)',pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_lat)','tail', 'right')
+        ranksum(pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_lat)',pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_lat)','tail', 'right')
+        
+        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_omv)', pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_lat)','tail', 'left')
+        ranksum(pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_omv)', pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_lat)','tail', 'left')
+        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_omv)', pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_lat)','tail', 'left')
+        ranksum(pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_omv)', pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_lat)','tail', 'left')
+        
+        % Medial Pro vs anti (Fac+Sup)
+        ranksum([pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_omv)' ; pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_omv)'],[pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_omv)' ; pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_omv)'],'tail', 'left')
 
+        % Lateral Pro vs anti (Fac+Sup)
+        ranksum([pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_lat)' ; pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_lat)'],[pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_lat)' ; pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_lat)'],'tail', 'right')
         
-        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_area)', pop.stats.sacc.anti.mag_sensitivity(indx_area)')
-        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_pro)', pop.stats.sacc.anti.mag_sensitivity(indx_pro)')
-        ranksum(pop.stats.sacc.pro.mag_sensitivity(indx_anti)', pop.stats.sacc.anti.mag_sensitivity(indx_anti)')
+        % Medial+Lat Fac vs Medial+Lat Supp
+        %Pro
+        ranksum([pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_omv)' ; pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_lat)'],[pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_omv)' ; pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_lat)'])
+        ranksum([pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_omv)' ; pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_lat)'],[pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_omv)' ; pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_lat)'],'tail', 'right')
+        %Anti
+        ranksum([pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_omv)' ; pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_lat)'],[pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_omv)' ; pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_lat)'])
+        ranksum([pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_omv)' ; pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_lat)'],[pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_omv)' ; pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_lat)'],'tail', 'right')
         
-        kstest2(pop.stats.sacc.pro.mag_sensitivity(indx_area)', pop.stats.sacc.anti.mag_sensitivity(indx_area)')
-        kstest2(pop.stats.sacc.pro.mag_sensitivity(indx_pro)', pop.stats.sacc.anti.mag_sensitivity(indx_pro)')
-        kstest2(pop.stats.sacc.pro.mag_sensitivity(indx_anti)', pop.stats.sacc.anti.mag_sensitivity(indx_anti)')
-        
+        % Fac vs Supp (Fac Pro+anti medial/lat    vs Supp  Pro+anti medial/lat)
+        ranksum([pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_omv)' ; pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_omv)' ; pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_lat)' ; pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_lat)'],...
+            [pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_omv)' ; pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_omv)' ; pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_lat)' ; pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_lat)']) 
+        ranksum([pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_omv)' ; pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_omv)' ; pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_lat)' ; pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_lat)'],...
+            [pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_omv)' ; pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_omv)' ; pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_lat)' ; pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_lat)'],'tail', 'right')
+
     case 'rec_location'
         
         load rec_locations.mat
@@ -6696,7 +6901,21 @@ switch plotType
         title('vermis')
         
         
+    case 'x_square'
+        [h,p, chi2stat,df] = prop_test([9 12], [90 72] , true) % Exc pro omv vs lat
+        [h,p, chi2stat,df] = prop_test([10 10], [90 72] , true) % Sup pro omv vs lat
+        [h,p, chi2stat,df] = prop_test([10 13], [90 72] , true) % Exc anti omv vs lat
+        [h,p, chi2stat,df] = prop_test([6 11], [90 72] , true) % Sup anti omv lat
         
+    case 'max_sorted_response'
         
+        omv = load('colormap_sorted_fr_omv.mat');
+        lat = load('colormap_sorted_fr_lat.mat');
+        ranksum([omv.pro_exc'; omv.anti_exc'],[lat.pro_exc'; lat.anti_exc'])
+        ranksum([omv.pro_sup'; omv.anti_sup'],[lat.pro_sup'; lat.anti_sup'])
         
+        ranksum(omv.pro_exc',lat.pro_exc')
+        ranksum(omv.anti_exc',lat.anti_exc')
+        ranksum(omv.pro_sup',lat.pro_sup')
+        ranksum(omv.anti_sup',lat.anti_sup')
 end

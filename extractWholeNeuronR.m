@@ -23,17 +23,17 @@ run_error_trials =0 ; % if run_error_trials = 1 - extract only error trials same
 
 % first find the ones that are not empty and have at least 10 trials.
 for i = 1:length(wholeNeuronResults)
-    if  ~isempty(wholeNeuronResults(i).allStableTrials);
+    if  ~isempty(wholeNeuronResults(i).allStableTrials)
         cell_indx(i) = numel(wholeNeuronResults(i).selectedTrials.corProTrials)>=prs.min_trial & numel(wholeNeuronResults(i).selectedTrials.corAntiTrials)>=prs.min_trial;
     end
 end
 cell_indx = find(cell_indx);
 
 
-for cellNum = 1:length(cell_indx);
+for cellNum = 1:length(cell_indx)
     trials_with_spk=zeros(1,length(wholeNeuronResults(cell_indx(cellNum)).allStableTrials));
     
-    for trialNum = 1:length(wholeNeuronResults(cell_indx(cellNum)).allStableTrials);
+    for trialNum = 1:length(wholeNeuronResults(cell_indx(cellNum)).allStableTrials)
         
         if ~isempty(wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).alignedSpikes)
             trials_with_spk(trialNum)=1;
@@ -95,7 +95,7 @@ for cellNum = 1:length(cell_indx);
             end
             units(cellNum).id = 'SS';
             % select condition type Pro or Antisaccade
-            if ismember(wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).conditionCode, prs.proConditions);
+            if ismember(wholeNeuronResults(cell_indx(cellNum)).allStableTrials(trialNum).conditionCode, prs.proConditions)
                 units(cellNum).trial.behav(trialNum).condition = 'Prosaccade';
             else
                 units(cellNum).trial.behav(trialNum).condition = 'Antisaccade';
@@ -869,7 +869,7 @@ for cellNum = 1:length(units)
     %[units(cellNum).stats.pro.pval.saccVSbase_nspk, units(cellNum).stats.pro.flags.saccVSbase_nspk] = signrank(units(cellNum).pro.neural.sacc.nspk,units(cellNum).pro.neural.base.nspk);
     [units(cellNum).stats.pro.pval.saccVSbase_nspk, units(cellNum).stats.pro.flags.saccVSbase_nspk] = signrank(units(cellNum).pro.neural.sacc.nspk,units(cellNum).pro.neural.base.nspk_instr);
     [units(cellNum).stats.pro.pval.saccVSinstrDir_nspk, units(cellNum).stats.pro.flags.saccVSinstrDir_nspk] = signrank(units(cellNum).pro.neural.sacc.nspk,units(cellNum).pro.neural.instrDir.nspk);
-    [units(cellNum).stats.pro.pval.instrDirVSinstr_nspk, units(cellNum).stats.pro.flags.instrDirVSinstr_nspk] = signrank(units(cellNum).pro.neural.instrDir.nspk,units(cellNum).pro.neural.instr.nspk);
+    [units(cellNum).stats.pro.pval.instrDirVSbase_nspk, units(cellNum).stats.pro.flags.instrDirVSbase_nspk] = signrank(units(cellNum).pro.neural.instrDir.nspk,units(cellNum).pro.neural.base.nspk_instr);
     [units(cellNum).stats.pro.pval.goCueVSinstrDir_nspk, units(cellNum).stats.pro.flags.goCueVSinstrDir_nspk] = signrank(units(cellNum).pro.neural.goCue.nspk,units(cellNum).pro.neural.instrDir.nspk);
     
     % stat for comparing exc and sup
@@ -1316,26 +1316,43 @@ for i = 1:length(units)
     % kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' rt_pro' ones(size(amp_pro,2),1)];
     kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' ones(size(amp_pro,2),1)];
     
+    
     r_all_anti = [ r_all_anti ; r_anti' ];
     % kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' rt_anti' ones(size(amp_anti,2),1)];
     kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' ones(size(amp_anti,2),1)];
     
     % save all r and eye kinmeatics
-    pop.kin(i).pro.r_all_pro = r_all_pro; pop.kin(i).pro.kin_all_pro = kin_all_pro; 
-    pop.kin(i).anti.r_all_anti = r_all_anti;  pop.kin(i).anti.kin_all_anti = kin_all_anti; 
-    
-     [units(i).stats.sacc.regress.coeff_pro, units(i).stats.sacc.regress.CI_pro, units(i).stats.sacc.regress.rsq_pro, units(i).stats.sacc.regress.reg_stats_pro] = ...
-        regress(r_all_pro,kin_all_pro); 
-    
-    [units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
-        regress(r_all_anti,kin_all_anti); 
+%     pop.kin(i).pro.r_all_pro = r_all_pro; pop.kin(i).pro.kin_all_pro = kin_all_pro; 
+%     pop.kin(i).anti.r_all_anti = r_all_anti;  pop.kin(i).anti.kin_all_anti = kin_all_anti; 
+%     
+%      [units(i).stats.sacc.regress.coeff_pro, units(i).stats.sacc.regress.CI_pro, units(i).stats.sacc.regress.rsq_pro, units(i).stats.sacc.regress.reg_stats_pro] = ...
+%         regress(r_all_pro,kin_all_pro); 
+%
+%     [units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
+%         regress(r_all_anti,kin_all_anti);
 
-    
-% Compute Modulation sensitivity (De Zeeuw et al. 1995) 		
+% save all r and eye kinmeatics
+pop.kin(i).pro.r_all_pro = r_all_pro; pop.kin(i).pro.kin_all_pro = kin_all_pro;
+pop.kin(i).anti.r_all_anti = r_all_anti;  pop.kin(i).anti.kin_all_anti = kin_all_anti;
+
+%      [units(i).stats.sacc.regress.coeff_pro, units(i).stats.sacc.regress.CI_pro, units(i).stats.sacc.regress.rsq_pro, units(i).stats.sacc.regress.reg_stats_pro] = ...
+%         regress(r_all_pro,kin_all_pro);
+%
+%     [units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
+%         regress(r_all_anti,kin_all_anti);
+
+
+[units(i).stats.sacc.regress.coeff_pro, units(i).stats.sacc.regress.CI_pro, units(i).stats.sacc.regress.rsq_pro, units(i).stats.sacc.regress.reg_stats_pro] = ...
+    regress(r_all_pro,amp_pro');
+
+[units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
+    regress(r_all_anti,amp_anti');
+
+% Compute Modulation sensitivity (De Zeeuw et al. 1995)
 % Magnitude sensitivity = sqrt (SS firing rate in pro)^2 + (Pro regress coefficient amplitude)^2 + (Pro regress coefficient duration)^2 + (Pro regress coefficient peak velocity)^2 )
-					
-pop.stats.sacc.pro.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_pro(2)^2) + (units(i).stats.sacc.regress.coeff_pro(3)^2) + (units(i).stats.sacc.regress.coeff_pro(4)^2)); 
-pop.stats.sacc.anti.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_anti(2)^2) + (units(i).stats.sacc.regress.coeff_anti(3)^2) + (units(i).stats.sacc.regress.coeff_anti(4)^2)); 
+
+pop.stats.sacc.pro.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_pro(2)^2) + (units(i).stats.sacc.regress.coeff_pro(3)^2) + (units(i).stats.sacc.regress.coeff_pro(4)^2));
+pop.stats.sacc.anti.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_anti(2)^2) + (units(i).stats.sacc.regress.coeff_anti(3)^2) + (units(i).stats.sacc.regress.coeff_anti(4)^2));
 
 end
 
