@@ -1200,93 +1200,93 @@ pop.pro.sacc.nspk_std = std(spks_pro); pop.anti.sacc.nspk_std = std(spks_anti); 
 
 %% regress activity to saccade kinematics (per area)
 
-% gather data vermis
-recArea = 'vermis';
-for cellNum = 1:length(units)
-    indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
-end
-indx_area = find(indx_area);
+% % gather data vermis
+% recArea = 'vermis';
+% for cellNum = 1:length(units)
+%     indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+% end
+% indx_area = find(indx_area);
+% 
+% r_all_pro = []; kin_all_pro = []; r_all_anti = []; kin_all_anti = [];      
+% 
+% for i = 1:length(indx_area)
+%     r_pro = []; amp_pro = []; dur_pro = []; pv_pro = []; rt_pro = [];  r_anti = []; amp_anti = []; dur_anti = []; pv_anti = []; rt_anti = [];
+%     
+%     
+%     % run for pro and anti separately (unequal nr of trials)
+%     for j = 1:length(units(indx_area(i)).pro.behav.trial)
+%         r_pro(j) = units(indx_area(i)).pro.neural.sacc.nspk(j);
+%         amp_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccAmplitude;
+%         dur_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccDuration;
+%         pv_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccPeakVel;
+%         rt_pro(j) = units(indx_area(i)).pro.behav.trial(j).reactionTime;
+%     end
+%     for j = 1:length(units(indx_area(i)).anti.behav.trial)
+%         r_anti(j) = units(indx_area(i)).anti.neural.sacc.nspk(j);
+%         amp_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccAmplitude;
+%         dur_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccDuration;
+%         pv_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccPeakVel;
+%         rt_anti(j) = units(indx_area(i)).anti.behav.trial(j).reactionTime;
+%     end
+%     
+%     r_all_pro = [ r_all_pro ; r_pro' ];
+%     kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' rt_pro' ones(size(amp_pro,2),1)];
+%     
+%     r_all_anti = [ r_all_anti ; r_anti' ];
+%     kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' rt_anti' ones(size(amp_anti,2),1)];
+%     
+% end
+% 
+%  % save all r and kin vermis
+% pop.pro.vermis.r_all = r_all_pro; pop.pro.vermis.kin_all = kin_all_pro; pop.pro.vermis.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}]; 
+% pop.anti.vermis.r_all = r_all_anti; pop.anti.vermis.kin_all = kin_all_anti; pop.anti.vermis.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}];
+% 
+% [pop.stats.sacc.pro.regress.vermis.coeff_pro, pop.stats.sacc.pro.regress.vermis.CI_pro, pop.stats.sacc.pro.regress.vermis.rsq_pro, pop.stats.sacc.pro.regress.vermis.reg_stats_pro] = regress(r_all_pro,kin_all_pro); 
+% [pop.stats.sacc.anti.regress.vermis.coeff_anti, pop.stats.sacc.anti.regress.vermis.CI_anti, pop.stats.sacc.anti.regress.vermis.rsq_anti, pop.stats.sacc.anti.regress.vermis.reg_stats_anti] = regress(r_all_anti,kin_all_anti); 
 
-r_all_pro = []; kin_all_pro = []; r_all_anti = []; kin_all_anti = [];      
-
-for i = 1:length(indx_area)
-    r_pro = []; amp_pro = []; dur_pro = []; pv_pro = []; rt_pro = [];  r_anti = []; amp_anti = []; dur_anti = []; pv_anti = []; rt_anti = [];
-    
-    
-    % run for pro and anti separately (unequal nr of trials)
-    for j = 1:length(units(indx_area(i)).pro.behav.trial)
-        r_pro(j) = units(indx_area(i)).pro.neural.sacc.nspk(j);
-        amp_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccAmplitude;
-        dur_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccDuration;
-        pv_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccPeakVel;
-        rt_pro(j) = units(indx_area(i)).pro.behav.trial(j).reactionTime;
-    end
-    for j = 1:length(units(indx_area(i)).anti.behav.trial)
-        r_anti(j) = units(indx_area(i)).anti.neural.sacc.nspk(j);
-        amp_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccAmplitude;
-        dur_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccDuration;
-        pv_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccPeakVel;
-        rt_anti(j) = units(indx_area(i)).anti.behav.trial(j).reactionTime;
-    end
-    
-    r_all_pro = [ r_all_pro ; r_pro' ];
-    kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' rt_pro' ones(size(amp_pro,2),1)];
-    
-    r_all_anti = [ r_all_anti ; r_anti' ];
-    kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' rt_anti' ones(size(amp_anti,2),1)];
-    
-end
-
- % save all r and kin vermis
-pop.pro.vermis.r_all = r_all_pro; pop.pro.vermis.kin_all = kin_all_pro; pop.pro.vermis.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}]; 
-pop.anti.vermis.r_all = r_all_anti; pop.anti.vermis.kin_all = kin_all_anti; pop.anti.vermis.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}];
-
-[pop.stats.sacc.pro.regress.vermis.coeff_pro, pop.stats.sacc.pro.regress.vermis.CI_pro, pop.stats.sacc.pro.regress.vermis.rsq_pro, pop.stats.sacc.pro.regress.vermis.reg_stats_pro] = regress(r_all_pro,kin_all_pro); 
-[pop.stats.sacc.anti.regress.vermis.coeff_anti, pop.stats.sacc.anti.regress.vermis.CI_anti, pop.stats.sacc.anti.regress.vermis.rsq_anti, pop.stats.sacc.anti.regress.vermis.reg_stats_anti] = regress(r_all_anti,kin_all_anti); 
-
-%% gather data lateral
-recArea = 'lateral';
-for cellNum = 1:length(units)
-    indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
-end
-indx_area = find(indx_area);
-
-r_all_pro = []; kin_all_pro = []; r_all_anti = []; kin_all_anti = [];      
-
-for i = 1:length(indx_area)
-    r_pro = []; amp_pro = []; dur_pro = []; pv_pro = []; rt_pro = [];  r_anti = []; amp_anti = []; dur_anti = []; pv_anti = []; rt_anti = [];
-    
-    
-    % run for pro and anti separately (unequal nr of trials)
-    for j = 1:length(units(indx_area(i)).pro.behav.trial)
-        r_pro(j) = units(indx_area(i)).pro.neural.sacc.nspk(j);
-        amp_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccAmplitude;
-        dur_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccDuration;
-        pv_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccPeakVel;
-        rt_pro(j) = units(indx_area(i)).pro.behav.trial(j).reactionTime;
-    end
-    for j = 1:length(units(indx_area(i)).anti.behav.trial)
-        r_anti(j) = units(indx_area(i)).anti.neural.sacc.nspk(j);
-        amp_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccAmplitude;
-        dur_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccDuration;
-        pv_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccPeakVel;
-        rt_anti(j) = units(indx_area(i)).anti.behav.trial(j).reactionTime;
-    end
-    
-    r_all_pro = [ r_all_pro ; r_pro' ];
-    kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' rt_pro' ones(size(amp_pro,2),1)];
-    
-    r_all_anti = [ r_all_anti ; r_anti' ];
-    kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' rt_anti' ones(size(amp_anti,2),1)];
-    
-end
-
- % save all r and kin vermis
-pop.pro.lateral.r_all = r_all_pro; pop.pro.lateral.kin_all = kin_all_pro; pop.pro.lateral.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}]; 
-pop.anti.lateral.r_all = r_all_anti; pop.anti.lateral.kin_all = kin_all_anti;  pop.anti.lateral.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}]; 
-
-[pop.stats.sacc.pro.regress.lateral.coeff_pro, pop.stats.sacc.pro.regress.lateral.CI_pro, pop.stats.sacc.pro.regress.lateral.rsq_pro, pop.stats.sacc.pro.regress.lateral.reg_stats_pro] = regress(r_all_pro,kin_all_pro); 
-[pop.stats.sacc.anti.regress.lateral.coeff_anti, pop.stats.sacc.anti.regress.lateral.CI_anti, pop.stats.sacc.anti.regress.lateral.rsq_anti, pop.stats.sacc.anti.regress.lateral.reg_stats_anti] = regress(r_all_anti,kin_all_anti); 
+ %% gather data lateral
+% recArea = 'lateral';
+% for cellNum = 1:length(units)
+%     indx_area(cellNum) = strcmp(units(cellNum).area, recArea);
+% end
+% indx_area = find(indx_area);
+% 
+% r_all_pro = []; kin_all_pro = []; r_all_anti = []; kin_all_anti = [];      
+% 
+% for i = 1:length(indx_area)
+%     r_pro = []; amp_pro = []; dur_pro = []; pv_pro = []; rt_pro = [];  r_anti = []; amp_anti = []; dur_anti = []; pv_anti = []; rt_anti = [];
+%     
+%     
+%     % run for pro and anti separately (unequal nr of trials)
+%     for j = 1:length(units(indx_area(i)).pro.behav.trial)
+%         r_pro(j) = units(indx_area(i)).pro.neural.sacc.nspk(j);
+%         amp_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccAmplitude;
+%         dur_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccDuration;
+%         pv_pro(j) = units(indx_area(i)).pro.behav.trial(j).saccPeakVel;
+%         rt_pro(j) = units(indx_area(i)).pro.behav.trial(j).reactionTime;
+%     end
+%     for j = 1:length(units(indx_area(i)).anti.behav.trial)
+%         r_anti(j) = units(indx_area(i)).anti.neural.sacc.nspk(j);
+%         amp_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccAmplitude;
+%         dur_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccDuration;
+%         pv_anti(j) = units(indx_area(i)).anti.behav.trial(j).saccPeakVel;
+%         rt_anti(j) = units(indx_area(i)).anti.behav.trial(j).reactionTime;
+%     end
+%     
+%     r_all_pro = [ r_all_pro ; r_pro' ];
+%     kin_all_pro = [ kin_all_pro ; amp_pro' dur_pro' pv_pro' rt_pro' ones(size(amp_pro,2),1)];
+%     
+%     r_all_anti = [ r_all_anti ; r_anti' ];
+%     kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' rt_anti' ones(size(amp_anti,2),1)];
+%     
+% end
+% 
+%  % save all r and kin vermis
+% pop.pro.lateral.r_all = r_all_pro; pop.pro.lateral.kin_all = kin_all_pro; pop.pro.lateral.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}]; 
+% pop.anti.lateral.r_all = r_all_anti; pop.anti.lateral.kin_all = kin_all_anti;  pop.anti.lateral.labels = [{'amp'} , {'dur'}, {'pv'}, {'rt'}]; 
+% 
+% [pop.stats.sacc.pro.regress.lateral.coeff_pro, pop.stats.sacc.pro.regress.lateral.CI_pro, pop.stats.sacc.pro.regress.lateral.rsq_pro, pop.stats.sacc.pro.regress.lateral.reg_stats_pro] = regress(r_all_pro,kin_all_pro); 
+% [pop.stats.sacc.anti.regress.lateral.coeff_anti, pop.stats.sacc.anti.regress.lateral.CI_anti, pop.stats.sacc.anti.regress.lateral.rsq_anti, pop.stats.sacc.anti.regress.lateral.reg_stats_anti] = regress(r_all_anti,kin_all_anti); 
 
 
 %% regress activity to saccade kinematics per cell
@@ -1341,18 +1341,37 @@ pop.kin(i).anti.r_all_anti = r_all_anti;  pop.kin(i).anti.kin_all_anti = kin_all
 %     [units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
 %         regress(r_all_anti,kin_all_anti);
 
+%% amplitude
+[units(i).stats.sacc.regress.coeff_pro_amp, units(i).stats.sacc.regress.CI_pro_amp, units(i).stats.sacc.regress.rsq_pro_amp, units(i).stats.sacc.regress.reg_stats_pro_amp] = ...
+    regress(r_all_pro,[amp_pro' ones(size(amp_pro,2),1)]);
+ 
+[units(i).stats.sacc.regress.coeff_anti_amp, units(i).stats.sacc.regress.CI_anti_amp, units(i).stats.sacc.regress.rsq_anti_amp, units(i).stats.sacc.regress.reg_stats_anti_amp] = ...
+    regress(r_all_anti,[amp_anti' ones(size(amp_anti,2),1)]);
 
-[units(i).stats.sacc.regress.coeff_pro, units(i).stats.sacc.regress.CI_pro, units(i).stats.sacc.regress.rsq_pro, units(i).stats.sacc.regress.reg_stats_pro] = ...
-    regress(r_all_pro,amp_pro');
+% corrected: firing rate/max coefficient
+pop.stats.sacc.regress(i).coeff_pro_amp_corrected = mean(r_all_pro/units(i).stats.sacc.regress.coeff_pro_amp(2)); 
+pop.stats.sacc.regress(i).coeff_anti_amp_corrected = mean(r_all_anti/units(i).stats.sacc.regress.coeff_anti_amp(2));
 
-[units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
-    regress(r_all_anti,amp_anti');
+%% peak velocity 
 
-% Compute Modulation sensitivity (De Zeeuw et al. 1995)
+[units(i).stats.sacc.regress.coeff_pro_peakVel, units(i).stats.sacc.regress.CI_pro_peakVel, units(i).stats.sacc.regress.rsq_pro_peakVel, units(i).stats.sacc.regress.reg_stats_pro_peakVel] = ...
+    regress(r_all_pro,[pv_pro' ones(size(pv_pro,2),1)]);
+
+[units(i).stats.sacc.regress.coeff_anti_peakVel, units(i).stats.sacc.regress.CI_anti_peakVel, units(i).stats.sacc.regress.rsq_anti_peakVel, units(i).stats.sacc.regress.reg_stats_anti_peakVel] = ...
+    regress(r_all_anti,[pv_anti' ones(size(pv_anti,2),1)]);
+
+% corrected: firing rate/max coefficient
+pop.stats.sacc.regress(i).coeff_pro_pv_corrected = mean(r_all_pro'/units(i).stats.sacc.regress.coeff_pro_peakVel(2)); 
+pop.stats.sacc.regress(i).coeff_anti_pv_corrected = mean(r_all_anti'/units(i).stats.sacc.regress.coeff_anti_peakVel(2)); 
+
+
+%% Compute Modulation sensitivity (De Zeeuw et al. 1995)
 % Magnitude sensitivity = sqrt (SS firing rate in pro)^2 + (Pro regress coefficient amplitude)^2 + (Pro regress coefficient duration)^2 + (Pro regress coefficient peak velocity)^2 )
 
-pop.stats.sacc.pro.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_pro(2)^2) + (units(i).stats.sacc.regress.coeff_pro(3)^2) + (units(i).stats.sacc.regress.coeff_pro(4)^2));
-pop.stats.sacc.anti.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_anti(2)^2) + (units(i).stats.sacc.regress.coeff_anti(3)^2) + (units(i).stats.sacc.regress.coeff_anti(4)^2));
+% pop.stats.sacc.pro.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_pro(2)^2) + (units(i).stats.sacc.regress.coeff_pro(3)^2) + (units(i).stats.sacc.regress.coeff_pro(4)^2));
+% pop.stats.sacc.anti.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_anti(2)^2) + (units(i).stats.sacc.regress.coeff_anti(3)^2) + (units(i).stats.sacc.regress.coeff_anti(4)^2));
+
+
 
 end
 

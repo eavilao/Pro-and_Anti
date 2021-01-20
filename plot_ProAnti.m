@@ -6861,6 +6861,114 @@ lateral_mag = [lateral.mag_sens_pro lateral.mag_sens_anti];
         ranksum([pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_omv)' ; pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_omv)' ; pop.stats.sacc.pro.mag_sensitivity(indx_exc_pro_lat)' ; pop.stats.sacc.anti.mag_sensitivity(indx_exc_anti_lat)'],...
             [pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_omv)' ; pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_omv)' ; pop.stats.sacc.pro.mag_sensitivity(indx_sup_pro_lat)' ; pop.stats.sacc.anti.mag_sensitivity(indx_sup_anti_lat)'],'tail', 'right')
 
+    case 'regress_amp_pv'
+        indx_exc_pro_omv = pop.indx_sel.vermis.sacc.all.pro.exc; indx_exc_anti_omv = pop.indx_sel.vermis.sacc.all.anti.exc;
+        indx_sup_pro_omv = pop.indx_sel.vermis.sacc.all.pro.sup; indx_sup_anti_omv = pop.indx_sel.vermis.sacc.all.anti.sup;
+        
+        indx_pro_omv = [indx_exc_pro_omv indx_sup_pro_omv];
+        indx_anti_omv = [indx_exc_anti_omv indx_sup_anti_omv];
+        indx_omv = [indx_pro_omv indx_anti_omv];
+        
+        indx_exc_pro_lat = pop.indx_sel.lateral.sacc.all.pro.exc; indx_exc_anti_lat = pop.indx_sel.lateral.sacc.all.anti.exc;
+        indx_sup_pro_lat = pop.indx_sel.lateral.sacc.all.pro.sup; indx_sup_anti_lat = pop.indx_sel.lateral.sacc.all.anti.sup;
+        
+        indx_pro_lat = [indx_exc_pro_lat indx_sup_pro_lat];
+        indx_anti_lat = [indx_exc_anti_lat indx_sup_anti_lat];
+        indx_lat = [indx_pro_lat indx_anti_lat];
+        
+        pro_amp_corr = [pop.stats.sacc.regress.coeff_pro_amp_corrected]; pro_amp_corr(3) = NaN; % removed this one outlier
+        anti_amp_corr = [pop.stats.sacc.regress.coeff_anti_amp_corrected]; 
+        pro_pv_corr = [pop.stats.sacc.regress.coeff_pro_pv_corrected]; 
+        anti_pv_corr = [pop.stats.sacc.regress.coeff_anti_pv_corrected]; anti_pv_corr(46) = NaN;
+        
+        % amp
+        for i = 1:length(indx_omv), uncorr_pro_amp_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_pro_amp(2); end 
+        for i = 1:length(indx_omv), uncorr_anti_amp_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_anti_amp(2); end 
+        for i = 1:length(indx_lat), uncorr_pro_amp_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_pro_amp(2); end 
+        for i = 1:length(indx_lat), uncorr_anti_amp_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_anti_amp(2); end 
+        
+        % peak vel 
+        for i = 1:length(indx_omv), uncorr_pro_pv_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_pro_peakVel(2); end 
+        for i = 1:length(indx_omv), uncorr_anti_pv_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_anti_peakVel(2); end 
+        for i = 1:length(indx_lat), uncorr_pro_pv_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_pro_peakVel(2); end 
+        for i = 1:length(indx_lat), uncorr_anti_pv_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_anti_peakVel(2); end 
+       
+        % plot omv
+        figure; hold on;
+        plot(pro_amp_corr(indx_omv),anti_amp_corr(indx_omv), '.k', 'MarkerSize', 18)
+        set(gca,'FontSize', 22, 'TickDir', 'out'); xlabel('Pro (corrected)'); ylabel('Anti (corrected)')
+        xlim([0 2]); ylim([0 2]);
+        plot([0 2],[0 2],'k'); axis square;
+        [p,h] = kstest2(pro_amp_corr(indx_omv)',anti_amp_corr(indx_omv)')
+        % diagonal histogram amp
+        figure;
+        [hscatter,hbar,ax] = scatterDiagHist(pro_amp_corr(indx_omv),anti_amp_corr(indx_omv), 50);
+        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 1 2], 'yTick', [0 1 2]);
+        hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
+        hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
+        xlabel('Pro'); ylabel('Anti'); title('Amplitude - Medial cb corrected')
+        % diagonal histogram pv
+        figure;
+        [hscatter,hbar,ax] = scatterDiagHist(pro_pv_corr(indx_omv),anti_pv_corr(indx_omv), 50);
+        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 1 2], 'yTick', [0 1 2]);
+        hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
+        hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
+        xlabel('Pro'); ylabel('Anti'); title('Peak vel - Medial cb corrected')
+        [p,h] = kstest2(pro_pv_corr(indx_omv)',anti_pv_corr(indx_omv)')
+        % uncorrected amp
+        figure; 
+        [hscatter,hbar,ax] = scatterDiagHist(uncorr_pro_amp_omv,uncorr_anti_amp_omv, 50);
+        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 100 200], 'yTick', [0 100 200]);
+        hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
+        hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
+        xlabel('Pro'); ylabel('Anti'); title('Amplitude - Medial cb uncorrected')
+        [p,h] = kstest2(uncorr_pro_amp_omv',uncorr_anti_amp_omv')
+        % uncorrected pv
+        figure; 
+        [hscatter,hbar,ax] = scatterDiagHist(uncorr_pro_pv_omv,uncorr_anti_pv_omv, 50);
+        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 100 200], 'yTick', [0 100 200]);
+        hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
+        hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
+        xlabel('Pro'); ylabel('Anti'); title('Peak vel - Medial cb uncorrected')
+        
+        % plot lat
+        figure; hold on;
+        plot(pro_amp_corr(indx_lat),anti_amp_corr(indx_lat), '.k', 'MarkerSize', 18)
+        set(gca,'FontSize', 22, 'TickDir', 'out'); xlabel('Mag sensitivity Pro (spks/sec/deg)'); ylabel('Mag sensitivity Anti (spks/sec)');
+        xlim([0 2]); ylim([0 2]);
+        plot([0 2],[0 2],'k'); axis square;
+        [p,h] = kstest2(pro_amp_corr(indx_lat)',anti_amp_corr(indx_lat)')
+        % diagonal histogram
+        figure;
+        [hscatter,hbar,ax] = scatterDiagHist(pro_amp_corr(indx_lat),anti_amp_corr(indx_lat), 50);
+        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 1 2], 'yTick', [0 1 2]);
+        hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
+        hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
+        xlabel('Pro'); ylabel('Anti'); title('Amplitude - Lateral cb corrected')
+        % diagonal histogram pv
+        figure;
+        [hscatter,hbar,ax] = scatterDiagHist(pro_pv_corr(indx_lat),anti_pv_corr(indx_lat), 50);
+        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 1 2], 'yTick', [0 1 2]);
+        hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
+        hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
+        xlabel('Pro'); ylabel('Anti'); title('Peak vel - Lateral cb corrected')
+        [p,h] = kstest2(pro_pv_corr(indx_lat)',anti_pv_corr(indx_lat)')
+        % uncorrected amp
+        figure; 
+        [hscatter,hbar,ax] = scatterDiagHist(uncorr_pro_amp_lat,uncorr_anti_amp_lat, 50);
+        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 100 200], 'yTick', [0 100 200], 'xlim', [0 200], 'ylim', [0 200]);
+        hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
+        hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
+        xlabel('Pro'); ylabel('Anti'); title('Amplitude - Lateral cb uncorrected')
+        [p,h] = kstest2(uncorr_pro_amp_lat',uncorr_anti_amp_lat')
+        % uncorrected pv
+        figure; 
+        [hscatter,hbar,ax] = scatterDiagHist(uncorr_pro_pv_lat,uncorr_anti_pv_lat, 50);
+        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 100 200], 'yTick', [0 100 200]);
+        hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
+        hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
+        xlabel('Pro'); ylabel('Anti'); title('Peak vel - Lateral cb uncorrected')
+        [p,h] = kstest2(uncorr_pro_pv_lat',uncorr_anti_pv_lat')
     case 'rec_location'
         
         load rec_locations.mat
