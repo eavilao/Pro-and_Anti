@@ -87,6 +87,7 @@ function plot_ProAnti(units, pop, plotType, cellNum, recArea)
 % 'latencies'
 % 'mag_sensitivity_per_area'
 % 'mag_sensitivity'
+% 'regress_amp_pv'
 % 'rec_location'
 
 
@@ -2554,15 +2555,15 @@ switch plotType
         % get significantly diff
         clear indx_sign
         for i = 1:length(nunits)
-            indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc);
+            indx_sign(i) = logical(units(indx_area(i)).stats.sacc.flags.proVsAnti_sacc_ks_nspk);
         end
         
         % plot
         figure; hold on;
-        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, 'ok', 'MarkerSize', 4)
-        plot(rate_pro(indx_sign),rate_anti(indx_sign), '.c','MarkerSize', 18);
-        plot([0 150],[0 150]);
-        set(gca, 'TickDir', 'out', 'FontSize', 18);
+        errorbar(rate_pro,rate_anti,sig_pro,sig_pro,sig_anti,sig_anti, '.k', 'MarkerSize', 2)
+        plot(rate_pro(indx_sign),rate_anti(indx_sign), '.c','MarkerSize', 14);
+        plot([0 200],[0 200]);
+        set(gca, 'TickDir', 'out', 'FontSize', 22,'xTick', [0 100 200] ,'yTick', [0 100 200]);
         title('Saccade'); xlabel('Prosaccade'); ylabel('Antisaccade');
         annotation('textbox',...
             [0.659928571428571 0.152380952380952 0.227571428571429 0.116666666666667],...
@@ -4287,7 +4288,8 @@ switch plotType
         [f_l,x_l] = ksdensity(mod_exc_lat_mu);
         y1_v = cumsum(f_l); y1_v = y1_v./max(y1_v);
         plot(x_l,y1_v,'--k','linewidth',2);
-        set(gca, 'xlim',[0.2 1.52],'xTick', [0.25 0.5 1], 'ylim', [0 1], 'ytick', [0 0.5 1],'TickDir', 'out', 'FontSize', 18);
+        % set(gca, 'xlim',[0.2 1.52],'xTick', [0.25 0.5 1], 'ylim', [0 1], 'ytick', [0 0.5 1],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[0.2 1.62],'xTick', [0.25 0.5 1 1.6], 'ylim', [0 1], 'ytick', [0 0.5 1],'TickDir', 'out', 'FontSize', 18);
         title('mod ratio pro/anti exc omv vs lat'); vline(1,'k')
         
         [~,p_exc] = kstest2(x_v, x_l)
@@ -4304,7 +4306,8 @@ switch plotType
         [f_l,x_l] = ksdensity(mod_sup_lat_mu);
         y1_l = cumsum(f_l); y1_l = y1_l./max(y1_l);
         plot(x_l,y1_l,'--k','linewidth',2);
-        set(gca, 'xlim',[0.5 1.62],'xTick', [0.5 1 1.62], 'ylim', [0 1], 'ytick', [0 0.5 1],'TickDir', 'out', 'FontSize', 18);
+        %set(gca, 'xlim',[0.5 1.62],'xTick', [0.5 1 1.62], 'ylim', [0 1], 'ytick', [0 0.5 1],'TickDir', 'out', 'FontSize', 18);
+        set(gca, 'xlim',[0.2 1.62],'xTick', [0.25 0.5 1 1.6], 'ylim', [0 1], 'ytick', [0 0.5 1],'TickDir', 'out', 'FontSize', 18);
         title('mod ratio pro/anti sup omv vs lat'); vline(1,'k')
         
         [~,p_sup] = kstest2(x_v, x_l)
@@ -4405,7 +4408,7 @@ switch plotType
         vline(0, 'k-');
         box off
         
-         case 'sorted_colormap_sacc_selected'
+        case 'sorted_colormap_sacc_selected'
         % get selected
         
         indx_exc_pro = pop.indx_sel.(recArea).sacc.all.pro.exc; 
@@ -4562,16 +4565,205 @@ switch plotType
         set(gca, 'xlim', [0 0.25],'xTick', [0 0.25], 'ylim', [0 0.25], 'yTick', [0 0.25], 'TickDir', 'out', 'FontSize', 22, 'xlabel', []); box off;
         xlabel('pro'); ylabel('anti'); title(['sup ' recArea]); axis square
         
+        
+         case 'sorted_colormap_sacc_selected_other_half'
+        % get selected
+        
+        r_num = 2;
+        indx_exc_pro = pop.indx_sel.(recArea).sacc.all.pro.exc;
+        indx_exc_anti = pop.indx_sel.(recArea).sacc.all.anti.exc;
+        indx_sup_pro = pop.indx_sel.(recArea).sacc.all.pro.sup;
+        indx_sup_anti = pop.indx_sel.(recArea).sacc.all.anti.sup;
+        
+        shared_exc = intersect(indx_exc_pro, indx_exc_anti); shared_sup = intersect(indx_sup_pro, indx_sup_anti);
+        shared_exc_pro = ismember(indx_exc_pro, shared_exc); shared_exc_anti = ismember(indx_exc_anti, shared_exc);
+        shared_sup_pro = ismember(indx_sup_pro, shared_sup); shared_sup_anti = ismember(indx_sup_anti, shared_sup);
+        
+        win = [-0.151 0.201];
+        t = units(1).pro.neural.sacc.ts_pst; t_win = t(t>=win(1) & t<=win(2));
+        
+        for j=1:length(indx_exc_pro), r_pro_exc_half(j,:) = units(indx_exc_pro(j)).pro.neural.sacc.rate_pst_rand(r_num,t>=win(1) & t<=win(2)); end
+        for j=1:length(indx_exc_anti), r_anti_exc_half(j,:) = units(indx_exc_anti(j)).anti.neural.sacc.rate_pst_rand(r_num,t>=win(1) & t<=win(2)); end
+        for j=1:length(indx_exc_pro), r_pro_exc_other_half(j,:) = units(indx_exc_pro(j)).pro.neural.sacc.rate_pst_rand(r_num,t>=win(1) & t<=win(2)); end
+        for j=1:length(indx_exc_anti), r_anti_exc_other_half(j,:) = units(indx_exc_anti(j)).anti.neural.sacc.rate_pst_rand(r_num,t>=win(1) & t<=win(2)); end
+        
+        %         for j=1:length(indx_exc_pro), r_pro_exc_half_sacc(j,:) = units(indx_exc_pro(j)).pro.neural.sacc.rate_pst_rand(r_num,t>=0 & t<=win(2)); end
+        %         for j=1:length(indx_exc_anti), r_anti_exc_half_sacc(j,:) = units(indx_exc_anti(j)).anti.neural.sacc.rate_pst_rand(r_num,t>=0 & t<=win(2)); end
+        %         for j=1:length(indx_exc_pro), r_pro_exc_other_half_sacc(j,:) = units(indx_exc_pro(j)).pro.neural.sacc.rate_pst_rand(r_num,t>=0 & t<=win(2)); end
+        %         for j=1:length(indx_exc_anti), r_anti_exc_other_half_sacc(j,:) = units(indx_exc_anti(j)).anti.neural.sacc.rate_pst_rand(r_num,t>=0 & t<=win(2)); end
+        
+        for j=1:length(indx_sup_pro), r_pro_sup_half(j,:) = units(indx_sup_pro(j)).pro.neural.sacc.rate_pst_rand_other_half(r_num,t>=win(1) & t<=win(2)); end
+        for j=1:length(indx_sup_anti), r_anti_sup_half(j,:) = units(indx_sup_anti(j)).anti.neural.sacc.rate_pst_rand_other_half(r_num,t>=win(1) & t<=win(2)); end
+        for j=1:length(indx_sup_pro), r_pro_sup_other_half(j,:) = units(indx_sup_pro(j)).pro.neural.sacc.rate_pst_rand_other_half(r_num,t>=win(1) & t<=win(2)); end
+        for j=1:length(indx_sup_anti), r_anti_sup_other_half(j,:) = units(indx_sup_anti(j)).anti.neural.sacc.rate_pst_rand_other_half(r_num,t>=win(1) & t<=win(2)); end
+        
+        %         for j=1:length(indx_sup_pro), r_pro_sup_half_sacc(j,:) = units(indx_sup_pro(j)).pro.neural.sacc.rate_pst_rand_other_half(r_num,t>=0 & t<=win(2)); end
+        %         for j=1:length(indx_sup_anti), r_anti_sup_half_sacc(j,:) = units(indx_sup_anti(j)).anti.neural.sacc.rate_pst_rand_other_half(r_num,t>=0 & t<=win(2)); end
+        %         for j=1:length(indx_sup_pro), r_pro_sup_other_half_sacc(j,:) = units(indx_sup_pro(j)).pro.neural.sacc.rate_pst_rand_other_half(r_num,t>=0 & t<=win(2)); end
+        %         for j=1:length(indx_sup_anti), r_anti_sup_other_half_sacc(j,:) = units(indx_sup_anti(j)).anti.neural.sacc.rate_pst_rand_other_half(r_num,t>=0 & t<=win(2)); end
+        %
+        
+        %% sort using one half
+        % pro exc
+         [maxRates,pos_max_pro] = max(r_pro_exc_half, [], 2);
+%         [maxRates,pos_max_pro] = max(r_pro_exc_half_sacc, [], 2);
+        [~,indx_max_pro] = sort(pos_max_pro);
+        
+        r_pro_norm = r_pro_exc_other_half./repmat(maxRates,[1 size(r_pro_exc_other_half,2)]);
+        r_pro_sorted_exc = r_pro_norm(indx_max_pro,:); [~, max_pos_pro] =  max(r_pro_sorted_exc,[],2);
+        
+        % colormap sorted
+        B = makeColorMap([1 1 1],[1 0 1],[0 0 0], 100);
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flip(B)); %colormap(flipud(pink)); 
+        imagesc(t_win,1:size(r_pro_sorted_exc,1),r_pro_sorted_exc, [0 1]); hold on;
+        scatter(t_win(max_pos_pro),1:size(r_pro_sorted_exc,1),40,'k','filled');
+        scatter(t_win(max_pos_pro(shared_exc_pro)),find(shared_exc_pro), 40, 'c', 'filled');
+        set(gca,'xlim',[win(1) win(2)],'yTick',[], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc selected Pro both ' recArea])
+        %pro
+        figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
+        scatterhist(t_win(max_pos_pro),1:size(r_pro_exc_half,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','k','NBins',31);
+        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_exc_pro)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
+        title('Pro exc');
+        
+        % anti exc
+        [maxRates_anti,pos_max_anti] = max(r_anti_exc_half, [], 2);
+%         [maxRates_anti,pos_max_anti] = max(r_anti_exc_half_sacc, [], 2);
+        [~,indx_max_anti] = sort(pos_max_anti);
+        r_anti_norm = r_anti_exc_other_half./repmat(maxRates_anti,[1 size(r_anti_exc_other_half,2)]);
+        r_anti_sorted_exc = r_anti_norm(indx_max_anti,:); [~, max_pos_anti] =  max(r_anti_sorted_exc,[],2);
+        % sort based on prosaccade
+        % r_anti_pro_sorted_exc = r_anti_norm(indx_max_pro,:);
+        
+        % colormap sorted
+        B = makeColorMap([1 1 1],[0 0 1],[0 0 0], 100);
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flip(B)); %colormap(flipud(pink)); 
+        imagesc(t_win,1:size(r_anti_sorted_exc,1),r_anti_sorted_exc, [0 1]); hold on;
+        scatter(t_win(max_pos_anti),1:size(r_anti_sorted_exc,1),40,'k','filled');
+        scatter(t_win(max_pos_anti(shared_exc_anti)),find(shared_exc_anti), 40, 'c', 'filled');
+        set(gca,'xlim',[win(1) win(2)],'yTick',[], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc selected Anti both ' recArea])
+        %pro
+        figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
+        scatterhist(t_win(max_pos_anti),1:size(r_anti_exc_other_half,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','k','NBins',31);
+        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_exc_anti)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
+        title('Anti exc');
+        
+        % plot anti with pro sorting
+%         B = makeColorMap([1 1 1],[0 0 1],[0 0 0], 100);
+%         figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flip(B)); %colormap(flipud(pink)); 
+%         imagesc(t_win,1:size(r_anti_pro_sorted_exc,1),r_anti_pro_sorted_exc, [0 1]); hold on;
+%         scatter(t_win(max_pos_pro),1:size(r_anti_pro_sorted_exc,1),40,'k','filled');
+%         set(gca,'xlim',[win(1) win(2)],'yTick',[], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+%         vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc selected Anti both Pro sorted ' recArea])
+        
+        % plot pro and anti sequences on top of each other
+        figure; hold on;
+        plot(t_win(max_pos_pro(shared_exc_pro)), 'm', 'LineWidth',2);
+        plot(t_win(max_pos_anti(shared_exc_anti)), 'b', 'LineWidth',2);
+        set(gca,'ylim',[0 0.2],'xlim', [1 12],'yTick',[0 0.1 0.2], 'TickDir', 'out', 'FontSize', 18); box off;
+        ylabel('time (s)'); xlabel('neuron'); axis square; title(['Pro Anti exc ' recArea]);
+        axis square;
+        
+        % difference
+        mean(t_win(max_pos_pro(shared_exc_pro)))*1000
+        mean(t_win(max_pos_anti(shared_exc_anti)))*1000
+
+
+        % plot without sorting
+%         figure; hold on;
+%         plot(t_win(pos_max_pro), '.m', 'LineWidth',2, 'MarkerSize', 30);
+%         plot(t_win(pos_max_anti), '.b', 'LineWidth',2, 'MarkerSize', 30);
+%         plot(t_win(pos_max_pro), 'm', 'LineWidth',2, 'MarkerSize', 30);
+%         plot(t_win(pos_max_anti), 'b', 'LineWidth',2, 'MarkerSize', 30);
+%         set(gca,'ylim',[0 0.250],'xlim', [1 14], 'TickDir', 'out', 'FontSize', 18); box off;
+%         ylabel('time (s)'); xlabel('neuron'); axis square; title(['Pro Anti exc ' recArea]);
+%         axis square;
+        
+       % plot scatter for shared ones
+        pro = t_win(max_pos_pro(shared_exc_pro)); anti = t_win(max_pos_anti(shared_exc_anti)); 
+        figure; hold on;
+        plot(pro,anti, '.k','MarkerSize', 30); hold on; plot([0 0.2],[0 0.2])
+        set(gca, 'xlim', [0 0.2],'xTick', [0 0.2], 'ylim', [0 0.2], 'yTick', [0 0.2], 'TickDir', 'out', 'FontSize', 22, 'xlabel', []); box off;
+        xlabel('pro'); ylabel('anti'); title(['exc ' recArea]); axis square
+
+%         % compute difference between both - zero no change
+%         figure; hold on;
+%         plot(t_win(max_pos_pro)-t_win(max_pos_anti), 'k','LineWidth',2); %% mean(t(max_pos_pro)-t(max_pos_anti)) % for difference between both
+%         set(gca,'ylim',[0 0.250],'xlim', [0 17], 'TickDir', 'out', 'FontSize', 18); box off;
+%         axis square; hline(0); vline(68);
+        
+        %% pro sup
+        [maxRates_sup_pro,pos_max] = max(r_pro_sup_half, [], 2); [~,pos_min] = min(r_pro_sup_half, [], 2);
+%         [maxRates_sup_pro,pos_max] = max(r_pro_sup_half_sacc, [], 2); [~,pos_min] = min(r_pro_sup_half_sacc, [], 2);
+        [~,indx_max] = sort(pos_max); [~,indx_min] = sort(pos_min);
+
+        r_pro_norm = r_pro_sup_other_half./repmat(maxRates_sup_pro,[1 size(r_pro_sup_other_half,2)]);
+        r_pro_sorted_sup = r_pro_norm(indx_min,:); [~, min_pos_pro] =  min(r_pro_sorted_sup,[],2);
+        
+        % colormap sorted
+        B = makeColorMap([1 1 1],[1 0 1],[0 0 0], 100);
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flip(B)); %colormap(flipud(pink)); 
+        imagesc(t_win,1:size(r_pro_sorted_sup,1),r_pro_sorted_sup, [0 1]); hold on;
+        scatter(t_win(min_pos_pro),1:size(r_pro_sorted_sup,1),40,'k','filled');
+        scatter(t_win(min_pos_pro(shared_sup_pro)),find(shared_sup_pro), 40, 'c', 'filled');
+        set(gca,'xlim',[win(1) win(2)],'yTick',[], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Sorted Pro sup ' recArea])
+       
+        figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
+        scatterhist(t_win(min_pos_pro),1:size(r_pro_sorted_sup,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','k','NBins',31);
+        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_min)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
+        title('Pro sup');
+        
+        % anti sup
+        [maxRates,anti_max] = max(r_anti_sup_half, [], 2); [~,pos_min] = min(r_anti_sup_half, [], 2);
+%         [maxRates,anti_max] = max(r_anti_sup_half_sacc, [], 2); [~,pos_min] = min(r_anti_sup_half_sacc, [], 2);
+        [~,indx_max] = sort(pos_max); [~,indx_min] = sort(pos_min);
+        r_anti_norm = r_anti_sup_other_half./repmat(maxRates,[1 size(r_anti_sup_other_half,2)]);
+        r_anti_sorted_sup = r_anti_norm(indx_min,:); [~, min_pos_anti] =  min(r_anti_sorted_sup,[],2);
+        
+        % colormap sorted
+        B = makeColorMap([1 1 1],[0 0 1],[0 0 0], 100);
+        figure; set(gcf,'Position',[100 200 300 300]); axes('DataAspectRatio',[1 1 1]); colormap(flip(B)); %colormap(flipud(pink)); 
+        imagesc(t_win,1:size(r_anti_sorted_sup,1),r_anti_sorted_sup, [0 1]); hold on;
+        scatter(t_win(min_pos_anti),1:size(r_anti_sorted_sup,1),40,'k','filled');
+        scatter(t_win(min_pos_anti(shared_sup_anti)),find(shared_sup_anti), 40, 'c', 'filled');
+        set(gca,'xlim',[win(1) win(2)],'yTick',[], 'YTickLabel', [], 'TickDir', 'out', 'FontSize', 18); box off;
+        vline(0, '--k'); ylabel('Neuron'); box off; title(['Sacc Sorted Anti sup ' recArea])
+        %pro
+        figure('Position', [719 545 346 420]); axes('DataAspectRatio',[1 1 1]);
+        scatterhist(t_win(min_pos_anti),1:size(r_anti_sorted_sup,1), 'Kernel', 'off', 'Marker', '.', 'MarkerSize',12, 'Color','k','NBins',31);
+        set(gca,'xlim',[win(1) win(2)],'ylim',[0 length(indx_sup_anti)], 'TickDir', 'out', 'FontSize', 22, 'XGrid', 'on','YGrid', 'on', 'xlabel', []); box off;
+        title('Anti sup');
+        
+        % plot pro and anti sequences on top of each other
+        figure; hold on;
+        plot(t_win(min_pos_pro(shared_sup_pro)), 'm', 'LineWidth',2);
+        plot(t_win(min_pos_anti(shared_sup_anti)), 'b', 'LineWidth',2);
+        set(gca,'ylim',[0 0.2],'xlim', [1 9], 'TickDir', 'out', 'FontSize', 18); box off;
+        ylabel('time (s)'); xlabel('neuron'); axis square; title(['Pro Anti sup ' recArea]);
+        axis square;
+        
+        % difference
+        mean(t_win(min_pos_pro(shared_sup_pro)))*1000
+        mean(t_win(min_pos_anti(shared_sup_anti)))*1000
+        
+        % plot scatter for shared ones
+        figure; hold on;
+        plot(t_win(min_pos_pro(shared_sup_pro)),t_win(min_pos_anti(shared_sup_anti)), '.k','MarkerSize', 30); hold on; plot([0 0.2],[0 0.2])
+        set(gca, 'xlim', [0 0.2],'xTick', [0 0.2], 'ylim', [0 0.2], 'yTick', [0 0.2], 'TickDir', 'out', 'FontSize', 22, 'xlabel', []); box off;
+        xlabel('pro'); ylabel('anti'); title(['sup ' recArea]); axis square
+
          case 'sorted_colormap_sacc_selected_both_lateral'
         % get selected
         
-%         indx_exc_pro = pop.indx_sel.(recArea).sacc.all.pro.exc; 
-%         indx_sup_pro = pop.indx_sel.(recArea).sacc.all.pro.sup;
-%         indx_exc_anti = pop.indx_sel.(recArea).sacc.all.anti.exc;
-%         indx_sup_anti = pop.indx_sel.(recArea).sacc.all.anti.sup;
+        indx_exc_pro = pop.indx_sel.(recArea).sacc.all.pro.exc; 
+        indx_sup_pro = pop.indx_sel.(recArea).sacc.all.pro.sup;
+        indx_exc_anti = pop.indx_sel.(recArea).sacc.all.anti.exc;
+        indx_sup_anti = pop.indx_sel.(recArea).sacc.all.anti.sup;
         
-        indx_exc_both = [pop.indx_sel.(recArea).sacc.both.exc pop.indx_sel.(recArea).sacc.both.mixed]; % Both lateral
-        indx_sup_both = [pop.indx_sel.(recArea).sacc.both.sup pop.indx_sel.(recArea).sacc.both.mixed]; % Both lateral
+        indx_exc_both = [indx_exc_pro indx_exc_anti]; % [pop.indx_sel.(recArea).sacc.both.exc pop.indx_sel.(recArea).sacc.both.mixed]; % Both lateral
+        indx_sup_both = [indx_sup_pro indx_sup_anti];% [pop.indx_sel.(recArea).sacc.both.sup pop.indx_sel.(recArea).sacc.both.mixed]; % Both lateral
         
         win = [-0.151 0.251];
         t = units(1).pro.neural.sacc.ts_pst; t_win = t(t>=win(1) & t<=win(2));
@@ -6882,16 +7074,16 @@ lateral_mag = [lateral.mag_sens_pro lateral.mag_sens_anti];
         anti_pv_corr = [pop.stats.sacc.regress.coeff_anti_pv_corrected]; anti_pv_corr(46) = NaN;
         
         % amp
-        for i = 1:length(indx_omv), uncorr_pro_amp_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_pro_amp(2); end 
-        for i = 1:length(indx_omv), uncorr_anti_amp_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_anti_amp(2); end 
-        for i = 1:length(indx_lat), uncorr_pro_amp_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_pro_amp(2); end 
-        for i = 1:length(indx_lat), uncorr_anti_amp_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_anti_amp(2); end 
+        for i = 1:length(indx_omv), uncorr_pro_amp_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_pro_amp(1); end 
+        for i = 1:length(indx_omv), uncorr_anti_amp_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_anti_amp(1); end 
+        for i = 1:length(indx_lat), uncorr_pro_amp_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_pro_amp(1); end 
+        for i = 1:length(indx_lat), uncorr_anti_amp_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_anti_amp(1); end 
         
         % peak vel 
-        for i = 1:length(indx_omv), uncorr_pro_pv_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_pro_peakVel(2); end 
-        for i = 1:length(indx_omv), uncorr_anti_pv_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_anti_peakVel(2); end 
-        for i = 1:length(indx_lat), uncorr_pro_pv_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_pro_peakVel(2); end 
-        for i = 1:length(indx_lat), uncorr_anti_pv_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_anti_peakVel(2); end 
+        for i = 1:length(indx_omv), uncorr_pro_pv_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_pro_peakVel(1); end 
+        for i = 1:length(indx_omv), uncorr_anti_pv_omv(i) = units(indx_omv(i)).stats.sacc.regress.coeff_anti_peakVel(1); end 
+        for i = 1:length(indx_lat), uncorr_pro_pv_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_pro_peakVel(1); end 
+        for i = 1:length(indx_lat), uncorr_anti_pv_lat(i) = units(indx_lat(i)).stats.sacc.regress.coeff_anti_peakVel(1); end 
        
         % plot omv
         figure; hold on;
@@ -6969,6 +7161,64 @@ lateral_mag = [lateral.mag_sens_pro lateral.mag_sens_anti];
         hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
         xlabel('Pro'); ylabel('Anti'); title('Peak vel - Lateral cb uncorrected')
         [p,h] = kstest2(uncorr_pro_pv_lat',uncorr_anti_pv_lat')
+        
+    case 'fr_compare_medial_lateral'
+        
+        indx_exc_pro_omv = pop.indx_sel.vermis.sacc.all.pro.exc; indx_exc_anti_omv = pop.indx_sel.vermis.sacc.all.anti.exc;
+        indx_sup_pro_omv = pop.indx_sel.vermis.sacc.all.pro.sup; indx_sup_anti_omv = pop.indx_sel.vermis.sacc.all.anti.sup;
+        
+        indx_pro_omv = [indx_exc_pro_omv indx_sup_pro_omv];
+        indx_anti_omv = [indx_exc_anti_omv indx_sup_anti_omv];
+        indx_omv = [indx_pro_omv indx_anti_omv];
+        
+        indx_exc_pro_lat = pop.indx_sel.lateral.sacc.all.pro.exc; indx_exc_anti_lat = pop.indx_sel.lateral.sacc.all.anti.exc;
+        indx_sup_pro_lat = pop.indx_sel.lateral.sacc.all.pro.sup; indx_sup_anti_lat = pop.indx_sel.lateral.sacc.all.anti.sup;
+        
+        indx_pro_lat = [indx_exc_pro_lat indx_sup_pro_lat];
+        indx_anti_lat = [indx_exc_anti_lat indx_sup_anti_lat];
+        indx_lat = [indx_pro_lat indx_anti_lat];
+        
+        pro_amp_corr = [pop.stats.sacc.regress.coeff_pro_amp_corrected]; pro_amp_corr(3) = NaN; % removed this one outlier
+        anti_amp_corr = [pop.stats.sacc.regress.coeff_anti_amp_corrected]; 
+        pro_pv_corr = [pop.stats.sacc.regress.coeff_pro_pv_corrected]; 
+        anti_pv_corr = [pop.stats.sacc.regress.coeff_anti_pv_corrected]; anti_pv_corr(46) = NaN;
+        
+        % gather
+        for i = 1:length(indx_omv), r_pro_omv(i) = units(indx_omv(i)).pro.neural.sacc.rate_mu; end 
+        for i = 1:length(indx_omv), r_anti_omv(i) = units(indx_omv(i)).anti.neural.sacc.rate_mu; end 
+        for i = 1:length(indx_lat), r_pro_lat(i) = units(indx_lat(i)).pro.neural.sacc.rate_mu; end 
+        for i = 1:length(indx_lat), r_anti_lat(i) = units(indx_lat(i)).anti.neural.sacc.rate_mu; end 
+        
+        % plot
+        figure; violin(r_pro_omv'); ylim([-50 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; violin(r_pro_lat'); ylim([-50 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; violin(r_anti_omv'); ylim([-50 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; violin(r_anti_lat'); ylim([-50 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        [h,p] = ranksum(r_pro_omv',r_pro_lat')
+        [h,p] = ranksum(r_anti_omv',r_anti_lat')
+        
+        % plot histograms of all repsonses for medial and lateral
+        r_pro_omv_pop = pop.stats.sacc.vermis.r_pro_all; r_anti_omv_pop = pop.stats.sacc.vermis.r_anti_all; 
+        r_pro_lat_pop = pop.stats.sacc.lateral.r_pro_all; r_anti_lat_pop = pop.stats.sacc.lateral.r_anti_all; 
+        
+        figure; hold on;
+        histogram(r_pro_omv_pop,50); histogram(r_pro_lat_pop,50)
+        figure; hold on; 
+        histogram(r_anti_omv_pop,50); histogram(r_anti_lat_pop,50)
+        
+        figure; violin(r_pro_omv_pop); ylim([-30 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; violin(r_pro_lat_pop); ylim([-30 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; violin(r_anti_omv_pop); ylim([-30 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; violin(r_anti_lat_pop); ylim([-30 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        
+        figure; boxplot(r_pro_omv_pop); ylim([0 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300]); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; boxplot(r_pro_lat_pop); ylim([0 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300]); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; boxplot(r_anti_omv_pop); ylim([0 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300]); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; boxplot(r_anti_lat_pop); ylim([0 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300]); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        
+        kstest2(r_pro_omv_pop,r_pro_lat_pop)
+        kstest2(r_anti_omv_pop,r_anti_lat_pop)
+        
     case 'rec_location'
         
         load rec_locations.mat

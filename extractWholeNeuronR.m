@@ -21,7 +21,7 @@ function [units,pop] = extractWholeNeuronR(wholeNeuronResults)
 default_prs_pro_anti; % load parameters list
 run_error_trials =0 ; % if run_error_trials = 1 - extract only error trials same way as normal, min trial number from default prs
 
-% first find the ones that are not empty and have at least 10 trials.
+% first find the ones that are not empty and have at least 10 trials. 
 for i = 1:length(wholeNeuronResults)
     if  ~isempty(wholeNeuronResults(i).allStableTrials)
         cell_indx(i) = numel(wholeNeuronResults(i).selectedTrials.corProTrials)>=prs.min_trial & numel(wholeNeuronResults(i).selectedTrials.corAntiTrials)>=prs.min_trial;
@@ -193,13 +193,19 @@ for cellNum = 1:length(units)
     analyse_instrDir_align = 0; 
     %% sanity check -- for every cell, randomize half of the trials and compute psth (5 times)
     analyse_sacc_align=1;
-    for j = 1:100;
+    for j = 1:100
     numtrials = []; pick_trials = []; 
     numtrials = length(units(cellNum).pro.neural.trial); % number of trials
     pick_trials = sort(randsample(numtrials, round(numtrials/2)));  % pick half of the trials randomly
+    other_trials = 1:numtrials; other_half = other_trials(~ismember(other_trials,pick_trials)); 
+    % units(cellNum).pro.neural.sacc.rate_pst_computed_half_indx(j,:) = pick_trials; 
+    % units(cellNum).pro.neural.sacc.rate_pst_other_half_indx(j,:) = other_half;
     
     [units(cellNum).pro.neural.sacc.rate_pst_rand(j,:),~] = Spiketimes2Rate(units(cellNum).pro.neural.trial((pick_trials)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to saccade onset
     units(cellNum).pro.neural.sacc.rate_pst_rand(j,:) = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst_rand(j,:),prs.binwidth,prs.tsmooth);
+    
+    [units(cellNum).pro.neural.sacc.rate_pst_rand_other_half(j,:),~] = Spiketimes2Rate(units(cellNum).pro.neural.trial((other_half)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to saccade onset
+    units(cellNum).pro.neural.sacc.rate_pst_rand_other_half(j,:) = smooth_pst(units(cellNum).pro.neural.sacc.rate_pst_rand(j,:),prs.binwidth,prs.tsmooth); 
     end
     analyse_sacc_align=0;
 %%  
@@ -239,11 +245,18 @@ for cellNum = 1:length(units)
     
     %% sanity check -- for every cell, pick random half of the trials and compute psth
     for j = 1:100;
-    numtrials = []; pick_trials = []; 
-    numtrials = length(units(cellNum).anti.neural.trial); % number of trials
-    pick_trials = sort(randsample(numtrials, round(numtrials/2)));  % pick half of the trials randomly
-    [units(cellNum).anti.neural.sacc.rate_pst_rand(j,:),~] = Spiketimes2Rate(units(cellNum).anti.neural.trial((pick_trials)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to saccade onset
-    units(cellNum).anti.neural.sacc.rate_pst_rand(j,:) = smooth_pst(units(cellNum).anti.neural.sacc.rate_pst_rand(j,:),prs.binwidth,prs.tsmooth);
+        numtrials = []; pick_trials = [];
+        numtrials = length(units(cellNum).anti.neural.trial); % number of trials
+        pick_trials = sort(randsample(numtrials, round(numtrials/2)));  % pick half of the trials randomly
+        other_trials = 1:numtrials; other_half = other_trials(~ismember(other_trials,pick_trials));
+        % units(cellNum).anti.neural.sacc.rate_pst_computed_half_indx(j,:) = pick_trials;
+        % units(cellNum).anti.neural.sacc.rate_pst_other_half_indx(j,:) = other_half;
+        
+        [units(cellNum).anti.neural.sacc.rate_pst_rand(j,:),~] = Spiketimes2Rate(units(cellNum).anti.neural.trial((pick_trials)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to saccade onset
+        units(cellNum).anti.neural.sacc.rate_pst_rand(j,:) = smooth_pst(units(cellNum).anti.neural.sacc.rate_pst_rand(j,:),prs.binwidth,prs.tsmooth);
+        
+        [units(cellNum).anti.neural.sacc.rate_pst_rand_other_half(j,:),~] = Spiketimes2Rate(units(cellNum).anti.neural.trial((other_half)),prs.timepoints_sacc,prs.binwidth,analyse_sacc_align,analyse_instrDir_align,id); % aligned to saccade onset
+        units(cellNum).anti.neural.sacc.rate_pst_rand_other_half(j,:) = smooth_pst(units(cellNum).anti.neural.sacc.rate_pst_rand(j,:),prs.binwidth,prs.tsmooth);
     end
     analyse_sacc_align=0;
 end
@@ -1291,7 +1304,7 @@ pop.pro.sacc.nspk_std = std(spks_pro); pop.anti.sacc.nspk_std = std(spks_anti); 
 
 %% regress activity to saccade kinematics per cell
 % Reaction time is extra, but not eye kinematic.
-    
+pop.stats.sacc.vermis.r_pro_all = []; pop.stats.sacc.vermis.r_anti_all = [] ; pop.stats.sacc.lateral.r_pro_all = []; pop.stats.sacc.lateral.r_anti_all = []; 
 for i = 1:length(units)
     r_pro = []; amp_pro = []; dur_pro = []; pv_pro = []; rt_pro = [];  r_anti = []; amp_anti = []; dur_anti = []; pv_anti = []; rt_anti = [];
     r_all_pro = []; kin_all_pro = []; r_all_anti = []; kin_all_anti = [];
@@ -1322,57 +1335,64 @@ for i = 1:length(units)
     kin_all_anti = [ kin_all_anti ; amp_anti' dur_anti' pv_anti' ones(size(amp_anti,2),1)];
     
     % save all r and eye kinmeatics
-%     pop.kin(i).pro.r_all_pro = r_all_pro; pop.kin(i).pro.kin_all_pro = kin_all_pro; 
-%     pop.kin(i).anti.r_all_anti = r_all_anti;  pop.kin(i).anti.kin_all_anti = kin_all_anti; 
-%     
-%      [units(i).stats.sacc.regress.coeff_pro, units(i).stats.sacc.regress.CI_pro, units(i).stats.sacc.regress.rsq_pro, units(i).stats.sacc.regress.reg_stats_pro] = ...
-%         regress(r_all_pro,kin_all_pro); 
-%
-%     [units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
-%         regress(r_all_anti,kin_all_anti);
-
-% save all r and eye kinmeatics
-pop.kin(i).pro.r_all_pro = r_all_pro; pop.kin(i).pro.kin_all_pro = kin_all_pro;
-pop.kin(i).anti.r_all_anti = r_all_anti;  pop.kin(i).anti.kin_all_anti = kin_all_anti;
-
-%      [units(i).stats.sacc.regress.coeff_pro, units(i).stats.sacc.regress.CI_pro, units(i).stats.sacc.regress.rsq_pro, units(i).stats.sacc.regress.reg_stats_pro] = ...
-%         regress(r_all_pro,kin_all_pro);
-%
-%     [units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
-%         regress(r_all_anti,kin_all_anti);
-
-%% amplitude
-[units(i).stats.sacc.regress.coeff_pro_amp, units(i).stats.sacc.regress.CI_pro_amp, units(i).stats.sacc.regress.rsq_pro_amp, units(i).stats.sacc.regress.reg_stats_pro_amp] = ...
-    regress(r_all_pro,[amp_pro' ones(size(amp_pro,2),1)]);
- 
-[units(i).stats.sacc.regress.coeff_anti_amp, units(i).stats.sacc.regress.CI_anti_amp, units(i).stats.sacc.regress.rsq_anti_amp, units(i).stats.sacc.regress.reg_stats_anti_amp] = ...
-    regress(r_all_anti,[amp_anti' ones(size(amp_anti,2),1)]);
-
-% corrected: firing rate/max coefficient
-pop.stats.sacc.regress(i).coeff_pro_amp_corrected = mean(r_all_pro/units(i).stats.sacc.regress.coeff_pro_amp(2)); 
-pop.stats.sacc.regress(i).coeff_anti_amp_corrected = mean(r_all_anti/units(i).stats.sacc.regress.coeff_anti_amp(2));
-
-%% peak velocity 
-
-[units(i).stats.sacc.regress.coeff_pro_peakVel, units(i).stats.sacc.regress.CI_pro_peakVel, units(i).stats.sacc.regress.rsq_pro_peakVel, units(i).stats.sacc.regress.reg_stats_pro_peakVel] = ...
-    regress(r_all_pro,[pv_pro' ones(size(pv_pro,2),1)]);
-
-[units(i).stats.sacc.regress.coeff_anti_peakVel, units(i).stats.sacc.regress.CI_anti_peakVel, units(i).stats.sacc.regress.rsq_anti_peakVel, units(i).stats.sacc.regress.reg_stats_anti_peakVel] = ...
-    regress(r_all_anti,[pv_anti' ones(size(pv_anti,2),1)]);
-
-% corrected: firing rate/max coefficient
-pop.stats.sacc.regress(i).coeff_pro_pv_corrected = mean(r_all_pro'/units(i).stats.sacc.regress.coeff_pro_peakVel(2)); 
-pop.stats.sacc.regress(i).coeff_anti_pv_corrected = mean(r_all_anti'/units(i).stats.sacc.regress.coeff_anti_peakVel(2)); 
-
-
-%% Compute Modulation sensitivity (De Zeeuw et al. 1995)
-% Magnitude sensitivity = sqrt (SS firing rate in pro)^2 + (Pro regress coefficient amplitude)^2 + (Pro regress coefficient duration)^2 + (Pro regress coefficient peak velocity)^2 )
-
-% pop.stats.sacc.pro.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_pro(2)^2) + (units(i).stats.sacc.regress.coeff_pro(3)^2) + (units(i).stats.sacc.regress.coeff_pro(4)^2));
-% pop.stats.sacc.anti.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_anti(2)^2) + (units(i).stats.sacc.regress.coeff_anti(3)^2) + (units(i).stats.sacc.regress.coeff_anti(4)^2));
-
-
-
+    %     pop.kin(i).pro.r_all_pro = r_all_pro; pop.kin(i).pro.kin_all_pro = kin_all_pro;
+    %     pop.kin(i).anti.r_all_anti = r_all_anti;  pop.kin(i).anti.kin_all_anti = kin_all_anti;
+    %
+    %      [units(i).stats.sacc.regress.coeff_pro, units(i).stats.sacc.regress.CI_pro, units(i).stats.sacc.regress.rsq_pro, units(i).stats.sacc.regress.reg_stats_pro] = ...
+    %         regress(r_all_pro,kin_all_pro);
+    %
+    %     [units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
+    %         regress(r_all_anti,kin_all_anti);
+    
+    % save all r and eye kinmeatics
+    pop.kin(i).pro.r_all_pro = r_all_pro; pop.kin(i).pro.kin_all_pro = kin_all_pro;
+    pop.kin(i).anti.r_all_anti = r_all_anti;  pop.kin(i).anti.kin_all_anti = kin_all_anti;
+    
+    %      [units(i).stats.sacc.regress.coeff_pro, units(i).stats.sacc.regress.CI_pro, units(i).stats.sacc.regress.rsq_pro, units(i).stats.sacc.regress.reg_stats_pro] = ...
+    %         regress(r_all_pro,kin_all_pro);
+    %
+    %     [units(i).stats.sacc.regress.coeff_anti, units(i).stats.sacc.regress.CI_anti, units(i).stats.sacc.regress.rsq_anti, units(i).stats.sacc.regress.reg_stats_anti] = ...
+    %         regress(r_all_anti,kin_all_anti);
+    
+    %% amplitude
+    [units(i).stats.sacc.regress.coeff_pro_amp, units(i).stats.sacc.regress.CI_pro_amp, units(i).stats.sacc.regress.rsq_pro_amp, units(i).stats.sacc.regress.reg_stats_pro_amp] = ...
+        regress(r_all_pro,[amp_pro' ones(size(amp_pro,2),1)]);
+    
+    [units(i).stats.sacc.regress.coeff_anti_amp, units(i).stats.sacc.regress.CI_anti_amp, units(i).stats.sacc.regress.rsq_anti_amp, units(i).stats.sacc.regress.reg_stats_anti_amp] = ...
+        regress(r_all_anti,[amp_anti' ones(size(amp_anti,2),1)]);
+    
+    % corrected: firing rate/max coefficient
+    pop.stats.sacc.regress(i).coeff_pro_amp_corrected = mean(r_all_pro/units(i).stats.sacc.regress.coeff_pro_amp(1));
+    pop.stats.sacc.regress(i).coeff_anti_amp_corrected = mean(r_all_anti/units(i).stats.sacc.regress.coeff_anti_amp(1));
+    
+    %% peak velocity
+    
+    [units(i).stats.sacc.regress.coeff_pro_peakVel, units(i).stats.sacc.regress.CI_pro_peakVel, units(i).stats.sacc.regress.rsq_pro_peakVel, units(i).stats.sacc.regress.reg_stats_pro_peakVel] = ...
+        regress(r_all_pro,[pv_pro' ones(size(pv_pro,2),1)]);
+    
+    [units(i).stats.sacc.regress.coeff_anti_peakVel, units(i).stats.sacc.regress.CI_anti_peakVel, units(i).stats.sacc.regress.rsq_anti_peakVel, units(i).stats.sacc.regress.reg_stats_anti_peakVel] = ...
+        regress(r_all_anti,[pv_anti' ones(size(pv_anti,2),1)]);
+    
+    % corrected: firing rate/max coefficient
+    pop.stats.sacc.regress(i).coeff_pro_pv_corrected = mean(r_all_pro'/units(i).stats.sacc.regress.coeff_pro_peakVel(1));
+    pop.stats.sacc.regress(i).coeff_anti_pv_corrected = mean(r_all_anti'/units(i).stats.sacc.regress.coeff_anti_peakVel(1));
+    
+    % save firing rate for all per area
+    if strcmp(units(i).area, 'lateral')
+        pop.stats.sacc.lateral.r_pro_all = [pop.stats.sacc.lateral.r_pro_all ; r_all_pro];
+        pop.stats.sacc.lateral.r_anti_all = [pop.stats.sacc.lateral.r_anti_all ; r_all_anti];
+    else
+        pop.stats.sacc.vermis.r_pro_all = [pop.stats.sacc.vermis.r_pro_all ; r_all_pro];
+        pop.stats.sacc.vermis.r_anti_all = [pop.stats.sacc.vermis.r_anti_all ; r_all_anti];
+    end
+    %% Compute Modulation sensitivity (De Zeeuw et al. 1995)
+    % Magnitude sensitivity = sqrt (SS firing rate in pro)^2 + (Pro regress coefficient amplitude)^2 + (Pro regress coefficient duration)^2 + (Pro regress coefficient peak velocity)^2 )
+    
+    % pop.stats.sacc.pro.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_pro(2)^2) + (units(i).stats.sacc.regress.coeff_pro(3)^2) + (units(i).stats.sacc.regress.coeff_pro(4)^2));
+    % pop.stats.sacc.anti.mag_sensitivity(i) = sqrt((units(i).stats.sacc.regress.coeff_anti(2)^2) + (units(i).stats.sacc.regress.coeff_anti(3)^2) + (units(i).stats.sacc.regress.coeff_anti(4)^2));
+    
+    
+    
 end
 
 
