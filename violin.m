@@ -88,7 +88,7 @@ medc='r';
 b=[]; %bandwidth
 plotlegend=1;
 plotmean=1;
-plotmedian=1;
+plotmedian=0;
 x = [];
 %_____________________
 %convert single columns to cells:

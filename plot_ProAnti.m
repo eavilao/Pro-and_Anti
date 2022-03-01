@@ -114,12 +114,13 @@ switch plotType
         proRT = vertcat(eyeKin(1,:).proRT)*1000;
         antiRT = vertcat(eyeKin(1,:).antiRT)*1000;
         
-        % plot amp
+        %% plot amp
         figure; hold on
         h1 = histfit(proAmp,20,'kernel');
         h2 = histfit(antiAmp,20,'kernel');
+        set(h2(1),'FaceColor', [0 0 1],'EdgeColor', [0 0 1]);
         xlabel('Saccade amplitude (deg)')
-        ylabel('Number of trials')
+        ylabel('Probability')
         set (gca, 'TickDir', 'out','FontSize', 18);
         alpha(0.25)
         set(h1(1),'FaceColor', [1 0 1], 'EdgeColor', [1 0 1]);
@@ -131,12 +132,40 @@ switch plotType
         vline(mean(antiAmp),'b'); % draw line on mean
         [p,h,stats] = ranksum(proAmp, antiAmp);
         
-        %plot dur
+        % plot as pdf        
+        figure; hold on
+        h1 = histfit(proAmp,20,'kernel');
+        h2 = histfit(antiAmp,20,'kernel');
+        figure; hold on
+        ybar1 = h1(1).YData;
+        h1_1 = bar(h1(1).XData, ybar1/sum(ybar1), 'BarWidth',1);
+        set(h1_1,'FaceColor', [1 0 1], 'EdgeColor', [1 0 1]); % Probability
+        plot(h1(2).XData, h1(2).YData/sum(ybar1), 'r', 'LineWidth',2,'Color',[1 0 1]);
+        ybar2 = h2(1).YData;
+        h2_2 = bar(h2(1).XData, ybar2/sum(ybar2), 'BarWidth',1); % Probability
+        set(h2_2,'FaceColor', [0 0 1],'EdgeColor', [0 0 1]);
+        plot(h2(2).XData, h2(2).YData/sum(ybar2), 'r', 'LineWidth',2,'Color',[0 0 1]);
+        xlabel('Saccade amplitude (deg)')
+        ylabel('PDF')
+        set (gca, 'TickDir', 'out','FontSize', 18);
+        alpha(0.25)
+        xlim([0 25]);
+        vline(mean(proAmp),'m'); % draw line on mean
+        vline(mean(antiAmp),'b'); % draw line on mean
+        
+        %% plot dur
         figure; hold on
         h1 = histfit(proDur,20,'kernel');
         h2 = histfit(antiDur,20,'kernel');
+        figure; hold on
+        ybar1 = h1(1).YData;
+        bar(h1(1).XData, ybar1/sum(ybar1), 'BarWidth',1)              % Probability
+        plot(h1(2).XData, h1(2).YData/sum(ybar1), 'r', 'LineWidth',2)
+        ybar2 = h2(1).YData;
+        bar(h2(1).XData, ybar2/sum(ybar2), 'BarWidth',1)              % Probability
+        plot(h2(2).XData, h2(2).YData/sum(ybar2), 'r', 'LineWidth',2)
         xlabel('Saccade duration (ms)')
-        ylabel('Number of trials')
+        ylabel('Probability')
         set (gca, 'TickDir', 'out','FontSize', 18);
         alpha(0.25)
         set(h1(1),'FaceColor', [1 0 1], 'EdgeColor', [1 0 1]);
@@ -148,11 +177,40 @@ switch plotType
         vline(mean(antiDur),'b'); % draw line on mean
         [p,h] = ranksum(proDur, antiDur);
         
-        % plot PV
+        % plot as pdf        
+        figure; hold on
+        h1 = histfit(proDur,20,'kernel');
+        h2 = histfit(antiDur,20,'kernel');
+        figure; hold on
+        ybar1 = h1(1).YData;
+        h1_1 = bar(h1(1).XData, ybar1/sum(ybar1), 'BarWidth',1);
+        set(h1_1,'FaceColor', [1 0 1], 'EdgeColor', [1 0 1]); % Probability
+        plot(h1(2).XData, h1(2).YData/sum(ybar1), 'r', 'LineWidth',2,'Color',[1 0 1]);
+        ybar2 = h2(1).YData;
+        h2_2 = bar(h2(1).XData, ybar2/sum(ybar2), 'BarWidth',1); % Probability
+        set(h2_2,'FaceColor', [0 0 1],'EdgeColor', [0 0 1]);
+        plot(h2(2).XData, h2(2).YData/sum(ybar2), 'r', 'LineWidth',2,'Color',[0 0 1]);
+        xlabel('Saccade duration (ms)')
+        ylabel('PDF')
+        set (gca, 'TickDir', 'out','FontSize', 18);
+        alpha(0.25)
+        xlim([0 150]);
+        vline(mean(proDur),'m'); % draw line on mean
+        vline(mean(antiDur),'b'); % draw line on mean
+
+        
+        %% plot PV
         figure; hold on
         h1 = histfit(proPV,20,'kernel');
         h2 = histfit(antiPV,20,'kernel');
-        xlabel('Saccade peak velocity (deg/s)')
+        figure; hold on
+        ybar1 = h1(1).YData;
+        bar(h1(1).XData, ybar1/sum(ybar1), 'BarWidth',1)              % Probability
+        plot(h1(2).XData, h1(2).YData/sum(ybar1), 'r', 'LineWidth',2)
+        ybar2 = h2(1).YData;
+        bar(h2(1).XData, ybar2/sum(ybar2), 'BarWidth',1)              % Probability
+        plot(h2(2).XData, h2(2).YData/sum(ybar2), 'r', 'LineWidth',2)
+        xlabel('Saccade peak speed (deg/s)')
         ylabel('Number of trials')
         set (gca, 'TickDir', 'out','FontSize', 18);
         alpha(0.25)
@@ -165,10 +223,39 @@ switch plotType
         vline(mean(antiPV),'b'); % draw line on mean
         [p,h] = ranksum(proPV, antiPV);
         
-        % plot RT
+        % plot as pdf        
+        figure; hold on
+        h1 = histfit(proPV,20,'kernel');
+        h2 = histfit(antiPV,20,'kernel');
+        figure; hold on
+        ybar1 = h1(1).YData;
+        h1_1 = bar(h1(1).XData, ybar1/sum(ybar1), 'BarWidth',1);
+        set(h1_1,'FaceColor', [1 0 1], 'EdgeColor', [1 0 1]); % Probability
+        plot(h1(2).XData, h1(2).YData/sum(ybar1), 'r', 'LineWidth',2,'Color',[1 0 1]);
+        ybar2 = h2(1).YData;
+        h2_2 = bar(h2(1).XData, ybar2/sum(ybar2), 'BarWidth',1); % Probability
+        set(h2_2,'FaceColor', [0 0 1],'EdgeColor', [0 0 1]);
+        plot(h2(2).XData, h2(2).YData/sum(ybar2), 'r', 'LineWidth',2,'Color',[0 0 1]);
+        xlabel('Saccade peak speed (deg/s)')
+        ylabel('PDF')
+        set (gca, 'TickDir', 'out','FontSize', 18);
+        alpha(0.25)
+        xlim([0 700]);
+        vline(mean(proPV),'m'); % draw line on mean
+        vline(mean(antiPV),'b'); % draw line on mean
+        
+        
+        %% plot RT
         figure; hold on
         h1 = histfit(proRT,20,'kernel');
         h2 = histfit(antiRT,20,'kernel');
+        figure; hold on
+        ybar1 = h1(1).YData;
+        bar(h1(1).XData, ybar1/sum(ybar1), 'BarWidth',1)              % Probability
+        plot(h1(2).XData, h1(2).YData/sum(ybar1), 'r', 'LineWidth',2)
+        ybar2 = h2(1).YData;
+        bar(h2(1).XData, ybar2/sum(ybar2), 'BarWidth',1)              % Probability
+        plot(h2(2).XData, h2(2).YData/sum(ybar2), 'r', 'LineWidth',2)
         xlabel('Reaction time (ms)')
         ylabel('Number of trials')
         set (gca, 'TickDir', 'out','FontSize', 18);
@@ -181,6 +268,27 @@ switch plotType
         vline(mean(proRT),'m'); % draw line on mean
         vline(mean(antiRT),'b'); % draw line on mean
         [p,h] = ranksum(proRT, antiRT);
+        
+        % plot as pdf        
+        figure; hold on
+        h1 = histfit(proRT,20,'kernel');
+        h2 = histfit(antiRT,20,'kernel');
+        figure; hold on
+        ybar1 = h1(1).YData;
+        h1_1 = bar(h1(1).XData, ybar1/sum(ybar1), 'BarWidth',1);
+        set(h1_1,'FaceColor', [1 0 1], 'EdgeColor', [1 0 1]); % Probability
+        plot(h1(2).XData, h1(2).YData/sum(ybar1), 'r', 'LineWidth',2,'Color',[1 0 1]);
+        ybar2 = h2(1).YData;
+        h2_2 = bar(h2(1).XData, ybar2/sum(ybar2), 'BarWidth',1); % Probability
+        set(h2_2,'FaceColor', [0 0 1],'EdgeColor', [0 0 1]);
+        plot(h2(2).XData, h2(2).YData/sum(ybar2), 'r', 'LineWidth',2,'Color',[0 0 1]);
+        xlabel('Reaction time (ms)')
+        ylabel('PDF')
+        set (gca, 'TickDir', 'out','FontSize', 18);
+        alpha(0.25)
+        xlim([0 500]);
+        vline(mean(proRT),'m'); % draw line on mean
+        vline(mean(antiRT),'b'); % draw line on mean
         
     case 'kin_regress_cell'
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
@@ -383,9 +491,10 @@ switch plotType
         print('raster_sacc','-depsc2', '-painters', '-cmyk')
         
     case 'raster_sacc_single'
-        [~,indx] = sort([units(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
-        sorted_RT = -[units(cellNum).pro.behav.trial(indx).reactionTime];
-        r= units(cellNum).pro.neural.trial; % pro
+        condition = 'anti';
+        [~,indx] = sort([units(cellNum).(condition).behav.trial.reactionTime],'descend'); % sort RT
+        sorted_RT = -[units(cellNum).(condition).behav.trial(indx).reactionTime];
+        r= units(cellNum).(condition).neural.trial; % pro
         % r= units(cellNum).anti.neural.trial; % anti
         
         recArea = units(cellNum).area;
@@ -464,9 +573,10 @@ switch plotType
         % print('raster','-depsc2', '-painters', '-cmyk')
         
     case 'raster_instr_single'
-        [~,indx] = sort([units(cellNum).pro.behav.trial.reactionTime],'descend'); % sort RT
-        sorted_RT = -[units(cellNum).pro.behav.trial(indx).reactionTime];
-        r= units(cellNum).pro.neural.trial; % pro
+        condition = 'anti';
+        [~,indx] = sort([units(cellNum).(condition).behav.trial.reactionTime],'descend'); % sort RT
+        sorted_RT = -[units(cellNum).(condition).behav.trial(indx).reactionTime];
+        r= units(cellNum).(condition).neural.trial; % pro
         %         r= units(cellNum).anti.neural.trial; % anti
         
         recArea = units(cellNum).area;
@@ -474,10 +584,10 @@ switch plotType
         for j=1:length(indx)
             figure('Position',[2454 782 350 119]);hold on;
             for ii = 1:length(r(indx(j)).tspk_SS)
-                line([r(indx(j)).tspk_SS(ii) r(indx(j)).tspk_SS(ii)], [0 1],'Color', 'k', 'LineWidth',2)
+                line([r(indx(j)).tspk_SS_align_instrDir(ii) r(indx(j)).tspk_SS_align_instrDir(ii)], [0 1],'Color', 'k', 'LineWidth',2)
             end
             vline(0, 'c');
-            set (gca, 'xlim', ([0 0.350]), 'TickDir', 'out', 'FontSize', 22); title(num2str(j));
+            set (gca, 'xlim', ([-0.3 0.1]), 'TickDir', 'out', 'FontSize', 22); title(num2str(j));
             waitforbuttonpress; close all;
         end
         
@@ -511,8 +621,8 @@ switch plotType
         
         % plot w/sem
         figure('Position', [375 403 834 536]); subplot(1,2,1); hold on
-        s_pro = shadedErrorBar(t,r_pro,std_pro,'lineprops','r');
-        s_anti = shadedErrorBar(t,r_anti,std_anti,'lineprops','g');
+        s_pro = shadedErrorBar(t,r_pro,sem_pro,'lineprops','m');
+        s_anti = shadedErrorBar(t,r_anti,sem_anti,'lineprops','b');
         plot(t,mean_base,'--k','LineWidth', 0.3);
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
@@ -557,8 +667,8 @@ switch plotType
         
         % plot w/sem
         subplot(1,2,2);
-        s_pro = shadedErrorBar(t_instr, r_pro,std_pro,'lineprops','r');
-        s_anti = shadedErrorBar(t_instr, r_anti,std_anti,'lineprops','g');
+        s_pro = shadedErrorBar(t_instr, r_pro,sem_pro,'lineprops','m');
+        s_anti = shadedErrorBar(t_instr, r_anti,sem_anti,'lineprops','b');
         set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
         set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
         set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
@@ -611,7 +721,7 @@ switch plotType
             print(fname,'-append', '-dpsc2')
             waitforbuttonpress; close all;
         end
-    case 'psth_instr_all'
+    case 'psth_instr_dir_all'
         % gather indx
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
         for cellNum = 1:length(units)
@@ -620,18 +730,18 @@ switch plotType
         indx_area = find(indx_area);
         
         for i=1:length(indx_area)
-            t= units(indx_area(i)).pro.neural.instr.ts_pst; % time
-            r_pro= units(indx_area(i)).pro.neural.instr.rate_pst; % psth
-            std_pro = std(units(indx_area(i)).pro.neural.instr.rate_pst); std_pro = repmat(std_pro,[1 size(r_pro,2)]);
-            sem_pro = std(units(indx_area(i)).pro.neural.instr.rate_pst)/sqrt(length(units(indx_area(i)).pro.neural.trial));
+            t= units(indx_area(i)).pro.neural.instrDir.ts_pst; % time
+            r_pro= units(indx_area(i)).pro.neural.instrDir.rate_pst; % psth
+            std_pro = std(units(indx_area(i)).pro.neural.instrDir.rate_pst); std_pro = repmat(std_pro,[1 size(r_pro,2)]);
+            sem_pro = std(units(indx_area(i)).pro.neural.instrDir.rate_pst)/sqrt(length(units(indx_area(i)).pro.neural.trial));
             sem_pro = repmat(sem_pro,[1 size(r_pro,2)]);
-            r_anti = units(indx_area(i)).anti.neural.instr.rate_pst;
-            std_anti = std(units(indx_area(i)).anti.neural.instr.rate_pst); std_anti = repmat(std_anti,[1 size(r_pro,2)]);
-            sem_anti = std(units(indx_area(i)).anti.neural.instr.rate_pst)/sqrt(length(units(indx_area(i)).anti.neural.trial));
+            r_anti = units(indx_area(i)).anti.neural.instrDir.rate_pst;
+            std_anti = std(units(indx_area(i)).anti.neural.instrDir.rate_pst); std_anti = repmat(std_anti,[1 size(r_pro,2)]);
+            sem_anti = std(units(indx_area(i)).anti.neural.instrDir.rate_pst)/sqrt(length(units(indx_area(i)).anti.neural.trial));
             sem_anti = repmat(sem_anti,[1 size(r_anti,2)]);
             mean_base= units(indx_area(i)).pro.neural.base.rate_mu;
             mean_base = repmat(mean_base,[1 size(r_pro,2)]);
-            proVSanti_instr = units(indx_area(i)).stats.instr.flags.proVsAnti_instr;
+%             proVSanti_instr = units(indx_area(i)).stats.instrDir.flags.proVsAnti_instr;
             
             % plot w/sem
             figure; hold on;
@@ -640,15 +750,15 @@ switch plotType
             set(s_pro.mainLine,'LineWidth', 4), set(s_anti.mainLine,'LineWidth', 4);
             set(s_pro.edge,'LineStyle', 'none'); set(s_anti.edge,'LineStyle', 'none');
             set(s_pro.patch, 'FaceAlpha', 0.1); set(s_anti.patch, 'FaceAlpha', 0.1);
-            set (gca, 'xlim',([0 0.35]), 'TickDir', 'out', 'FontSize',18); % analysis window size
-            xlabel('Time (s)'); ylabel ('Firing rate (spk/s)');
+            set (gca, 'xlim',([-0.3 0.1]), 'TickDir', 'out', 'FontSize',18); % analysis window size
+            xlabel('Dir instr time (s)'); ylabel ('Firing rate (spk/s)');
             vline(0, 'k-');
             box off
-            title(['Aligned to instruction => ' recArea ' unit= ' num2str(indx_area(i))])
-            annotation('textbox',...
-                [0.159928571428571 0.154761904761905 0.150785714285714 0.104761904761905],...
-                'String',['Pro VS Anti = ' num2str(proVSanti_instr)],...
-                'FitBoxToText','on');
+            title(['Aligned to dir instruction => ' recArea ' unit= ' num2str(indx_area(i))])
+%             annotation('textbox',...
+%                 [0.159928571428571 0.154761904761905 0.150785714285714 0.104761904761905],...
+%                 'String',['Pro VS Anti = ' num2str(proVSanti_instr)],...
+%                 'FitBoxToText','on');
             waitforbuttonpress; close all;
         end
         
@@ -1818,9 +1928,18 @@ switch plotType
             xlabel('Max change in firing -- Saccade'); ylabel('Max change in firing -- Instruction'); axis square;
             title('vermis')
             
+            figure; hold on;
+            plot(max_exc_pro_instr, max_exc_pro, '.m', 'MarkerSize', 40);
+            plot(max_sup_pro_instr, max_sup_pro, '^m', 'MarkerSize', 15);
+            plot(max_exc_anti_instr, max_exc_anti, '.b', 'MarkerSize', 40);
+            plot(max_sup_anti_instr, max_sup_anti, '^b', 'MarkerSize', 15);
+            plot([0 90], [0 90], 'k')
+            set(gca,'xlim', [0 90],'xTick',[0 90], 'ylim', [0 90], 'ytick', [0 90],'TickDir', 'out', 'FontSize', 18);
+            xlabel('Max change in firing -- Instrucion'); ylabel('Max change in firing -- Saccade'); axis square;
+            title('vermis')
+            
             [~,pro_pval] = ttest2([max_exc_pro' ; max_sup_pro'],[max_exc_pro_instr' ; max_sup_pro_instr'])
             [~,anti_pval] = ttest2([max_exc_anti' ; max_sup_anti'],[max_exc_anti_instr' ; max_sup_anti_instr'])
-            fac_pro
             
             
             % see if change in firing is more in pro vs anti from fac or supp
@@ -1862,9 +1981,20 @@ switch plotType
             plot(max_exc_anti, max_exc_anti_instr, '.b', 'MarkerSize', 30);
             plot(max_sup_anti, max_sup_anti_instr, 'ob', 'MarkerSize', 10);
             plot([0 83], [0 83], 'k')
-            set(gca,'xlim', [0 83],'xTick',[0 80], 'ylim', [0 83], 'ytick', [0 80],'TickDir', 'out', 'FontSize', 18);
+            set(gca,'xlim', [0 90],'xTick',[0 90], 'ylim', [0 90], 'ytick', [0 90],'TickDir', 'out', 'FontSize', 18);
             xlabel('Max change in firing -- Saccade'); ylabel('Max change in firing -- Instruction'); axis square;
             title('lateral')
+            
+            figure; hold on;
+            plot(max_exc_pro_instr, max_exc_pro, '.m', 'MarkerSize', 40);
+            plot(max_sup_pro_instr, max_sup_pro, '^m', 'MarkerSize', 15);
+            plot(max_exc_anti_instr, max_exc_anti, '.b', 'MarkerSize', 40);
+            plot(max_sup_anti_instr, max_sup_anti, '^b', 'MarkerSize', 15);
+            plot([0 83], [0 83], 'k')
+            set(gca,'xlim', [0 90],'xTick',[0 90], 'ylim', [0 90], 'ytick', [0 90],'TickDir', 'out', 'FontSize', 18);
+            xlabel('Max change in firing -- Instruction'); ylabel('Max change in firing -- Saccade'); axis square;
+            title('lateral')
+    
             
             [~,pro_pval] = ttest2([max_exc_pro' ; max_sup_pro'],[max_exc_pro_instr' ; max_sup_pro_instr'])
             [~,anti_pval] = ttest2([max_exc_anti' ; max_sup_anti'],[max_exc_anti_instr' ; max_sup_anti_instr'])
@@ -3077,7 +3207,7 @@ switch plotType
         
     case 'binomial_pb_dist'
         % statistical test to compare if pro == anti - aligned to instr/sacc using spk count
-        % Plot Z-statistic over time.
+        % Plot Z-statistic over time, for all cells per area
         % instr
         % gather
         fprintf(['        >>> loading ' recArea ' cells <<< \n']);
@@ -3162,46 +3292,46 @@ switch plotType
         %% Disused %% Take the absolute value of the Z-statistic and average across neurons - average for each time point and plot it as a function of time
         % This will reveal how well an average neuron can discriminate between the two conditions.
         
-        sacc_Z_stat = mean(abs(stat_sacc));
-        instr_Z_stat = mean(abs(stat_instr));
-        
-        % plot instr Z stat
-        figure; hold on;
-        plot(t_instr,abs(stat_instr), '.', 'MarkerSize', 20, 'Color', [0.5 0.5 0.5]); hline(1.96);  % data points 11 to 41
-        plot(t_instr, abs(stat_instr(logical(good_cell_instr),:)), '-', 'LineWidth', 1);
-        %plot(t_instr,abs(stat_instr(indx_sign_instr,:)), '.', 'MarkerSize', 20); hold on; hline(1.96);  % data points 11 to 41
-        %plot(nanmedian(abs(stat_instr)), '-r', 'LineWidth',2)
-        set(gca, 'xlim',[0.05 0.35], 'xTick', [0.05 0.350],'yTick',[0 2 4], 'TickDir', 'out', 'FontSize', 18);
-        ylabel('z-stat'); xlabel('time (s)'); title('Instruction');
-        
-        % side histogram
-        figure; hold on;
-        histogram(abs(stat_instr), 25)
-        %histogram(abs(stat_instr(indx_sign_instr,:)), 25)
-        set(gca,'Xdir','reverse','TickDir', 'out', 'FontSize', 18);
-        
-        % Histogram of >1.96 only
-        figure; hold on
-        histogram(t_instr,stat_instr(position_stat_sign_instr),25);
-        plot(t_sacc(),abs(stat_instr(position_stat_sign_instr)), '.k')
-        set(gca, 'xlim',[0.05 0.35], 'TickDir', 'out', 'FontSize', 18);
-        
-        figure; hold on
-        histogram(abs(stat_instr(position_stat_sign_instr)),25);
-        set(gca,'TickDir', 'out', 'FontSize', 18);
-        
-        % plot sacc Z stat
-        figure; hold on;
-        plot(t_sacc,abs(stat_sacc), '.', 'MarkerSize', 20, 'Color', [0.5 0.5 0.5]); hline(1.96);  % data points 11 to 41
-        plot(t_sacc, abs(stat_sacc(logical(good_cell_sacc),:)), '-', 'LineWidth', 1);
-        %plot(nanmedian(abs(stat_instr)), '-r', 'LineWidth',2)
-        set(gca, 'xlim',[-0.150 0.150],'xTick',[-0.1 0 0.1],'ytick',[0 2 4], 'TickDir', 'out', 'FontSize', 18);
-        ylabel('z-stat'), xlabel('time (s)'); title('Saccade');
-        
-        % side histogram
-        figure; hold on;
-        histogram(abs(stat_sacc), 25)
-        set(gca,'Xdir','reverse','TickDir', 'out', 'FontSize', 18);
+%         sacc_Z_stat = mean(abs(stat_sacc));
+%         instr_Z_stat = mean(abs(stat_instr));
+%         
+%         % plot instr Z stat
+%         figure; hold on;
+%         plot(t_instr,abs(stat_instr), '.', 'MarkerSize', 20, 'Color', [0.5 0.5 0.5]); hline(1.96);  % data points 11 to 41
+%         plot(t_instr, abs(stat_instr(logical(good_cell_instr),:)), '-', 'LineWidth', 1);
+%         %plot(t_instr,abs(stat_instr(indx_sign_instr,:)), '.', 'MarkerSize', 20); hold on; hline(1.96);  % data points 11 to 41
+%         %plot(nanmedian(abs(stat_instr)), '-r', 'LineWidth',2)
+%         set(gca, 'xlim',[0.05 0.35], 'xTick', [0.05 0.350],'yTick',[0 2 4], 'TickDir', 'out', 'FontSize', 18);
+%         ylabel('z-stat'); xlabel('time (s)'); title('Instruction');
+%         
+%         % side histogram
+%         figure; hold on;
+%         histogram(abs(stat_instr), 25)
+%         %histogram(abs(stat_instr(indx_sign_instr,:)), 25)
+%         set(gca,'Xdir','reverse','TickDir', 'out', 'FontSize', 18);
+%         
+%         % Histogram of >1.96 only
+%         figure; hold on
+%         histogram(t_instr,stat_instr(position_stat_sign_instr),25);
+%         plot(t_sacc(),abs(stat_instr(position_stat_sign_instr)), '.k')
+%         set(gca, 'xlim',[0.05 0.35], 'TickDir', 'out', 'FontSize', 18);
+%         
+%         figure; hold on
+%         histogram(abs(stat_instr(position_stat_sign_instr)),25);
+%         set(gca,'TickDir', 'out', 'FontSize', 18);
+%         
+%         % plot sacc Z stat
+%         figure; hold on;
+%         plot(t_sacc,abs(stat_sacc), '.', 'MarkerSize', 20, 'Color', [0.5 0.5 0.5]); hline(1.96);  % data points 11 to 41
+%         plot(t_sacc, abs(stat_sacc(logical(good_cell_sacc),:)), '-', 'LineWidth', 1);
+%         %plot(nanmedian(abs(stat_instr)), '-r', 'LineWidth',2)
+%         set(gca, 'xlim',[-0.150 0.150],'xTick',[-0.1 0 0.1],'ytick',[0 2 4], 'TickDir', 'out', 'FontSize', 18);
+%         ylabel('z-stat'), xlabel('time (s)'); title('Saccade');
+%         
+%         % side histogram
+%         figure; hold on;
+%         histogram(abs(stat_sacc), 25)
+%         set(gca,'Xdir','reverse','TickDir', 'out', 'FontSize', 18);
         
         %% exc and sup z stat
         cnt_exc=1; cnt_sup=1;
@@ -6907,6 +7037,7 @@ switch plotType
         
         ranksum(anti_exc_lat,anti_sup_lat)
         ranksum([pro_sup_omv ; anti_sup_omv],[pro_sup_lat ; anti_sup_lat])
+        ranksum([pro_exc_omv ; anti_exc_omv],[pro_exc_lat ; anti_exc_lat])
         ranksum(pro_exc_omv,pro_sup_omv) ; ranksum(anti_exc_omv,anti_sup_omv) 
         ranksum(pro_exc_lat,pro_sup_lat) ; ranksum(anti_exc_lat,anti_sup_lat) 
         
@@ -7095,14 +7226,14 @@ lateral_mag = [lateral.mag_sens_pro lateral.mag_sens_anti];
         % diagonal histogram amp
         figure;
         [hscatter,hbar,ax] = scatterDiagHist(pro_amp_corr(indx_omv),anti_amp_corr(indx_omv), 50);
-        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 1 2], 'yTick', [0 1 2]);
+        set(gca,'FontSize', 22, 'TickDir', 'out'); ylim([-1000 1000]); xlim([-1000 1000]); % 'xTick', [0 1 2], 'yTick', [0 1 2]);
         hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
         hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
         xlabel('Pro'); ylabel('Anti'); title('Amplitude - Medial cb corrected')
         % diagonal histogram pv
         figure;
         [hscatter,hbar,ax] = scatterDiagHist(pro_pv_corr(indx_omv),anti_pv_corr(indx_omv), 50);
-        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 1 2], 'yTick', [0 1 2]);
+         set(gca,'FontSize', 22, 'TickDir', 'out'); ylim([-10000 10000]); xlim([-10000 10000]); % 'xTick', [0 1 2], 'yTick', [0 1 2]);
         hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
         hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
         xlabel('Pro'); ylabel('Anti'); title('Peak vel - Medial cb corrected')
@@ -7133,14 +7264,14 @@ lateral_mag = [lateral.mag_sens_pro lateral.mag_sens_anti];
         % diagonal histogram
         figure;
         [hscatter,hbar,ax] = scatterDiagHist(pro_amp_corr(indx_lat),anti_amp_corr(indx_lat), 50);
-        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 1 2], 'yTick', [0 1 2]);
+        set(gca,'FontSize', 22, 'TickDir', 'out'); ylim([-1000 1000]); xlim([-1000 1000]); % 'xTick', [0 1 2], 'yTick', [0 1 2]);
         hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
         hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
         xlabel('Pro'); ylabel('Anti'); title('Amplitude - Lateral cb corrected')
         % diagonal histogram pv
         figure;
         [hscatter,hbar,ax] = scatterDiagHist(pro_pv_corr(indx_lat),anti_pv_corr(indx_lat), 50);
-        set(gca,'FontSize', 22, 'TickDir', 'out', 'xTick', [0 1 2], 'yTick', [0 1 2]);
+        set(gca,'FontSize', 22, 'TickDir', 'out'); ylim([-10000 10000]); xlim([-10000 10000]); % 'xTick', [0 1 2], 'yTick', [0 1 2]);
         hscatter.Marker = '.'; hscatter.SizeData = 400; hscatter.MarkerFaceColor = 'k'; hscatter.MarkerEdgeColor = 'k';
         hbar.FaceColor = [0 0 0]; hbar.EdgeColor = [0 0 0]; axis square;
         xlabel('Pro'); ylabel('Anti'); title('Peak vel - Lateral cb corrected')
@@ -7190,12 +7321,15 @@ lateral_mag = [lateral.mag_sens_pro lateral.mag_sens_anti];
         for i = 1:length(indx_lat), r_anti_lat(i) = units(indx_lat(i)).anti.neural.sacc.rate_mu; end 
         
         % plot
-        figure; violin(r_pro_omv'); ylim([-50 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
-        figure; violin(r_pro_lat'); ylim([-50 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
-        figure; violin(r_anti_omv'); ylim([-50 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
-        figure; violin(r_anti_lat'); ylim([-50 300]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; violin(r_pro_omv'); ylim([-50 200]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; violin(r_pro_lat'); ylim([-50 200]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; violin(r_anti_omv'); ylim([-50 200]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
+        figure; violin(r_anti_lat'); ylim([-50 200]); set(gca,'FontSize', 22, 'TickDir', 'out', 'yTick', [0 150 300], 'xTick', []); ylabel('Firing rate (spks/s)'); legend off; axis square; box off
         [h,p] = ranksum(r_pro_omv',r_pro_lat')
+        d_pro = computeCohen_d(r_pro_lat',r_pro_omv', 'independent')
+        
         [h,p] = ranksum(r_anti_omv',r_anti_lat')
+        d_anti = computeCohen_d(r_pro_lat', r_anti_omv', 'independent')
         
         % plot histograms of all repsonses for medial and lateral
         r_pro_omv_pop = pop.stats.sacc.vermis.r_pro_all; r_anti_omv_pop = pop.stats.sacc.vermis.r_anti_all; 

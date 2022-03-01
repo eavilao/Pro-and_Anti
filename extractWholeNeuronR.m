@@ -1362,8 +1362,8 @@ for i = 1:length(units)
         regress(r_all_anti,[amp_anti' ones(size(amp_anti,2),1)]);
     
     % corrected: firing rate/max coefficient
-    pop.stats.sacc.regress(i).coeff_pro_amp_corrected = mean(r_all_pro/units(i).stats.sacc.regress.coeff_pro_amp(1));
-    pop.stats.sacc.regress(i).coeff_anti_amp_corrected = mean(r_all_anti/units(i).stats.sacc.regress.coeff_anti_amp(1));
+    pop.stats.sacc.regress(i).coeff_pro_amp_corrected = mean(r_all_pro./units(i).stats.sacc.regress.coeff_pro_amp(1));
+    pop.stats.sacc.regress(i).coeff_anti_amp_corrected = mean(r_all_anti./units(i).stats.sacc.regress.coeff_anti_amp(1));
     
     %% peak velocity
     
@@ -1374,8 +1374,8 @@ for i = 1:length(units)
         regress(r_all_anti,[pv_anti' ones(size(pv_anti,2),1)]);
     
     % corrected: firing rate/max coefficient
-    pop.stats.sacc.regress(i).coeff_pro_pv_corrected = mean(r_all_pro'/units(i).stats.sacc.regress.coeff_pro_peakVel(1));
-    pop.stats.sacc.regress(i).coeff_anti_pv_corrected = mean(r_all_anti'/units(i).stats.sacc.regress.coeff_anti_peakVel(1));
+    pop.stats.sacc.regress(i).coeff_pro_pv_corrected = mean(r_all_pro'./units(i).stats.sacc.regress.coeff_pro_peakVel(1));
+    pop.stats.sacc.regress(i).coeff_anti_pv_corrected = mean(r_all_anti'./units(i).stats.sacc.regress.coeff_anti_peakVel(1));
     
     % save firing rate for all per area
     if strcmp(units(i).area, 'lateral')
